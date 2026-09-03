@@ -1,0 +1,169 @@
+<div class="config-container">
+  <section class="section-card">
+    <div class="section-header">
+      <div>
+        <h2>Parâmetros de distribuição</h2>
+        <p class="section-subtitle">Sua renda base é de <strong>{{ financeStore.settings().baseIncome | currency: 'BRL' }}</strong></p>
+      </div>
+      <button class="btn secondary" (click)="openOrcamentoEditor()">Editar distribuição</button>
+    </div>
+
+    <div class="readonly-grid">
+      <div class="readonly-item" *ngFor="let preview of financeStore.getAllocationPreviewBySalary(financeStore.settings().baseIncome)">
+        <div class="info">
+          <span class="label">{{ preview.label }}</span>
+          <span class="percent badge">{{ preview.percentage }}%</span>
+        </div>
+        <strong class="amount">{{ preview.amount | currency: 'BRL' }}</strong>
+      </div>
+    </div>
+  </section>
+
+  <section class="section-card">
+    <div class="section-header">
+      <div>
+        <h2>⚙️ Configuração de Salário Automático</h2>
+        <p class="section-subtitle" *ngIf="salaryConfig.isEnabled">
+          Processamento <strong>ativo</strong> no 5º dia útil
+        </p>
+        <p class="section-subtitle" *ngIf="!salaryConfig.isEnabled">
+          Processamento <strong>inativo</strong>
+        </p>
+      </div>
+      <button class="btn secondary" (click)="openSalaryEditor()">Configurar</button>
+    </div>
+  </section>
+</div>
+
+<!-- Modal de Validação (Aviso/Erro) -->
+<div class="modal-overlay" *ngIf="isShowingValidationAlert" (click)="confirmValidation()">
+  <div class="modal-card alert" [class.error]="validationIsError" [class.success]="!validationIsError" (click)="$event.stopPropagation()">
+    <p class="alert-message" [innerHTML]="validationMessage"></p>
+    <div class="modal-actions" style="margin-top: 20px;">
+      <button type="button" class="btn primary" (click)="confirmValidation()">
+        {{ validationIsError ? 'Entendido' : 'Confirmar' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de Edição de Distribuição -->
+<div class="modal-overlay" *ngIf="isEditingOrcamento" (click)="closeOrcamentoEditor()">
+  <div class="modal-card wide" (click)="$event.stopPropagation()">
+    <h3>Ajustar distribuição</h3>
+    <p>Altere a renda base e gerencie como ela será dividida. Você pode digitar a porcentagem ou o valor em reais.</p>
+
+    <div class="income-summary" [class.expanded]="isEditingIncomeBase">
+      <button type="button" class="income-summary-button" (click)="toggleIncomeBaseEdit()">
+        <span>Renda base</span>
+        <strong>{{ draftIncomeBase | currency: 'BRL' }}</strong>
+      </button>
+
+      <div class="income-edit" *ngIf="isEditingIncomeBase">
+        <label>Renda base mensal (R$)
+          <input type="number" min="0" step="0.01" [(ngModel)]="draftIncomeBase" (ngModelChange)="onDraftIncomeChange()" />
+        </label>
+      </div>
+    </div>
+
+    <div class="allocation-warning" *ngIf="isPercentageOverLimit()">
+      <strong>⚠️ Cuidado:</strong>
+      <span>A soma está acima de 100% e as funções da aplicação ficam bloqueadas até ajustar os valores.</span>
+    </div>
+
+    <div class="draft-buckets-container">
+      <div class="draft-row" *ngFor="let b of draftBuckets; let i = index" [class.expanded]="expandedBucketIndex === i">
+        <button type="button" class="draft-summary" (click)="toggleDraftBucket(i)">
+          <span class="summary-name">{{ b.label || 'Nova divisão' }}</span>
+          <span class="summary-meta">
+            <strong>{{ b.percentage | number:'1.0-2' }}%</strong>
+            <small>{{ b.amount | currency: 'BRL' }}</small>
+          </span>
+        </button>
+
+        <div class="row-controls">
+          <label class="compact-field">
+            <span>%</span>
+            <input type="number" min="0" max="100" step="0.1" [(ngModel)]="b.percentage" (ngModelChange)="onDraftPercentageChange(i)" />
+          </label>
+
+          <input class="range-input" type="range" min="0" max="100" step="0.5" [ngModel]="b.percentage" (ngModelChange)="onSliderChange(i, $event)" />
+
+          <button type="button" class="icon-button danger btn-remove-draft" (click)="removeDraftBucket(i)">✗</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="draft-add-row" [class.visible]="isAddingBucket">
+      <input *ngIf="isAddingBucket" type="text" [(ngModel)]="newBucketLabel" placeholder="Nome de uma nova divisão..." />
+      <button type="button" class="btn icon-only" (click)="toggleAddBucket()" [attr.aria-label]="isAddingBucket ? 'Cancelar adição' : 'Adicionar divisão'">
+        {{ isAddingBucket ? '×' : '+' }}
+      </button>
+      <button *ngIf="isAddingBucket" type="button" class="btn ghost" (click)="addDraftBucket()">Adicionar</button>
+    </div>
+
+    <div class="allocation-summary" [class.error]="isPercentageOverLimit()">
+      <span>Soma: <strong [class.error-text]="isPercentageOverLimit()">{{ draftTotalPercentage | number:'1.0-2' }}%</strong></span>
+      <small *ngIf="isPercentageOverLimit()" class="error-message">⚠️ Ultrapassou 100% — ajuste os valores para continuar.</small>
+    </div>
+
+    <div class="modal-actions" style="margin-top: 16px;">
+      <button type="button" class="btn ghost" (click)="closeOrcamentoEditor()">Cancelar</button>
+      <button type="button" class="btn primary" [disabled]="isPercentageOverLimit()" (click)="saveOrcamentoDraft()">Salvar distribuição</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de Edição de Salário Automático -->
+<div class="modal-overlay" *ngIf="isEditingSalary" (click)="closeSalaryEditor()">
+  <div class="modal-card" (click)="$event.stopPropagation()">
+    <h3>⚙️ Configurar Salário Automático</h3>
+    <p>Define como o salário será processado e distribuído automaticamente entre as divisões.</p>
+
+    <div class="form-group">
+      <label class="checkbox">
+        <input type="checkbox" [(ngModel)]="draftSalaryConfig.isEnabled" />
+        <span>Ativar processamento automático</span>
+      </label>
+    </div>
+
+    <div class="form-group" *ngIf="draftSalaryConfig.isEnabled">
+      <label>Valor do salário (R$)
+        <input type="number" min="0" step="0.01" [(ngModel)]="draftSalaryConfig.amount" />
+      </label>
+      <small>Será distribuído nos dias úteis conforme suas divisões percentuais</small>
+    </div>
+
+    <div class="form-group" *ngIf="draftSalaryConfig.isEnabled">
+      <label>Processamento no (dia útil do mês)
+        <input type="number" min="1" max="30" [(ngModel)]="draftSalaryConfig.businessDay" />
+      </label>
+      <small>Ex: 5 = processado no 5º dia útil (segunda a sexta, feriados exclusos)</small>
+    </div>
+
+    <div class="form-group" *ngIf="draftSalaryConfig.isEnabled">
+      <label>Descrição (opcional)
+        <input type="text" [(ngModel)]="draftSalaryConfig.description" />
+      </label>
+    </div>
+
+    <div class="info-box" *ngIf="draftSalaryConfig.isEnabled">
+      <strong>Funcionamento:</strong><br/>
+      Quando ativado, no {{ draftSalaryConfig.businessDay }}º dia útil do mês, o valor de R$ {{ draftSalaryConfig.amount | currency: 'BRL' }} será automaticamente distribuído entre suas divisões seguindo as porcentagens configuradas.
+    </div>
+
+    <div class="modal-actions" style="margin-top: 24px;">
+      <button type="button" class="btn ghost" (click)="closeSalaryEditor()">Cancelar</button>
+      <button type="button" class="btn primary" (click)="saveSalaryConfig()">Salvar configuração</button>
+    </div>
+
+    <div class="modal-divider" *ngIf="draftSalaryConfig.isEnabled" style="margin-top: 24px;"></div>
+
+    <div *ngIf="draftSalaryConfig.isEnabled" style="margin-top: 16px;">
+      <button type="button" class="btn ghost full-width" (click)="processAutomaticSalary()">
+        ▶ Processar salário agora
+      </button>
+      <small style="display: block; text-align: center; margin-top: 8px; color: var(--text-muted);">Use para processar manualmente sem esperar o dia automático</small>
+    </div>
+  </div>
+</div>

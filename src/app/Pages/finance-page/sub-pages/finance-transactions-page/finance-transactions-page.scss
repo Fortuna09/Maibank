@@ -1,0 +1,395 @@
+.section-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px;
+  box-shadow: none;
+}
+
+.section-card + .section-card {
+  margin-top: 16px;
+}
+
+.summary-card {
+  padding-bottom: 10px;
+}
+
+.summary-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.balance-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.compact-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.transaction-item.compact {
+  flex: 1 1 220px;
+  min-width: 0;
+}
+
+.helper-text {
+  display: inline-block;
+  margin-top: 10px;
+  color: var(--text-muted);
+}
+
+.form-grid {
+  margin-top: 12px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 10px;
+}
+
+label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--text);
+  font-weight: 600;
+}
+
+input,
+select,
+button {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 14px;
+  background: var(--surface-alt);
+  color: var(--text);
+}
+
+button {
+  cursor: pointer;
+  background: var(--accent-strong);
+  color: #fff;
+  border: 1px solid var(--accent-strong);
+  font-weight: 600;
+}
+
+.transactions-list {
+  margin-top: 16px;
+}
+
+.add-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  gap: 16px;
+}
+
+.add-button {
+  min-width: 140px;
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(8, 5, 6, 0.56);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 60;
+}
+
+.modal-card {
+  background: var(--card);
+  padding: 20px;
+  border-radius: 12px;
+  width: 520px;
+  max-width: 95%;
+  box-shadow: none;
+  border: 1px solid var(--border);
+}
+
+.modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  margin-top: 8px;
+}
+
+.chart-panel {
+  margin-top: 12px;
+}
+
+.chart-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.chart-legend {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 0 0 10px;
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+.chart-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.legend-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.legend-dot.dark {
+  background: #111827;
+}
+
+.legend-dot.gray {
+  background: #6b7280;
+}
+
+.range-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-alt);
+}
+
+.range-switch button {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  padding: 7px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.range-switch button.active {
+  background: var(--accent-soft);
+  color: var(--text);
+}
+
+.chart-canvas-wrap {
+  height: 220px;
+  overflow: hidden;
+}
+
+.monthly-line-canvas,
+.doughnut-canvas {
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.transaction-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border);
+  padding: 12px 0;
+}
+
+.transaction-item.compact {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface-alt);
+}
+
+.transaction-item p {
+  margin: 0;
+  color: var(--text);
+}
+
+.transaction-item small {
+  display: block;
+  margin-top: 2px;
+  color: var(--text-muted);
+}
+
+.transaction-item:last-child {
+  border-bottom: 0;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.income {
+  color: var(--success);
+}
+
+.expense {
+  color: #ff6b75;
+}
+
+button.danger {
+  background: linear-gradient(135deg, #d93025, #9d1010);
+  border-color: transparent;
+}
+
+.history-card {
+  display: grid;
+  gap: 16px;
+}
+
+.history-header,
+.history-filters,
+.history-row,
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.history-filters {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.history-list {
+  display: grid;
+  gap: 10px;
+}
+
+.history-row {
+  gap: 16px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface-alt);
+  padding: 12px 14px;
+}
+
+.history-main {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex: 1;
+}
+
+.history-main strong,
+.history-meta {
+  color: var(--text);
+}
+
+.history-main small,
+.empty-state {
+  color: var(--text-muted);
+}
+
+.history-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.pill {
+  display: inline-flex;
+  padding: 5px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.income-pill {
+  color: var(--success);
+  background: rgba(78, 207, 156, 0.12);
+}
+
+.expense-pill {
+  color: #ff8a92;
+  background: rgba(255, 107, 117, 0.12);
+}
+
+.ghost-button {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text);
+}
+
+.compact-button {
+  padding: 8px 10px;
+  font-size: 12px;
+  min-height: auto;
+}
+
+.empty-state {
+  border: 1px dashed var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+}
+
+.pagination {
+  justify-content: center;
+  color: var(--text-muted);
+}
+
+.pagination button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+@media (max-width: 720px) {
+  .compact-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .history-row,
+  .history-main,
+  .history-meta,
+  .pagination,
+  .chart-header,
+  .add-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .history-meta {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .range-switch {
+    width: 100%;
+    justify-content: space-between;
+  }
+}

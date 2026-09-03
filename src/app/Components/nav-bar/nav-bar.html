@@ -1,0 +1,45 @@
+<nav class="sidebar" [class.sidebar-collapsed]="!isMenuOpen" [class.nav-open]="isMenuOpen" aria-label="Navegação principal">
+  <div class="nav-topbar">
+    <button class="menu-toggle" type="button" (click)="toggleMenu()" [attr.aria-expanded]="isMenuOpen" aria-label="Abrir ou fechar menu">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+
+    <div class="brand" aria-label="Maibank">
+      <span class="brand-mark" aria-hidden="true">M</span>
+      <span class="brand-name">Maibank</span>
+    </div>
+  </div>
+
+  <div class="nav-items" role="list">
+    <a
+      routerLink="/"
+      routerLinkActive="active-link"
+      [routerLinkActiveOptions]="{ exact: true }"
+      aria-label="Ir para página inicial"
+    >
+      <span class="nav-icon" aria-hidden="true">⌂</span>
+      <span class="nav-label">Início</span>
+    </a>
+
+    <a
+      routerLink="/financas"
+      routerLinkActive="active-link"
+      aria-label="Ir para área financeira"
+    >
+      <span class="nav-icon" aria-hidden="true">◫</span>
+      <span class="nav-label">Finanças</span>
+    </a>
+  </div>
+
+  <button
+    class="theme-toggle"
+    type="button"
+    (click)="toggleTheme()"
+    [attr.aria-label]="theme === 'dark' ? 'Ativar tema claro' : 'Ativar tema escuro'"
+  >
+    <span aria-hidden="true">{{ theme === 'dark' ? '☀' : '☾' }}</span>
+    <span class="theme-label">{{ theme === 'dark' ? 'Claro' : 'Escuro' }}</span>
+  </button>
+</nav>

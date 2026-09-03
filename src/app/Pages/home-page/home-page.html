@@ -1,0 +1,60 @@
+<div class="home-layout">
+  <app-nav-bar />
+
+  <main class="home-page" aria-labelledby="home-title">
+    <section class="hero-panel">
+      <div class="hero-copy">
+        <p class="eyebrow">Visão geral</p>
+        <h1 id="home-title">Seu dinheiro, organizado e em equilíbrio.</h1>
+        <p class="lead">
+          Acompanhe renda, gastos, metas e distribuição financeira em um único lugar com uma experiência clara, leve e intuitiva.
+        </p>
+      </div>
+
+      <div class="hero-actions" aria-label="Ações rápidas">
+        <a class="primary-action" routerLink="/financas">Abrir painel</a>
+        <span class="status-pill">{{ monthlyStatus() }}</span>
+      </div>
+    </section>
+
+    <section class="summary-grid" aria-label="Resumo financeiro">
+      <article class="metric-card">
+        <span class="label">Saldo atual</span>
+        <strong>{{ financeStore.saldoAtual() | currency: 'BRL' }}</strong>
+        <small>{{ currentMonthIncome() | currency: 'BRL' }} em entradas neste mês</small>
+      </article>
+
+      <article class="metric-card">
+        <span class="label">Despesas</span>
+        <strong>{{ currentMonthExpenses() | currency: 'BRL' }}</strong>
+        <small>Despesas deste mês</small>
+      </article>
+
+      <article class="metric-card accent">
+        <span class="label">Meta ativa</span>
+        <strong>{{ (activeGoal()?.targetAmount ?? 0) | currency: 'BRL' }}</strong>
+        <small *ngIf="activeGoal(); else noGoal">{{ activeGoalProgress() }}% concluído</small>
+        <ng-template #noGoal><small>Nenhuma meta pendente</small></ng-template>
+      </article>
+    </section>
+
+    <section class="insights-grid" aria-label="Destaques de saúde financeira">
+      <article class="insight-card">
+        <div class="insight-header">
+          <span class="mini-icon">↗</span>
+          <h2>Fluxo do mês</h2>
+        </div>
+        <p>{{ monthlyStatus() }} Saldo acumulado: {{ financeStore.saldoAtual() | currency: 'BRL' }}.</p>
+      </article>
+
+      <article class="insight-card">
+        <div class="insight-header">
+          <span class="mini-icon">◎</span>
+          <h2>Prioridades</h2>
+        </div>
+        <p *ngIf="activeGoal(); else noActiveGoal">A meta "{{ activeGoal()?.title }}" está {{ activeGoalProgress() }}% concluída.</p>
+        <ng-template #noActiveGoal><p>Crie uma meta para acompanhar seu próximo objetivo financeiro.</p></ng-template>
+      </article>
+    </section>
+  </main>
+</div>

@@ -1,0 +1,54 @@
+.section-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 18px;
+  box-shadow: 0 12px 24px var(--shadow);
+}
+
+.chart-row {
+  border-bottom: 1px solid var(--border);
+  padding: 12px 0;
+}
+
+.chart-row:last-child {
+  border-bottom: 0;
+}
+
+.month-label {
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: var(--text);
+}
+
+.bars {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.bar-group {
+  display: grid;
+  grid-template-columns: 70px 1fr auto;
+  align-items: center;
+  gap: 10px;
+}
+
+.bar-income,
+.bar-expense {
+  min-height: 12px;
+  border-radius: 999px;
+}
+
+.bar-income {
+  background: var(--success);
+}
+
+.bar-expense {
+  background: #ff6b75;
+}
+
+.empty-state {
+  margin-top: 12px;
+  color: var(--text-muted);
+}

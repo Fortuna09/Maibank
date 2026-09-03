@@ -1,0 +1,119 @@
+:root {
+  color-scheme: light;
+  --bg: #f4f1f1;
+  --bg-elevated: #ffffff;
+  --surface: #ffffff;
+  --surface-alt: #f8f4f4;
+  --card: #ffffff;
+  --card-soft: #faf7f7;
+  --text: #1b1416;
+  --text-muted: #665d60;
+  --border: #dccfd2;
+  --accent: #6d1f2d;
+  --accent-strong: #4b1723;
+  --accent-soft: rgba(109, 31, 45, 0.09);
+  --success: #1f6f4a;
+  --warning: #8d5d2b;
+  --danger: #9d2f3c;
+  --focus: #6d1f2d;
+  --shadow: rgba(27, 20, 22, 0.04);
+}
+
+body[data-theme='dark'] {
+  color-scheme: dark;
+  --bg: #0e0d0f;
+  --bg-elevated: #171416;
+  --surface: #141213;
+  --surface-alt: #1b1718;
+  --card: #171416;
+  --card-soft: #1d191a;
+  --text: #f3ebec;
+  --text-muted: #b8aeb2;
+  --border: rgba(255, 255, 255, 0.08);
+  --accent: #8e2d3f;
+  --accent-strong: #6d1f2d;
+  --accent-soft: rgba(142, 45, 63, 0.18);
+  --success: #5ec38b;
+  --warning: #d9a35d;
+  --danger: #f06d7a;
+  --focus: #d18695;
+  --shadow: rgba(0, 0, 0, 0.35);
+}
+
+body[data-theme='light'] {
+  color-scheme: light;
+  --bg: #f4f1f1;
+  --bg-elevated: #ffffff;
+  --surface: #ffffff;
+  --surface-alt: #f8f4f4;
+  --card: #ffffff;
+  --card-soft: #faf7f7;
+  --text: #1b1416;
+  --text-muted: #665d60;
+  --border: #dccfd2;
+  --accent: #6d1f2d;
+  --accent-strong: #4b1723;
+  --accent-soft: rgba(109, 31, 45, 0.09);
+  --success: #1f6f4a;
+  --warning: #8d5d2b;
+  --danger: #9d2f3c;
+  --focus: #6d1f2d;
+  --shadow: rgba(27, 20, 22, 0.04);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: auto;
+}
+
+html, body {
+  min-height: 100%;
+  height: auto;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+  line-height: 1.5;
+  overflow-x: hidden;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+a {
+  color: inherit;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  border-radius: 0;
+}
+
+:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+h1, h2, h3, h4, p {
+  margin-top: 0;
+}
+
+p {
+  color: var(--text-muted);
+}
+
+::selection {
+  background: rgba(37, 99, 235, 0.12);
+} 

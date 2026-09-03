@@ -1,0 +1,18 @@
+services:
+  maibank-mysql:
+    image: mysql:8.0
+    container_name: maibank-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: maibank
+      MYSQL_USER: maibank_user
+      MYSQL_PASSWORD: maibank_pass
+      MYSQL_ROOT_PASSWORD: maibank_root_pass
+    ports:
+      - '3306:3306'
+    volumes:
+      - maibank_mysql_data:/var/lib/mysql
+      - ./mysql/init.sql:/docker-entrypoint-initdb.d/init.sql
+
+volumes:
+  maibank_mysql_data:

@@ -1,0 +1,125 @@
+<section class="section-card summary-card">
+  <div class="summary-header">
+    <h2>Saldos por destino</h2>
+  </div>
+
+  <div class="balance-grid compact-grid">
+    <article class="transaction-item compact" *ngFor="let bucket of financeStore.settings().buckets">
+      <div>
+        <p>{{ bucket.label }}</p>
+        <small>Saldo acumulado</small>
+      </div>
+
+      <strong>{{ financeStore.bucketBalances()[bucket.id] | currency: 'BRL' }}</strong>
+    </article>
+  </div>
+</section>
+
+<section class="section-card">
+  <div class="add-row">
+    <h2>Lançamentos</h2>
+    <button class="btn add-button" (click)="toggleAddForm()">{{ showAddForm ? 'Fechar' : 'Adicionar' }}</button>
+  </div>
+
+  <div class="modal-overlay" *ngIf="showAddForm">
+    <div class="modal-card">
+      <h3>Adicionar lançamento</h3>
+      <form (ngSubmit)="addTransaction()" class="modal-form">
+        <input type="text" placeholder="Descrição" [(ngModel)]="description" name="description" />
+
+        <input type="text" placeholder="Categoria" [(ngModel)]="category" name="category" />
+
+        <select [(ngModel)]="type" name="type">
+          <option value="entrada">Entrada</option>
+          <option value="saida">Saída</option>
+        </select>
+
+        <select [(ngModel)]="allocationMode" name="allocationMode">
+          <option value="percentual">Distribuir</option>
+          <option value="especifico">Destino específico</option>
+        </select>
+
+        <select *ngIf="allocationMode === 'especifico'" [(ngModel)]="selectedBucketId" name="selectedBucketId">
+          <option *ngFor="let bucket of financeStore.settings().buckets" [value]="bucket.id">{{ bucket.label }}</option>
+        </select>
+
+        <input type="number" placeholder="Valor" [(ngModel)]="amount" name="amount" min="0" step="0.01" />
+        <input type="date" [(ngModel)]="date" name="date" />
+
+        <div class="modal-actions">
+          <button class="btn primary" type="submit">Salvar</button>
+          <button type="button" class="btn" (click)="toggleAddForm()">Cancelar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="chart-panel">
+    <div class="chart-header">
+      <h3>Tendência</h3>
+      <div class="range-switch" aria-label="Filtrar gráfico por período">
+        <button type="button" [class.active]="chartRangeDays === 7" (click)="onChartRangeChange(7)">7 dias</button>
+        <button type="button" [class.active]="chartRangeDays === 30" (click)="onChartRangeChange(30)">1 mês</button>
+      </div>
+    </div>
+
+    <div class="chart-legend" aria-label="Legenda do gráfico">
+      <span><i class="legend-dot dark"></i> Entradas</span>
+      <span><i class="legend-dot gray"></i> Saídas</span>
+    </div>
+
+    <div class="chart-canvas-wrap">
+      <svg #monthlyLine class="monthly-line-canvas" viewBox="0 0 760 220" preserveAspectRatio="none" aria-label="Gráfico de lançamentos"></svg>
+    </div>
+  </div>
+</section>
+
+<section class="section-card history-card">
+  <div class="history-header">
+    <h2>Histórico completo</h2>
+    <button type="button" class="ghost-button" (click)="clearFilters()">Limpar filtros</button>
+  </div>
+
+  <div class="history-filters">
+    <label>
+      Buscar
+      <input type="text" [(ngModel)]="searchTerm" (ngModelChange)="onSearchChange()" placeholder="Descrição ou categoria" name="searchTerm" />
+    </label>
+
+    <label>
+      Data
+      <input type="date" [(ngModel)]="selectedDate" (ngModelChange)="onSearchChange()" name="selectedDate" />
+    </label>
+  </div>
+
+  <div class="history-list" *ngIf="filteredTransactions().length; else emptyState">
+    <article class="history-row" *ngFor="let transaction of paginatedTransactions()">
+      <div class="history-main">
+        <div>
+          <strong>{{ transaction.description }}</strong>
+          <small>{{ transaction.category }} · {{ transaction.date }}</small>
+        </div>
+        <span class="pill" [class.income-pill]="transaction.type === 'entrada'" [class.expense-pill]="transaction.type === 'saida'">
+          {{ transaction.type === 'entrada' ? 'Entrada' : 'Saída' }}
+        </span>
+      </div>
+
+      <div class="history-meta">
+        <span [class.income]="transaction.type === 'entrada'" [class.expense]="transaction.type === 'saida'">
+          {{ transaction.type === 'entrada' ? '+' : '-' }}{{ transaction.amount | currency: 'BRL' }}
+        </span>
+        <button type="button" class="danger compact-button" (click)="financeStore.removeTransaction(transaction.id)">Apagar</button>
+      </div>
+    </article>
+  </div>
+
+  <ng-template #emptyState>
+    <div class="empty-state">Nenhum lançamento encontrado com os filtros atuais.</div>
+  </ng-template>
+
+  <div class="pagination" *ngIf="filteredTransactions().length > pageSize">
+    <button type="button" class="ghost-button" [disabled]="currentPage === 1" (click)="previousPage()">Anterior</button>
+    <span>Página {{ currentPage }} de {{ totalPages() }}</span>
+    <button type="button" class="ghost-button" [disabled]="currentPage >= totalPages()" (click)="nextPage()">Próxima</button>
+  </div>
+</section>
