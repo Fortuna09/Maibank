@@ -1,0 +1,134 @@
+<section class="bucket-strip" aria-label="Saldos por destino">
+  <div class="bucket-stat" *ngFor="let bucket of financeStore.settings().buckets">
+    <span class="row-icon"><app-icon [name]="iconFor(bucket.label)" [size]="15" /></span>
+    <div class="row-body">
+      <small class="row-sub">{{ bucket.label }}</small>
+      <strong class="bucket-value">{{ financeStore.bucketBalances()[bucket.id] | currency: 'BRL' }}</strong>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="section-head">
+    <h2>Tendência</h2>
+    <div class="range-switch" aria-label="Filtrar gráfico por período">
+      <button type="button" [class.active]="chartRangeDays === 7" (click)="onChartRangeChange(7)">7 dias</button>
+      <button type="button" [class.active]="chartRangeDays === 30" (click)="onChartRangeChange(30)">1 mês</button>
+    </div>
+  </div>
+
+  <div class="chart-legend" aria-label="Legenda do gráfico">
+    <span><i class="legend-dot income-dot"></i> Entradas</span>
+    <span><i class="legend-dot expense-dot"></i> Saídas</span>
+  </div>
+
+  <div class="chart-canvas-wrap">
+    <svg
+      #monthlyLine
+      class="monthly-line-canvas"
+      viewBox="0 0 760 240"
+      preserveAspectRatio="none"
+      aria-label="Gráfico de lançamentos"
+    ></svg>
+  </div>
+</section>
+
+<section class="section">
+  <div class="section-head">
+    <h2>Histórico completo</h2>
+    <button type="button" class="link-action" (click)="clearFilters()">Limpar filtros</button>
+  </div>
+
+  <div class="history-filters">
+    <label class="field search-field">
+      <span>Buscar</span>
+      <span class="input-with-icon">
+        <app-icon name="search" [size]="15" />
+        <input
+          type="text"
+          [(ngModel)]="searchTerm"
+          (ngModelChange)="onSearchChange()"
+          placeholder="Descrição ou categoria"
+          name="searchTerm"
+        />
+      </span>
+    </label>
+
+    <label class="field">
+      <span>Data</span>
+      <input type="date" [(ngModel)]="selectedDate" (ngModelChange)="onSearchChange()" name="selectedDate" />
+    </label>
+  </div>
+
+  <div class="rows" *ngIf="filteredTransactions().length; else emptyState">
+    <div class="data-row" *ngFor="let transaction of paginatedTransactions()">
+      <span
+        class="row-icon"
+        [class.is-income]="transaction.type === 'entrada'"
+        [class.is-expense]="transaction.type === 'saida'"
+        [class.is-credit]="transaction.type === 'credito'"
+      >
+        <app-icon [name]="typeIcon(transaction)" [size]="16" />
+      </span>
+
+      <div class="row-body">
+        <p class="row-title">{{ transaction.description }}</p>
+        <small class="row-sub">
+          {{ transaction.category }} · {{ transaction.date }}
+          <ng-container *ngIf="transaction.type === 'credito' && transaction.installments > 1">
+            · {{ transaction.installments }}x de {{ transaction.amount / transaction.installments | currency: 'BRL' }}
+          </ng-container>
+          <ng-container *ngIf="transaction.paidInvoice"> · fatura {{ transaction.paidInvoice }}</ng-container>
+        </small>
+      </div>
+
+      <span
+        class="tag"
+        [class.income-tag]="transaction.type === 'entrada'"
+        [class.expense-tag]="transaction.type === 'saida'"
+        [class.credit-tag]="transaction.type === 'credito'"
+      >
+        {{ typeLabel(transaction) }}
+      </span>
+
+      <span
+        class="row-value"
+        [class.income]="transaction.type === 'entrada'"
+        [class.expense]="transaction.type === 'saida'"
+        [class.credit]="transaction.type === 'credito'"
+      >
+        {{ transaction.type === 'entrada' ? '+' : '-' }}{{ transaction.amount | currency: 'BRL' }}
+      </span>
+
+      <button
+        type="button"
+        class="btn icon-btn small danger row-delete"
+        [class.is-loading]="deletingId() === transaction.id"
+        (click)="deleteTransaction(transaction.id)"
+        [attr.aria-label]="'Apagar ' + transaction.description"
+      >
+        <app-icon name="trash" [size]="14" />
+      </button>
+    </div>
+  </div>
+
+  <ng-template #emptyState>
+    <div class="empty-state">
+      <span class="empty-icon"><app-icon name="search" [size]="20" /></span>
+      <p>Nenhum lançamento encontrado com os filtros atuais.</p>
+      <button type="button" class="btn small" (click)="clearFilters()">Limpar filtros</button>
+    </div>
+  </ng-template>
+
+  <div class="pagination" *ngIf="filteredTransactions().length > pageSize">
+    <button type="button" class="btn small" [disabled]="currentPage === 1" (click)="previousPage()">
+      <app-icon name="chevron-left" [size]="14" />
+      Anterior
+    </button>
+    <span>Página {{ currentPage }} de {{ totalPages() }}</span>
+    <button type="button" class="btn small" [disabled]="currentPage >= totalPages()" (click)="nextPage()">
+      Próxima
+      <app-icon name="chevron-right" [size]="14" />
+    </button>
+  </div>
+</section>

@@ -7,7 +7,6 @@
     </button>
 
     <div class="brand" aria-label="Maibank">
-      <span class="brand-mark" aria-hidden="true">M</span>
       <span class="brand-name">Maibank</span>
     </div>
   </div>
@@ -19,27 +18,49 @@
       [routerLinkActiveOptions]="{ exact: true }"
       aria-label="Ir para página inicial"
     >
-      <span class="nav-icon" aria-hidden="true">⌂</span>
+      <span class="nav-icon"><app-icon name="home" [size]="18" /></span>
       <span class="nav-label">Início</span>
     </a>
 
-    <a
-      routerLink="/financas"
-      routerLinkActive="active-link"
-      aria-label="Ir para área financeira"
-    >
-      <span class="nav-icon" aria-hidden="true">◫</span>
-      <span class="nav-label">Finanças</span>
+    <a routerLink="/lancamentos" routerLinkActive="active-link" aria-label="Ir para lançamentos">
+      <span class="nav-icon"><app-icon name="wallet" [size]="18" /></span>
+      <span class="nav-label">Lançamentos</span>
     </a>
+
+    <a routerLink="/metas" routerLinkActive="active-link" aria-label="Ir para metas">
+      <span class="nav-icon"><app-icon name="target" [size]="18" /></span>
+      <span class="nav-label">Metas</span>
+    </a>
+
+    <a routerLink="/credito" routerLinkActive="active-link" aria-label="Ir para crédito">
+      <span class="nav-icon"><app-icon name="card" [size]="18" /></span>
+      <span class="nav-label">Crédito</span>
+    </a>
+
+    <a routerLink="/simulacao" routerLinkActive="active-link" aria-label="Ir para simulações">
+      <span class="nav-icon"><app-icon name="trend-up" [size]="18" /></span>
+      <span class="nav-label">Simulação</span>
+    </a>
+
+    <button
+      type="button"
+      class="nav-button nav-mai"
+      [class.active-link]="assistant.isVisible()"
+      [class.is-thinking]="assistant.thinking()"
+      (click)="assistant.toggle()"
+      aria-label="Abrir ou fechar a Mai, sua assistente"
+      title="Mai · assistente (Ctrl+I)"
+    >
+      <span class="nav-icon"><app-mai-mark [size]="16" [active]="assistant.thinking()" /></span>
+      <span class="nav-label">Mai <small>assistente</small></span>
+      @if (assistant.unread() > 0 && !assistant.isVisible()) {
+        <span class="nav-badge">{{ assistant.unread() }}</span>
+      }
+    </button>
   </div>
 
-  <button
-    class="theme-toggle"
-    type="button"
-    (click)="toggleTheme()"
-    [attr.aria-label]="theme === 'dark' ? 'Ativar tema claro' : 'Ativar tema escuro'"
-  >
-    <span aria-hidden="true">{{ theme === 'dark' ? '☀' : '☾' }}</span>
-    <span class="theme-label">{{ theme === 'dark' ? 'Claro' : 'Escuro' }}</span>
-  </button>
+  <a class="settings-toggle" routerLink="/configuracoes" routerLinkActive="active-link" aria-label="Abrir configurações">
+    <span class="nav-icon"><app-icon name="settings" [size]="18" /></span>
+    <span class="theme-label">Configurações</span>
+  </a>
 </nav>

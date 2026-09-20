@@ -1,18 +1,22 @@
 :host {
-  display: flex;
-}
-
-.sidebar {
   position: sticky;
   top: 0;
   display: flex;
+  height: 100vh;
+  flex-shrink: 0;
+  z-index: 30;
+}
+
+.sidebar {
+  display: flex;
   flex-direction: column;
-  width: 238px;
-  min-height: 100vh;
-  padding: 18px 14px 16px;
-  background: #171214;
-  border-right: 1px solid rgba(255, 255, 255, 0.06);
-  box-shadow: inset -1px 0 0 rgba(255, 255, 255, 0.02);
+  width: 224px;
+  height: 100%;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 14px 10px 12px;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
   transition: width 0.22s ease;
   flex-shrink: 0;
 }
@@ -29,7 +33,17 @@
   margin-top: 18px;
 }
 
-.sidebar.sidebar-collapsed .nav-items a {
+.sidebar.sidebar-collapsed .nav-topbar {
+  justify-content: center;
+}
+
+.sidebar.sidebar-collapsed .brand {
+  display: none;
+}
+
+.sidebar.sidebar-collapsed .nav-items a,
+.sidebar.sidebar-collapsed .nav-items .nav-button {
+  width: 100%;
   justify-content: center;
   padding-left: 0;
   padding-right: 0;
@@ -38,10 +52,6 @@
 
 .sidebar.sidebar-collapsed .brand {
   justify-content: center;
-}
-
-.sidebar.sidebar-collapsed .brand-mark {
-  display: none;
 }
 
 .sidebar.sidebar-collapsed .brand-name {
@@ -59,6 +69,14 @@
   overflow: hidden;
 }
 
+.sidebar.sidebar-collapsed .settings-toggle {
+  width: 100%;
+  justify-content: center;
+  padding-left: 0;
+  padding-right: 0;
+  gap: 0;
+}
+
 .sidebar.nav-open .nav-items {
   opacity: 1;
   pointer-events: auto;
@@ -66,32 +84,14 @@
   overflow: visible;
 }
 
-body[data-theme='light'] .sidebar {
-  background: #f8f2f4;
-}
-
-body[data-theme='light'] .brand-name,
-body[data-theme='light'] .theme-toggle,
-body[data-theme='light'] .nav-items a,
-body[data-theme='light'] .nav-label,
-body[data-theme='light'] .menu-toggle span {
-  color: #1b1416;
-  background-color: transparent;
-}
-
-body[data-theme='light'] .nav-items a:hover,
-body[data-theme='light'] .nav-items a.active-link {
-  color: #1b1416;
-}
-
 .nav-topbar {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 4px 4px 14px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  gap: 10px;
+  padding: 4px 4px 10px;
+  border-bottom: 1px solid var(--border);
   flex-shrink: 0;
-  min-height: 46px;
+  min-height: 40px;
 }
 
 .menu-toggle {
@@ -99,15 +99,14 @@ body[data-theme='light'] .nav-items a.active-link {
   flex-direction: column;
   justify-content: center;
   gap: 4px;
-  width: 40px;
-  height: 40px;
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  border-radius: 0;
-  background: rgba(255, 255, 255, 0.03);
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  background: var(--surface-alt);
   cursor: pointer;
   flex-shrink: 0;
   align-items: center;
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.02);
 }
 
 .menu-toggle span {
@@ -115,8 +114,8 @@ body[data-theme='light'] .nav-items a.active-link {
   width: 18px;
   height: 2px;
   margin: 0 auto;
-  background: #f7efef;
-  border-radius: 0;
+  background: var(--text);
+  border-radius: 999px;
   box-shadow: none;
 }
 
@@ -130,14 +129,10 @@ body[data-theme='light'] .nav-items a.active-link {
   justify-content: flex-start;
 }
 
-.brand-mark {
-  display: none;
-}
-
 .brand-name {
   font-size: 1rem;
   font-weight: 700;
-  color: #f3ecec;
+  color: var(--text);
   white-space: nowrap;
   letter-spacing: -0.02em;
   transition: opacity 0.18s ease, width 0.18s ease, visibility 0.18s ease;
@@ -153,34 +148,35 @@ body[data-theme='light'] .nav-items a.active-link {
 .nav-items {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  margin-top: 18px;
+  gap: 4px;
+  margin-top: 12px;
 }
 
-.nav-items a {
+.nav-items a,
+.nav-items .nav-button {
   display: flex;
   align-items: center;
   gap: 10px;
-  min-height: 46px;
-  border-radius: 0;
-  padding: 10px 12px;
-  color: rgba(255, 255, 255, 0.72);
+  min-height: 38px;
+  border-radius: 3px;
+  padding: 8px 10px;
+  color: var(--text-muted);
   text-decoration: none;
-  font-size: 0.92rem;
+  font-size: 0.88rem;
   font-weight: 600;
-  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
   border: 1px solid transparent;
 }
 
 .nav-icon {
-  width: 18px;
+  width: 22px;
+  height: 22px;
   flex-shrink: 0;
-  text-align: center;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.9rem;
-  opacity: 0.9;
+  opacity: 0.85;
+  transition: color 0.14s ease, opacity 0.14s ease;
 }
 
 .nav-label {
@@ -195,35 +191,131 @@ body[data-theme='light'] .nav-items a.active-link {
   overflow: hidden;
 }
 
+.nav-items .nav-button {
+  width: 100%;
+  background: transparent;
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: left;
+  position: relative;
+}
+
 .nav-items a:hover,
-.nav-items a:focus-visible {
-  background: rgba(109, 31, 45, 0.18);
-  color: #fff;
-  border-color: rgba(255, 255, 255, 0.06);
+.nav-items a:focus-visible,
+.nav-items .nav-button:hover,
+.nav-items .nav-button:focus-visible {
+  background: var(--hover);
+  color: var(--text);
 }
 
-.nav-items a.active-link {
-  background: rgba(109, 31, 45, 0.22);
-  color: #fff;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.02);
+.nav-items a.active-link,
+.nav-items .nav-button.active-link {
+  background: var(--accent-soft);
+  color: var(--text);
+  border-color: transparent;
+  box-shadow: inset 2px 0 0 var(--user-tint);
 }
 
-.theme-toggle {
+.nav-items a.active-link .nav-icon,
+.nav-items .nav-button.active-link .nav-icon {
+  color: var(--user-tint);
+  opacity: 1;
+}
+
+/* Item da Mai: mesma linha dos outros, mas com a assinatura dela */
+.nav-mai {
+  position: relative;
+}
+
+.nav-mai .nav-label {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.nav-mai .nav-label small {
+  color: var(--text-muted);
+  font-size: 0.68rem;
+  font-weight: 600;
+}
+
+.nav-mai.active-link {
+  box-shadow: none;
+}
+
+.nav-mai.active-link::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--mai);
+}
+
+.nav-mai.active-link .nav-label,
+.nav-mai:hover .nav-label,
+.nav-mai:focus-visible .nav-label {
+  color: var(--mai);
+}
+
+.nav-mai.active-link .nav-label small,
+.nav-mai:hover .nav-label small {
+  color: var(--text-muted);
+}
+
+.nav-badge {
+  margin-left: auto;
+  min-width: 18px;
+  padding: 1px 5px;
+  border-radius: 999px;
+  background: var(--mai);
+  color: #fff;
+  font-size: 0.66rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+.sidebar.sidebar-collapsed .nav-badge {
+  position: absolute;
+  top: 4px;
+  right: 6px;
+  margin: 0;
+}
+
+.settings-toggle {
   margin-top: auto;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 0;
-  background: rgba(255, 255, 255, 0.02);
-  color: #f3ecec;
-  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  background: var(--surface-alt);
+  color: var(--text);
+  padding: 8px 10px;
   cursor: pointer;
   font-weight: 700;
   overflow: hidden;
   white-space: nowrap;
+  text-decoration: none;
+  transition: border-color 0.15s ease;
+}
+
+.settings-toggle:hover,
+.settings-toggle:focus-visible {
+  border-color: color-mix(in srgb, var(--user-tint) 55%, var(--border));
+}
+
+.settings-toggle.active-link {
+  border-color: var(--user-tint);
+}
+
+.settings-toggle.active-link .nav-icon {
+  color: var(--user-tint);
+  opacity: 1;
 }
 
 .theme-label {
@@ -244,8 +336,8 @@ body[data-theme='light'] .nav-items a.active-link {
 
   .sidebar {
     width: 84px;
-    min-height: 100vh;
-    border-right: 1px solid rgba(255, 255, 255, 0.08);
+    height: 100%;
+    border-right: 1px solid var(--border);
     border-bottom: 0;
     padding: 12px 10px 10px;
     flex-shrink: 0;
@@ -266,6 +358,21 @@ body[data-theme='light'] .nav-items a.active-link {
     opacity: 0;
     width: 0;
     visibility: hidden;
+    display: none;
+  }
+
+  .background-controls {
+    justify-content: center;
+  }
+
+  .background-button {
+    flex: 0 0 38px;
+    width: 38px;
+    height: 38px;
+    padding: 0;
+  }
+
+  .clear-background {
     display: none;
   }
 

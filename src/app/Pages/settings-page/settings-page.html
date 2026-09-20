@@ -1,0 +1,17 @@
+<main class="page section-shell" aria-label="Configurações">
+  <div class="subnav-wrap">
+    <div class="page-inner">
+      <nav class="subnav" aria-label="Seções de configurações">
+        <a routerLink="aparencia" routerLinkActive="active-tab">Aparência</a>
+        <a routerLink="distribuicao" routerLinkActive="active-tab">Distribuição</a>
+        <a routerLink="salario" routerLinkActive="active-tab">Salário</a>
+        <a routerLink="credito" routerLinkActive="active-tab">Crédito</a>
+        <a routerLink="assistente" routerLinkActive="active-tab">Assistente</a>
+      </nav>
+    </div>
+  </div>
+
+  <div class="page-inner subnav-panel" aria-live="polite">
+    <router-outlet />
+  </div>
+</main>

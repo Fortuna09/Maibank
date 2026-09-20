@@ -1,0 +1,103 @@
+<div class="settings-inner">
+      <section class="settings-list" aria-label="Configurações de aparência">
+        <article class="setting-row">
+          <span class="row-icon"><app-icon [name]="appearance.theme === 'dark' ? 'eye-off' : 'eye'" [size]="16" /></span>
+          <div class="row-body">
+            <h2>Tema</h2>
+            <p>Escolha entre a interface clara e a interface escura.</p>
+          </div>
+          <button class="btn" type="button" (click)="appearance.toggleTheme()">
+            {{ appearance.theme === 'dark' ? 'Usar claro' : 'Usar escuro' }}
+          </button>
+        </article>
+
+        <article class="setting-row">
+          <span class="row-icon"><app-icon name="sliders" [size]="16" /></span>
+          <div class="row-body">
+            <h2>Cor de destaque</h2>
+            <p>Personaliza botões, bordas e detalhes do app com essa cor.</p>
+            <div class="accent-presets">
+              <button
+                *ngFor="let preset of accentPresets"
+                type="button"
+                class="accent-swatch"
+                [style.background]="preset"
+                [class.active]="appearance.accentColor === preset"
+                [attr.aria-label]="'Usar cor ' + preset"
+                (click)="appearance.setAccentColor(preset)"
+              ></button>
+            </div>
+          </div>
+          <input
+            class="color-input"
+            type="color"
+            [value]="appearance.accentColor"
+            (input)="onAccentColorChange($event)"
+            aria-label="Escolher cor personalizada"
+          />
+        </article>
+
+        <article class="setting-row">
+          <span class="row-icon"><app-icon name="flag" [size]="16" /></span>
+          <div class="row-body">
+            <h2>Seu nome</h2>
+            <p>Usado na saudação da tela inicial.</p>
+          </div>
+          <input
+            class="input name-input"
+            type="text"
+            placeholder="Como podemos te chamar?"
+            [value]="appearance.userName()"
+            (input)="onNameChange($event)"
+          />
+        </article>
+
+        <article class="setting-row cover-row">
+          <div class="cover-row-head">
+            <span class="row-icon"><app-icon name="image" [size]="16" /></span>
+            <div class="row-body">
+              <h2>Capa da tela Início</h2>
+              <p>{{ appearance.coverImage() ? 'Arraste a imagem abaixo para reposicionar.' : 'Nenhuma imagem selecionada.' }}</p>
+            </div>
+            <div class="wallpaper-actions">
+              <label class="btn" for="settings-cover-input">
+                {{ appearance.coverImage() ? 'Trocar imagem' : 'Escolher imagem' }}
+              </label>
+              <input
+                id="settings-cover-input"
+                class="background-input"
+                type="file"
+                accept="image/*"
+                (change)="appearance.selectCoverImage($event)"
+              />
+              <button *ngIf="appearance.coverImage()" class="link-action" type="button" (click)="appearance.clearCoverImage()">
+                Remover
+              </button>
+            </div>
+          </div>
+
+          <div class="cover-editor" *ngIf="appearance.coverImage()">
+            <div class="cover-preview" #coverPreview (pointerdown)="startDrag($event)">
+              <img
+                [src]="appearance.coverImage()"
+                alt=""
+                [style.objectPosition]="appearance.coverPositionX() + '% ' + appearance.coverPositionY() + '%'"
+                [style.transform]="'scale(' + (appearance.coverZoom() / 100) + ')'"
+              />
+            </div>
+
+            <label class="zoom-control">
+              <span>Zoom</span>
+              <input type="range" min="100" max="200" [value]="appearance.coverZoom()" (input)="onZoomChange($event)" />
+            </label>
+          </div>
+        </article>
+
+        <div class="save-row">
+          <button type="button" class="btn primary" [disabled]="saving()" [class.is-loading]="saving()" (click)="saveAll()">
+            <app-icon name="check" [size]="15" />
+            Salvar alterações
+          </button>
+        </div>
+      </section>
+</div>

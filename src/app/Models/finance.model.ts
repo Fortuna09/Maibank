@@ -1,4 +1,4 @@
-export type TransactionType = 'entrada' | 'saida';
+export type TransactionType = 'entrada' | 'saida' | 'credito';
 export type AllocationMode = 'percentual' | 'especifico';
 export type AllocationBucketId = string;
 
@@ -23,8 +23,15 @@ export interface SalaryConfig {
   isEnabled: boolean;
   amount: number;
   description: string;
-  businessDay: number;
+  payDay: number;
   lastProcessedMonth: number;
+}
+
+export interface SalaryProcessResult {
+  ok: boolean;
+  processed: boolean;
+  reason?: string;
+  id?: string;
 }
 
 export interface FinanceTransaction {
@@ -36,6 +43,16 @@ export interface FinanceTransaction {
   date: string;
   allocationMode: AllocationMode;
   allocations: AllocationEntry[];
+  /** Só para crédito: em quantas faturas o valor é dividido (1 = à vista). */
+  installments: number;
+  /** Só para saídas que pagam uma fatura: mês da fatura no formato YYYY-MM. */
+  paidInvoice: string | null;
+}
+
+export interface CreditConfig {
+  id: number;
+  closingDay: number;
+  dueDay: number;
 }
 
 export type GoalSaveFrequency = 'mensal' | 'semanal';
@@ -59,6 +76,8 @@ export interface CreateTransactionPayload {
   date: string;
   allocationMode: AllocationMode;
   bucketId?: AllocationBucketId;
+  installments?: number;
+  paidInvoice?: string | null;
 }
 
 export interface CreateGoalPayload {

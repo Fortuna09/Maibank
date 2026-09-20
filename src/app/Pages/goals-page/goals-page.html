@@ -1,0 +1,148 @@
+<main class="page" aria-label="Metas">
+  <div class="page-inner">
+<section class="section">
+<div class="section-head">
+  <h2>Metas</h2>
+  <button type="button" class="btn primary" (click)="toggleEditors()">
+    <app-icon [name]="showEditors ? 'chevron-left' : 'plus'" [size]="15" />
+    {{ showEditors ? 'Fechar' : 'Nova meta' }}
+  </button>
+</div>
+
+<div class="goal-form" *ngIf="showEditors">
+  <div class="goal-form-grid">
+    <label class="field">
+      <span>Nome da meta</span>
+      <input type="text" placeholder="Ex.: viagem, reserva, carro" [(ngModel)]="title" name="goalTitle" />
+    </label>
+
+    <label class="field">
+      <span>Valor da meta</span>
+      <input type="number" placeholder="0,00" [(ngModel)]="targetAmount" name="goalTargetAmount" min="0" step="0.01" />
+    </label>
+
+    <label class="field">
+      <span>Já guardado</span>
+      <input type="number" placeholder="0,00" [(ngModel)]="currentAmount" name="goalCurrentAmount" min="0" step="0.01" />
+    </label>
+
+    <label class="field">
+      <span>Valor por mês/semana</span>
+      <input type="number" placeholder="0,00" [(ngModel)]="saveAmount" name="goalSaveAmount" min="0" step="0.01" />
+    </label>
+
+    <label class="field">
+      <span>Frequência</span>
+      <select [(ngModel)]="saveFrequency" name="goalSaveFrequency">
+        <option value="mensal">Por mês</option>
+        <option value="semanal">Por semana</option>
+      </select>
+    </label>
+
+    <label class="field">
+      <span>Meta até (opcional)</span>
+      <input type="date" [(ngModel)]="dueDate" name="goalDueDate" />
+    </label>
+  </div>
+
+  <p class="form-error" *ngIf="saveError()">
+    <app-icon name="alert" [size]="15" />
+    {{ saveError() }}
+  </p>
+
+  <div class="goal-form-actions">
+    <button type="button" class="btn ghost" (click)="toggleEditors()">Cancelar</button>
+    <button type="button" class="btn primary" [disabled]="saving()" [class.is-loading]="busyKey() === 'new'" (click)="addGoal()">
+      Salvar meta
+    </button>
+  </div>
+</div>
+
+<div class="goals-grid" *ngIf="financeStore.goals().length; else noGoals">
+  <article class="goal-item" *ngFor="let goal of financeStore.goals()">
+    <div class="goal-head">
+      <span class="row-icon"><app-icon [name]="iconFor(goal.title)" [size]="16" /></span>
+
+      <div class="row-body">
+        <p class="row-title">{{ goal.title }}</p>
+        <small class="row-sub">
+          {{ goal.saveAmount | currency: 'BRL' }} por {{ goal.saveFrequency === 'mensal' ? 'mês' : 'semana' }}
+        </small>
+      </div>
+
+      <span class="tag" [class.warning-tag]="financeStore.getGoalForecast(goal).isDelayed">
+        {{ financeStore.getGoalForecast(goal).statusText }}
+      </span>
+
+      <button
+        type="button"
+        class="btn icon-btn small ghost"
+        (click)="toggleGoalActions(goal.id)"
+        [attr.aria-expanded]="openGoalActionsById[goal.id]"
+        aria-label="Opções da meta"
+      >
+        <app-icon name="sliders" [size]="15" />
+      </button>
+    </div>
+
+    <div class="goal-figures">
+      <strong>{{ goal.currentAmount | currency: 'BRL' }}</strong>
+      <span>de {{ goal.targetAmount | currency: 'BRL' }}</span>
+      <em>{{ financeStore.getGoalProgress(goal) }}%</em>
+    </div>
+
+    <div class="progress-track" aria-hidden="true">
+      <span class="progress-fill" [style.width.%]="financeStore.getGoalProgress(goal)"></span>
+    </div>
+
+    <div class="goal-foot">
+      <span>Faltam {{ financeStore.getGoalForecast(goal).remainingAmount | currency: 'BRL' }}</span>
+      <span>Previsão: {{ financeStore.getGoalForecast(goal).projectedDate }}</span>
+    </div>
+
+    <div class="goal-actions-panel" *ngIf="openGoalActionsById[goal.id]">
+      <ng-container *ngIf="confirmingGoalId !== goal.id; else confirmGoalRemoval">
+        <button type="button" class="btn small" (click)="toggleContribution(goal.id)">
+          <app-icon name="plus" [size]="14" />
+          Adicionar valor
+        </button>
+        <button type="button" class="btn small danger" (click)="requestGoalRemoval(goal.id)">
+          <app-icon name="trash" [size]="14" />
+          Excluir
+        </button>
+      </ng-container>
+
+      <ng-template #confirmGoalRemoval>
+        <span class="confirm-text">Excluir esta meta?</span>
+        <button type="button" class="btn small ghost" (click)="cancelGoalRemoval()">Cancelar</button>
+        <button type="button" class="btn small danger" [class.is-loading]="busyKey() === 'delete:' + goal.id" (click)="removeGoal(goal.id)">Confirmar</button>
+      </ng-template>
+    </div>
+
+    <div class="goal-progress-form" *ngIf="showContributionById[goal.id]">
+      <label class="field">
+        <span>Adicionar valor guardado</span>
+        <input
+          type="number"
+          min="0.01"
+          step="0.01"
+          placeholder="R$ 0,00"
+          [(ngModel)]="progressInputByGoalId[goal.id]"
+          [name]="'goalProgress-' + goal.id"
+        />
+      </label>
+      <button type="button" class="btn primary" [class.is-loading]="busyKey() === 'contrib:' + goal.id" (click)="applyGoalProgress(goal)">Adicionar</button>
+    </div>
+  </article>
+</div>
+
+<ng-template #noGoals>
+  <div class="empty-state">
+    <span class="empty-icon"><app-icon name="flag" [size]="20" /></span>
+    <p>Você ainda não tem metas cadastradas.</p>
+    <button type="button" class="btn small primary" (click)="toggleEditors()">Criar primeira meta</button>
+  </div>
+</ng-template>
+</section>
+  </div>
+</main>

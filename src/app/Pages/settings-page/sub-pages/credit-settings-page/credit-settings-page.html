@@ -1,0 +1,44 @@
+<section class="section">
+  <div class="section-head">
+    <h2>Cartão de crédito</h2>
+  </div>
+
+  <p class="intro">
+    Compras no crédito não saem do saldo na hora: elas se juntam numa fatura, que fecha e vence nos dias abaixo.
+    Parcelas caem uma em cada fatura seguinte.
+  </p>
+
+  <form class="credit-form" (ngSubmit)="save()">
+    <div class="credit-fields">
+      <label class="field">
+        <span>Dia de fechamento</span>
+        <input type="number" min="1" max="28" step="1" [ngModel]="closingDay()" (ngModelChange)="closingDay.set(+$event || 1)" name="closingDay" />
+      </label>
+
+      <label class="field">
+        <span>Dia de vencimento</span>
+        <input type="number" min="1" max="28" step="1" [ngModel]="dueDay()" (ngModelChange)="dueDay.set(+$event || 1)" name="dueDay" />
+      </label>
+    </div>
+
+    <p class="context">
+      <app-icon name="calendar" [size]="13" />
+      Uma compra feita hoje fecha em
+      <strong>{{ preview().closing | date: "d 'de' MMMM" }}</strong>
+      e vence em
+      <strong>{{ preview().due | date: "d 'de' MMMM" }}</strong>.
+    </p>
+
+    <p class="form-error" *ngIf="error()">
+      <app-icon name="alert" [size]="15" />
+      {{ error() }}
+    </p>
+
+    <div class="actions">
+      <button type="submit" class="btn primary" [disabled]="saving()" [class.is-loading]="saving()">
+        <app-icon name="check" [size]="15" />
+        Salvar
+      </button>
+    </div>
+  </form>
+</section>

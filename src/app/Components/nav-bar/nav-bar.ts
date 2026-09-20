@@ -1,33 +1,29 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
+import { AppearanceService } from '../../Services/appearance.service';
+import { AssistantService } from '../../Services/assistant.service';
+import { Icon } from '../icon/icon';
+import { MaiMark } from '../mai-mark/mai-mark';
 
 @Component({
   selector: 'app-nav-bar',
-  imports: [RouterLink, RouterLinkActive],
+  imports: [RouterLink, RouterLinkActive, Icon, MaiMark],
   templateUrl: './nav-bar.html',
   styleUrl: './nav-bar.scss',
 })
 export class NavBar implements OnInit {
-  theme: 'dark' | 'light' = 'dark';
+  readonly appearance = inject(AppearanceService);
+  readonly assistant = inject(AssistantService);
   isMenuOpen = true;
 
   ngOnInit(): void {
-    const savedTheme = localStorage.getItem('maibank-theme') as 'dark' | 'light' | null;
-    this.theme = savedTheme ?? 'dark';
-    this.applyTheme(this.theme);
+    this.isMenuOpen = localStorage.getItem('maibank-menu-open') !== 'false';
+    this.appearance.initialize();
   }
 
   toggleMenu(): void {
     this.isMenuOpen = !this.isMenuOpen;
+    localStorage.setItem('maibank-menu-open', String(this.isMenuOpen));
   }
 
-  toggleTheme(): void {
-    this.theme = this.theme === 'dark' ? 'light' : 'dark';
-    this.applyTheme(this.theme);
-  }
-
-  private applyTheme(nextTheme: 'dark' | 'light'): void {
-    document.body.setAttribute('data-theme', nextTheme);
-    localStorage.setItem('maibank-theme', nextTheme);
-  }
 }

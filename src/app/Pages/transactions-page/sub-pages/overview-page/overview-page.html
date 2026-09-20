@@ -1,0 +1,95 @@
+<section class="stat-strip" aria-label="Resumo financeiro">
+  <div class="stat stat-main">
+    <p class="eyebrow">Saldo atual</p>
+    <strong>{{ financeStore.saldoAtual() | currency: 'BRL' }}</strong>
+  </div>
+
+  <div class="stat">
+    <p class="eyebrow">
+      <app-icon name="arrow-in" [size]="13" />
+      Entradas
+    </p>
+    <strong class="income">{{ financeStore.totalEntradas() | currency: 'BRL' }}</strong>
+  </div>
+
+  <div class="stat">
+    <p class="eyebrow">
+      <app-icon name="arrow-out" [size]="13" />
+      Saídas
+    </p>
+    <strong class="expense">{{ financeStore.totalSaidas() | currency: 'BRL' }}</strong>
+  </div>
+</section>
+
+<div class="split">
+  <section class="section">
+    <div class="section-head">
+      <h2>Últimos lançamentos</h2>
+      <a class="link-action" routerLink="/lancamentos/historico">Ver histórico</a>
+    </div>
+
+    <div class="rows" *ngIf="lastTransactions().length; else noTransactions">
+      <div class="data-row" *ngFor="let transaction of lastTransactions()">
+        <span
+          class="row-icon"
+          [class.is-income]="transaction.type === 'entrada'"
+          [class.is-expense]="transaction.type === 'saida'"
+          [class.is-credit]="transaction.type === 'credito'"
+        >
+          <app-icon [name]="typeIcon(transaction)" [size]="16" />
+        </span>
+
+        <div class="row-body">
+          <p class="row-title">{{ transaction.description }}</p>
+          <small class="row-sub">
+            {{ transaction.category }} · {{ transaction.date }}
+            <ng-container *ngIf="transaction.type === 'credito'">
+              · crédito{{ transaction.installments > 1 ? ' em ' + transaction.installments + 'x' : '' }}
+            </ng-container>
+          </small>
+        </div>
+
+        <span
+          class="row-value"
+          [class.income]="transaction.type === 'entrada'"
+          [class.expense]="transaction.type === 'saida'"
+          [class.credit]="transaction.type === 'credito'"
+        >
+          {{ transaction.type === 'entrada' ? '+' : '-' }}{{ transaction.amount | currency: 'BRL' }}
+        </span>
+      </div>
+    </div>
+
+    <ng-template #noTransactions>
+      <div class="empty-state">
+        <span class="empty-icon"><app-icon name="inbox" [size]="20" /></span>
+        <p>Nenhum lançamento registrado ainda.</p>
+        <button type="button" class="btn small" (click)="modal.open()">Adicionar lançamento</button>
+      </div>
+    </ng-template>
+  </section>
+
+  <aside class="section">
+    <div class="section-head">
+      <h2>Saldos por tipo</h2>
+      <a class="link-action" routerLink="/configuracoes/distribuicao">Ajustar</a>
+    </div>
+
+    <div class="bucket-list" aria-label="Resumo dos saldos por categoria">
+      <div class="bucket" *ngFor="let bucket of bucketSummaryRows(); let i = index">
+        <div class="bucket-head">
+          <span class="row-icon"><app-icon [name]="iconFor(bucket.label)" [size]="16" /></span>
+          <span class="bucket-label">{{ bucket.label }}</span>
+          <strong class="row-value">{{ bucket.amount | currency: 'BRL' }}</strong>
+        </div>
+
+        <div class="bucket-meter">
+          <div class="progress-track" aria-hidden="true">
+            <span class="progress-fill" [style.width.%]="bucket.share" [style.background]="bucketColor(i)"></span>
+          </div>
+          <span class="bucket-share">{{ bucket.share }}%</span>
+        </div>
+      </div>
+    </div>
+  </aside>
+</div>

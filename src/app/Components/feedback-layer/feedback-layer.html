@@ -1,0 +1,38 @@
+@if (barState() !== 'idle') {
+  <div class="progress-line" [class.is-complete]="barState() === 'complete'" role="progressbar" aria-label="Salvando">
+    <span></span>
+  </div>
+}
+
+<div class="toast-stack" aria-live="polite">
+  @for (toast of feedback.toasts(); track toast.id) {
+    <button
+      type="button"
+      class="toast-item"
+      [class]="'toast-item ' + toast.kind"
+      [class.leaving]="toast.leaving"
+      [style.--toast-duration.ms]="toast.duration"
+      (click)="feedback.dismiss(toast.id)"
+      aria-label="Fechar aviso"
+    >
+      <span class="toast-icon">
+        @switch (toast.kind) {
+          @case ('success') {
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <circle class="ring" cx="12" cy="12" r="9.5" />
+              <path class="mark" d="M7.5 12.4l3 3 6-6.4" />
+            </svg>
+          }
+          @case ('error') {
+            <app-icon name="alert" [size]="16" />
+          }
+          @default {
+            <app-icon name="check" [size]="16" />
+          }
+        }
+      </span>
+      <span class="toast-text">{{ toast.message }}</span>
+      <i class="toast-timer"></i>
+    </button>
+  }
+</div>

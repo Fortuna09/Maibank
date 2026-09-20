@@ -1,60 +1,183 @@
-<div class="home-layout">
-  <app-nav-bar />
+<main class="page home-page" aria-labelledby="home-title">
+  
 
-  <main class="home-page" aria-labelledby="home-title">
-    <section class="hero-panel">
-      <div class="hero-copy">
-        <p class="eyebrow">Visão geral</p>
-        <h1 id="home-title">Seu dinheiro, organizado e em equilíbrio.</h1>
-        <p class="lead">
-          Acompanhe renda, gastos, metas e distribuição financeira em um único lugar com uma experiência clara, leve e intuitiva.
-        </p>
+  <div class="page-inner">
+    <section class="cover" [class.has-image]="appearance.coverImage()">
+      <img
+        *ngIf="appearance.coverImage() as image"
+        [src]="image"
+        alt=""
+        [style.objectPosition]="appearance.coverPositionX() + '% ' + appearance.coverPositionY() + '%'"
+        [style.transform]="'scale(' + (appearance.coverZoom() / 100) + ')'"
+      />
+      <div class="cover-overlay"></div>
+      <div class="cover-content">
+        <p class="greeting">{{ greeting() }}</p>
+        <h1 id="home-title">Resumo financeiro</h1>
+        <p class="date">{{ today | date: "EEEE, d 'de' MMMM" }}</p>
+      </div>
+    </section>
+
+    <div class="toolbar">
+      <button
+        class="link-action"
+        type="button"
+        (click)="togglePrivacyMode()"
+        [attr.aria-pressed]="isPrivacyMode()"
+        [attr.aria-label]="isPrivacyMode() ? 'Mostrar valores' : 'Ocultar valores'"
+      >
+        <app-icon [name]="isPrivacyMode() ? 'eye-off' : 'eye'" [size]="15" />
+        {{ isPrivacyMode() ? 'Mostrar valores' : 'Ocultar valores' }}
+      </button>
+
+      <div class="toolbar-actions">
+        <button class="link-action" type="button" (click)="modal.open()">
+          <app-icon name="plus" [size]="15" />
+          Novo lançamento
+        </button>
+
+        <a class="link-action" routerLink="/lancamentos">
+          Ver lançamentos
+          <app-icon name="chevron-right" [size]="15" />
+        </a>
+      </div>
+    </div>
+
+    <div class="split">
+      <div>
+        <section class="balance" aria-label="Saldo disponível">
+          <div class="balance-main" *ngIf="dailyBucket() as daily; else totalOnly">
+            <p class="eyebrow">
+              <app-icon name="bag" [size]="13" />
+              {{ daily.label }}
+            </p>
+            <strong>{{ isPrivacyMode() ? '••••••' : (daily.amount | currency: 'BRL') }}</strong>
+            <small>disponível para usar no dia a dia</small>
+          </div>
+
+          <ng-template #totalOnly>
+            <div class="balance-main">
+              <p class="eyebrow">Saldo atual</p>
+              <strong>{{ isPrivacyMode() ? '••••••' : (financeStore.saldoAtual() | currency: 'BRL') }}</strong>
+            </div>
+          </ng-template>
+
+          <div class="balance-side">
+            <div class="balance-figure" *ngIf="dailyBucket()">
+              <p class="eyebrow">Saldo total</p>
+              <span>{{ isPrivacyMode() ? '••••••' : (financeStore.saldoAtual() | currency: 'BRL') }}</span>
+            </div>
+
+            <a class="balance-figure credit-figure" routerLink="/credito" *ngIf="financeStore.openInvoice() as invoice">
+              <p class="eyebrow">
+                <app-icon name="card" [size]="13" />
+                Fatura atual
+              </p>
+              <span>{{ isPrivacyMode() ? '••••••' : (invoice.total | currency: 'BRL') }}</span>
+              <small>vence {{ invoice.dueDate | date: "d 'de' MMM" }}</small>
+            </a>
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="section-head">
+            <h2>Últimas movimentações</h2>
+            <a class="link-action" routerLink="/lancamentos/historico">Ver tudo</a>
+          </div>
+
+          <div class="rows" *ngIf="recentTransactions().length; else noTransactions">
+            <div class="data-row" *ngFor="let transaction of recentTransactions()">
+              <span
+                class="row-icon"
+                [class.is-income]="transaction.type === 'entrada'"
+                [class.is-expense]="transaction.type === 'saida'"
+                [class.is-credit]="transaction.type === 'credito'"
+              >
+                <app-icon [name]="typeIcon(transaction)" [size]="16" />
+              </span>
+
+              <div class="row-body">
+                <p class="row-title">{{ transaction.description }}</p>
+                <small class="row-sub">{{ transaction.category }} · {{ transaction.date }}</small>
+              </div>
+
+              <span
+                class="row-value"
+                [class.income]="transaction.type === 'entrada'"
+                [class.expense]="transaction.type === 'saida'"
+                [class.credit]="transaction.type === 'credito'"
+              >
+                {{ transaction.type === 'entrada' ? '+' : '-' }}{{ isPrivacyMode() ? '••••••' : (transaction.amount | currency: 'BRL') }}
+              </span>
+            </div>
+          </div>
+
+          <ng-template #noTransactions>
+            <div class="empty-state">
+              <span class="empty-icon"><app-icon name="inbox" [size]="20" /></span>
+              <p>Nenhum lançamento registrado ainda.</p>
+              <button type="button" class="btn small" (click)="modal.open()">Adicionar lançamento</button>
+            </div>
+          </ng-template>
+        </section>
       </div>
 
-      <div class="hero-actions" aria-label="Ações rápidas">
-        <a class="primary-action" routerLink="/financas">Abrir painel</a>
-        <span class="status-pill">{{ monthlyStatus() }}</span>
-      </div>
-    </section>
-
-    <section class="summary-grid" aria-label="Resumo financeiro">
-      <article class="metric-card">
-        <span class="label">Saldo atual</span>
-        <strong>{{ financeStore.saldoAtual() | currency: 'BRL' }}</strong>
-        <small>{{ currentMonthIncome() | currency: 'BRL' }} em entradas neste mês</small>
-      </article>
-
-      <article class="metric-card">
-        <span class="label">Despesas</span>
-        <strong>{{ currentMonthExpenses() | currency: 'BRL' }}</strong>
-        <small>Despesas deste mês</small>
-      </article>
-
-      <article class="metric-card accent">
-        <span class="label">Meta ativa</span>
-        <strong>{{ (activeGoal()?.targetAmount ?? 0) | currency: 'BRL' }}</strong>
-        <small *ngIf="activeGoal(); else noGoal">{{ activeGoalProgress() }}% concluído</small>
-        <ng-template #noGoal><small>Nenhuma meta pendente</small></ng-template>
-      </article>
-    </section>
-
-    <section class="insights-grid" aria-label="Destaques de saúde financeira">
-      <article class="insight-card">
-        <div class="insight-header">
-          <span class="mini-icon">↗</span>
-          <h2>Fluxo do mês</h2>
+      <aside class="section goals-panel">
+        <div class="section-head">
+          <h2>Metas</h2>
+          <a class="link-action" routerLink="/metas">Ver todas</a>
         </div>
-        <p>{{ monthlyStatus() }} Saldo acumulado: {{ financeStore.saldoAtual() | currency: 'BRL' }}.</p>
-      </article>
 
-      <article class="insight-card">
-        <div class="insight-header">
-          <span class="mini-icon">◎</span>
-          <h2>Prioridades</h2>
+        <div *ngIf="currentGoal() as goal; else noGoals">
+          <div class="goal-card">
+            <div class="goal-top">
+              <span class="row-icon"><app-icon [name]="iconFor(goal.title)" [size]="16" /></span>
+              <div class="row-body">
+                <p class="row-title">{{ goal.title }}</p>
+                <small class="row-sub">{{ goalForecast(goal) }}</small>
+              </div>
+            </div>
+
+            <div class="goal-figures">
+              <strong>{{ isPrivacyMode() ? '••••••' : (goal.currentAmount | currency: 'BRL') }}</strong>
+              <span>de {{ isPrivacyMode() ? '••••••' : (goal.targetAmount | currency: 'BRL') }}</span>
+            </div>
+
+            <div class="progress-track" aria-hidden="true">
+              <span class="progress-fill" [style.width.%]="financeStore.getGoalProgress(goal)"></span>
+            </div>
+
+            <div class="goal-foot">
+              <span class="tag">{{ financeStore.getGoalProgress(goal) }}% concluído</span>
+              <span class="goal-remaining">
+                Faltam {{ isPrivacyMode() ? '••••••' : (goalRemaining(goal) | currency: 'BRL') }}
+              </span>
+            </div>
+          </div>
+
+          <div class="carousel-controls" *ngIf="goals().length > 1">
+            <button type="button" class="btn icon-btn small" (click)="previousGoal()" aria-label="Meta anterior">
+              <app-icon name="chevron-left" [size]="15" />
+            </button>
+
+            <div class="carousel-dots">
+              <span *ngFor="let item of goals(); let i = index" [class.active]="i === (goalIndex() % goals().length)"></span>
+            </div>
+
+            <button type="button" class="btn icon-btn small" (click)="nextGoal()" aria-label="Próxima meta">
+              <app-icon name="chevron-right" [size]="15" />
+            </button>
+          </div>
         </div>
-        <p *ngIf="activeGoal(); else noActiveGoal">A meta "{{ activeGoal()?.title }}" está {{ activeGoalProgress() }}% concluída.</p>
-        <ng-template #noActiveGoal><p>Crie uma meta para acompanhar seu próximo objetivo financeiro.</p></ng-template>
-      </article>
-    </section>
-  </main>
-</div>
+
+        <ng-template #noGoals>
+          <div class="empty-state">
+            <span class="empty-icon"><app-icon name="flag" [size]="20" /></span>
+            <p>Você ainda não tem metas.</p>
+            <a class="btn small" routerLink="/metas">Criar primeira meta</a>
+          </div>
+        </ng-template>
+      </aside>
+    </div>
+  </div>
+</main>

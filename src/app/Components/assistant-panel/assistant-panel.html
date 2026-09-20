@@ -1,0 +1,148 @@
+@if (assistant.isMinimized()) {
+  <button type="button" class="assistant-pill" [class.has-unread]="assistant.unread() > 0" (click)="assistant.open()" aria-label="Abrir assistente">
+    <span class="pill-icon"><app-mai-mark [size]="16" [active]="assistant.thinking()" /></span>
+    <span class="pill-label">{{ name }}</span>
+    @if (assistant.thinking()) {
+      <span class="pill-dots" aria-label="Pensando"><i></i><i></i><i></i></span>
+    } @else if (assistant.unread() > 0) {
+      <span class="pill-badge">{{ assistant.unread() }}</span>
+    }
+  </button>
+}
+
+@if (assistant.isVisible()) {
+  <aside class="assistant-panel" [class.is-expanded]="assistant.isExpanded()" [class.is-thinking]="assistant.thinking()" role="complementary" aria-label="Assistente">
+    <header class="panel-head">
+      <div class="panel-title">
+        <span class="title-icon"><app-mai-mark [size]="20" [active]="assistant.thinking()" /></span>
+        <strong class="mai-name">{{ name }}</strong>
+        <span class="tag" [class.income-tag]="assistant.isConnected()">
+          {{ assistant.isConnected() ? 'conectada' : 'modo local' }}
+        </span>
+      </div>
+
+      <div class="panel-actions">
+        <button
+          type="button"
+          class="btn icon-btn small ghost"
+          (click)="assistant.toggleExpanded()"
+          [attr.aria-label]="assistant.isExpanded() ? 'Reduzir painel' : 'Ampliar painel'"
+          [title]="assistant.isExpanded() ? 'Reduzir' : 'Ampliar'"
+        >
+          <app-icon [name]="assistant.isExpanded() ? 'shrink' : 'expand'" [size]="15" />
+        </button>
+        <button type="button" class="btn icon-btn small ghost" (click)="assistant.minimize()" aria-label="Minimizar painel" title="Minimizar">
+          <app-icon name="minus" [size]="15" />
+        </button>
+        <button type="button" class="btn icon-btn small ghost" (click)="assistant.close()" aria-label="Fechar painel" title="Fechar (Ctrl+I)">
+          <app-icon name="close" [size]="15" />
+        </button>
+      </div>
+    </header>
+
+    <div class="panel-body" #scroller>
+      @if (!assistant.messages().length) {
+        <div class="panel-empty">
+          <span class="empty-mark"><app-mai-mark [size]="26" /></span>
+          <h3>Oi, eu sou a {{ name }}.</h3>
+          <p>
+            Me conta um gasto, uma entrada, uma meta ou uma compra que você está pensando.
+            Eu preparo tudo e você só confirma.
+          </p>
+          @if (!assistant.isConnected()) {
+            <p class="empty-note">
+              Ainda sem chave de API: estou no modo local e entendo só frases simples.
+              <a routerLink="/configuracoes/assistente" (click)="assistant.minimize()">Configurar</a>
+            </p>
+          }
+          <div class="suggestions">
+            @for (suggestion of suggestions; track suggestion) {
+              <button type="button" class="chip" (click)="useSuggestion(suggestion)">{{ suggestion }}</button>
+            }
+          </div>
+        </div>
+      }
+
+      @for (message of assistant.messages(); track message.id) {
+        <div class="msg" [class.user]="message.role === 'user'" [class.assistant]="message.role === 'assistant'">
+          @if (message.role === 'assistant') {
+            <span class="msg-avatar"><app-mai-mark [size]="14" /></span>
+          }
+
+          <div class="msg-body">
+            <p class="msg-text">{{ message.text }}</p>
+
+            @if (message.action; as action) {
+              <div class="action-card" [class.is-done]="action.status === 'done'" [class.is-cancelled]="action.status === 'cancelled'" [class.is-failed]="action.status === 'failed'">
+                <div class="action-head">
+                  <span class="eyebrow">{{ actionLabel(action.payload.type) }}</span>
+                  @switch (action.status) {
+                    @case ('done') { <span class="tag income-tag">feito</span> }
+                    @case ('cancelled') { <span class="tag">cancelado</span> }
+                    @case ('failed') { <span class="tag expense-tag">falhou</span> }
+                    @default { <span class="tag mai-tag">aguardando você</span> }
+                  }
+                </div>
+
+                <dl class="action-summary">
+                  @for (line of action.summary; track line.label) {
+                    <div>
+                      <dt>{{ line.label }}</dt>
+                      <dd>{{ line.value }}</dd>
+                    </div>
+                  }
+                </dl>
+
+                @if (action.status === 'pending') {
+                  <div class="action-buttons">
+                    <button type="button" class="btn ghost small" (click)="assistant.cancelAction(message.id)">Cancelar</button>
+                    <button type="button" class="btn primary small" (click)="assistant.confirmAction(message.id)">
+                      <app-icon name="check" [size]="13" />
+                      Confirmar
+                    </button>
+                  </div>
+                }
+              </div>
+            }
+
+            <time class="msg-time">{{ message.createdAt | date: 'HH:mm' }}</time>
+          </div>
+        </div>
+      }
+
+      @if (assistant.thinking()) {
+        <div class="msg assistant is-thinking">
+          <span class="msg-avatar"><app-mai-mark [size]="14" [active]="true" /></span>
+          <div class="msg-body">
+            <span class="typing" aria-label="Pensando"><i></i><i></i><i></i></span>
+          </div>
+        </div>
+      }
+    </div>
+
+    <footer class="panel-foot">
+      <form class="composer" (ngSubmit)="submit()">
+        <textarea
+          #composer
+          rows="1"
+          [ngModel]="draft()"
+          (ngModelChange)="draft.set($event)"
+          (keydown)="onComposerKeydown($event)"
+          (input)="onComposerInput(composer)"
+          name="draft"
+          placeholder="Escreva pra {{ name }}…"
+          [disabled]="assistant.thinking()"
+        ></textarea>
+        <button type="submit" class="btn primary icon-btn send-btn" [disabled]="!draft().trim() || assistant.thinking()" aria-label="Enviar">
+          <app-icon name="send" [size]="15" />
+        </button>
+      </form>
+      <div class="composer-hint">
+        <span>Enter envia · Shift+Enter quebra linha</span>
+        @if (assistant.messages().length) {
+          <button type="button" class="link-action" (click)="assistant.clear()">Limpar conversa</button>
+        }
+      </div>
+    </footer>
+  </aside>
+}

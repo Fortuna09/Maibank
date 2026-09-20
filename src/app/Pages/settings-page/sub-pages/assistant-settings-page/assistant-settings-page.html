@@ -1,0 +1,50 @@
+<section class="section">
+  <div class="section-head">
+    <h2>Assistente ({{ name }})</h2>
+    <span class="tag" [class.income-tag]="assistant.isConnected()">{{ assistant.isConnected() ? 'Conectada' : 'Modo local' }}</span>
+  </div>
+
+  <p class="intro">
+    A {{ name }} lê seu contexto financeiro (saldo, divisões, metas, fatura) e propõe lançamentos, metas e simulações
+    que você confirma antes de executar. Sem chave, ela roda em modo local e entende só frases simples.
+  </p>
+
+  <form class="assistant-form" (ngSubmit)="save()">
+    <label class="field">
+      <span>
+        Chave de API
+        <button type="button" class="link-action" (click)="showKey.set(!showKey())">{{ showKey() ? 'ocultar' : 'mostrar' }}</button>
+      </span>
+      <input
+        [type]="showKey() ? 'text' : 'password'"
+        autocomplete="off"
+        spellcheck="false"
+        placeholder="cole a chave aqui"
+        [ngModel]="keyDraft()"
+        (ngModelChange)="keyDraft.set($event)"
+        name="apiKey"
+      />
+    </label>
+
+    <label class="field">
+      <span>Modelo</span>
+      <input type="text" [ngModel]="modelDraft()" (ngModelChange)="modelDraft.set($event)" name="model" [placeholder]="defaultModel" />
+    </label>
+
+    <p class="context">
+      <app-icon name="shield" [size]="13" />
+      A chave fica só neste navegador (localStorage) e nunca vai para o banco de dados.
+    </p>
+
+    <div class="actions">
+      <button type="button" class="btn ghost" (click)="clearConversation()">
+        <app-icon name="trash" [size]="15" />
+        Limpar conversa
+      </button>
+      <button type="submit" class="btn primary" [disabled]="saving()" [class.is-loading]="saving()">
+        <app-icon name="check" [size]="15" />
+        Salvar
+      </button>
+    </div>
+  </form>
+</section>

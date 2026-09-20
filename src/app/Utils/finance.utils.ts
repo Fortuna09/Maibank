@@ -3,10 +3,44 @@ import {
   AllocationBucketId,
   AllocationEntry,
   AllocationSettings,
+  TransactionType,
 } from '../Models/finance.model';
 
 export function roundCurrency(value: number): number {
   return Math.round(value * 100) / 100;
+}
+
+export function categoryIcon(label: string | null | undefined): string {
+  const value = (label ?? '')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '');
+
+  if (/carro|auto|veiculo|combust|gasolina|uber/.test(value)) {
+    return 'car';
+  }
+  if (/emerg|reserva|seguran|protec/.test(value)) {
+    return 'shield';
+  }
+  if (/futuro|plano|sonho|viagem|invest|meta/.test(value)) {
+    return 'rocket';
+  }
+  if (/diari|mercado|compra|uso|super|alimenta/.test(value)) {
+    return 'bag';
+  }
+  if (/salari|renda|receita|pagamento|entrada/.test(value)) {
+    return 'arrow-in';
+  }
+
+  return 'wallet';
+}
+
+export function transactionIcon(type: TransactionType): string {
+  return type === 'entrada' ? 'arrow-in' : type === 'credito' ? 'card' : 'arrow-out';
+}
+
+export function transactionLabel(type: TransactionType): string {
+  return type === 'entrada' ? 'Entrada' : type === 'credito' ? 'Crédito' : 'Saída';
 }
 
 export function normalizeDate(value?: string | null): string {
@@ -87,24 +121,6 @@ export function normalizeSettings(settings: Partial<AllocationSettings> | null |
       percentage: Number(bucket.percentage),
     })),
   };
-}
-
-export function getBusinessDayOfMonth(year: number, month: number, businessDay: number): Date {
-  const firstDay = new Date(year, month - 1, 1);
-  let count = 0;
-  let currentDate = firstDay;
-
-  while (count < businessDay) {
-    const dayOfWeek = currentDate.getDay();
-    if (dayOfWeek >= 1 && dayOfWeek <= 5) {
-      count++;
-    }
-    if (count < businessDay) {
-      currentDate.setDate(currentDate.getDate() + 1);
-    }
-  }
-
-  return currentDate;
 }
 
 export function normalizeAllocationPercentages(

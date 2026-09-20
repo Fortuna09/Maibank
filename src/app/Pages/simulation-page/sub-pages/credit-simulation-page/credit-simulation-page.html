@@ -1,0 +1,127 @@
+<section class="section">
+  <div class="section-head">
+    <h2>Simular compra no crédito</h2>
+    <span class="tag">Nada aqui é salvo</span>
+  </div>
+
+  <p class="intro">
+    Diga o que quer comprar e veja como ficam as próximas faturas somando o que já está parcelado.
+  </p>
+
+  <div class="sim-form">
+    <label class="field field-wide">
+      <span>O que você quer comprar</span>
+      <input type="text" placeholder="Ex.: celular, passagem, geladeira" [ngModel]="description()" (ngModelChange)="description.set($event)" />
+    </label>
+
+    <label class="field">
+      <span>Valor total</span>
+      <input type="number" min="0" step="0.01" placeholder="0,00" [ngModel]="purchaseTotal()" (ngModelChange)="purchaseTotal.set(+$event || 0)" />
+    </label>
+
+    <label class="field">
+      <span>Parcelas <em class="field-note">1 = à vista</em></span>
+      <input type="number" min="1" max="36" step="1" [ngModel]="installments()" (ngModelChange)="installments.set(+$event || 1)" />
+    </label>
+
+    <label class="field">
+      <span>Data da compra</span>
+      <input type="date" [ngModel]="purchaseDate()" (ngModelChange)="purchaseDate.set($event)" />
+    </label>
+
+    <label class="field">
+      <span>
+        Renda mensal
+        <em class="field-note" *ngIf="salaryConfigured()">do salário automático</em>
+      </span>
+      <input
+        type="number"
+        min="0"
+        step="0.01"
+        [ngModel]="monthlyIncome()"
+        (ngModelChange)="monthlyIncome.set(+$event || 0)"
+        [disabled]="salaryConfigured()"
+      />
+    </label>
+  </div>
+
+  <p class="context" *ngIf="financeStore.openInvoice() as open">
+    <app-icon name="card" [size]="13" />
+    A fatura aberta ({{ open.label }}) está em <strong>{{ open.total | currency: 'BRL' }}</strong>
+    e há <strong>{{ financeStore.committedAhead() | currency: 'BRL' }}</strong> em parcelas futuras.
+  </p>
+</section>
+
+<ng-container *ngIf="projection() as projection">
+  <section class="section" *ngIf="hasPurchase(); else noPurchase" [appPulseOn]="projection">
+    <div class="section-head">
+      <h2>Próximas faturas</h2>
+      <span class="row-sub" *ngIf="installments() > 1">
+        {{ installments() }}x de {{ projection.installmentAmount | currency: 'BRL' }}
+      </span>
+    </div>
+
+    <div class="outcome">
+      <div class="outcome-stat outcome-peak" *ngIf="projection.peak as peak">
+        <p class="eyebrow">Maior fatura</p>
+        <strong>{{ peak.total | currency: 'BRL' }}</strong>
+        <small>
+          {{ peak.label }}, vence {{ peak.dueDate | date: "d 'de' MMM" }}
+          <ng-container *ngIf="peakShare() !== null"> · {{ peakShare() }}% da renda</ng-container>
+        </small>
+      </div>
+
+      <div class="outcome-stat">
+        <p class="eyebrow">Média por fatura</p>
+        <strong>{{ projection.averageTotal | currency: 'BRL' }}</strong>
+        <small>nas próximas {{ projection.rows.length }} faturas</small>
+      </div>
+
+      <div class="outcome-stat">
+        <p class="eyebrow">Total da compra</p>
+        <strong class="credit">{{ purchaseTotal() | currency: 'BRL' }}</strong>
+        <small>{{ description() || 'nova compra' }}</small>
+      </div>
+    </div>
+
+    <p class="form-error warning" *ngIf="peakShare() !== null && peakShare()! >= 40">
+      <app-icon name="alert" [size]="15" />
+      A fatura de <strong>{{ projection.peak?.label }}</strong> consumiria {{ peakShare() }}% da sua renda do mês.
+    </p>
+
+    <div class="chart-legend">
+      <span><i class="legend-box existing"></i> Já comprometido</span>
+      <span><i class="legend-box added"></i> Nova compra</span>
+    </div>
+
+    <div class="chart-canvas-wrap">
+      <svg #chart class="sim-chart" viewBox="0 0 760 220" preserveAspectRatio="none" aria-label="Projeção das faturas"></svg>
+    </div>
+
+    <div class="rows">
+      <div class="data-row month-row head-row">
+        <span class="month-label">Fatura</span>
+        <span class="month-num">Já comprometido</span>
+        <span class="month-num">Nova compra</span>
+        <span class="month-num">Total</span>
+      </div>
+
+      <div class="data-row month-row" *ngFor="let row of projection.rows" [class.is-peak]="projection.peak?.key === row.key">
+        <span class="month-label">
+          {{ row.label }}
+          <small>vence {{ row.dueDate | date: 'd/MM' }}</small>
+        </span>
+        <span class="month-num muted">{{ row.existing | currency: 'BRL' }}</span>
+        <span class="month-num credit">{{ row.added > 0 ? ('+' + (row.added | currency: 'BRL')) : '—' }}</span>
+        <span class="month-num">{{ row.total | currency: 'BRL' }}</span>
+      </div>
+    </div>
+  </section>
+
+  <ng-template #noPurchase>
+    <div class="empty-state">
+      <span class="empty-icon"><app-icon name="card" [size]="20" /></span>
+      <p>Informe o valor da compra para ver as faturas projetadas.</p>
+    </div>
+  </ng-template>
+</ng-container>

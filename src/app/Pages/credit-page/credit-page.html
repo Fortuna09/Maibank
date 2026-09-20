@@ -1,0 +1,18 @@
+<main class="page section-shell" aria-label="Crédito">
+  <div class="subnav-wrap">
+    <div class="page-inner subnav-row">
+      <nav class="subnav" aria-label="Seções de crédito">
+        <a routerLink="faturas" routerLinkActive="active-tab">Faturas</a>
+      </nav>
+
+      <button type="button" class="btn primary small subnav-action" (click)="openCreditModal()">
+        <app-icon name="plus" [size]="14" />
+        Compra no crédito
+      </button>
+    </div>
+  </div>
+
+  <div class="page-inner subnav-panel" aria-live="polite">
+    <router-outlet />
+  </div>
+</main>

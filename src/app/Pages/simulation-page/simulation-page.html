@@ -1,0 +1,14 @@
+<main class="page section-shell" aria-label="Simulações">
+  <div class="subnav-wrap">
+    <div class="page-inner">
+      <nav class="subnav" aria-label="Tipos de simulação">
+        <a routerLink="lancamento" routerLinkActive="active-tab">Lançamento</a>
+        <a routerLink="credito" routerLinkActive="active-tab">Crédito</a>
+      </nav>
+    </div>
+  </div>
+
+  <div class="page-inner subnav-panel" aria-live="polite">
+    <router-outlet />
+  </div>
+</main>

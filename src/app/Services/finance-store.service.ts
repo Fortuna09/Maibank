@@ -7,22 +7,24 @@ import {
   AllocationSettings,
   CreateGoalPayload,
   CreateTransactionPayload,
+  CreditConfig,
   FinanceGoal,
   FinanceTransaction,
   TransactionType,
   AllocationMode,
   DEFAULT_ALLOCATION_SETTINGS,
   SalaryConfig,
+  SalaryProcessResult,
 } from '../Models/finance.model';
 import {
   buildPercentageAllocations,
   buildSpecificAllocation,
   createBucketMap,
-  makeBucketId,
   normalizeDate,
   normalizeSettings,
   roundCurrency,
 } from '../Utils/finance.utils';
+import { buildInvoices, CreditInvoice, DEFAULT_CREDIT_CONFIG } from '../Utils/credit.utils';
 
 export * from '../Models/finance.model';
 
@@ -35,10 +37,12 @@ export class FinanceStoreService {
   private readonly transactionsSignal = signal<FinanceTransaction[]>([]);
   private readonly goalsSignal = signal<FinanceGoal[]>([]);
   private readonly settingsSignal = signal<AllocationSettings>(DEFAULT_ALLOCATION_SETTINGS);
+  private readonly creditConfigSignal = signal<CreditConfig>(DEFAULT_CREDIT_CONFIG);
 
   readonly transactions = this.transactionsSignal.asReadonly();
   readonly goals = this.goalsSignal.asReadonly();
   readonly settings = this.settingsSignal.asReadonly();
+  readonly creditConfig = this.creditConfigSignal.asReadonly();
 
   readonly totalEntradas = computed(() =>
     this.transactionsSignal()
@@ -52,7 +56,28 @@ export class FinanceStoreService {
       .reduce((total, transaction) => total + transaction.amount, 0)
   );
 
+  // Crédito não entra aqui: só vira saída de verdade quando a fatura é paga.
   readonly saldoAtual = computed(() => this.totalEntradas() - this.totalSaidas());
+
+  readonly invoices = computed<CreditInvoice[]>(() =>
+    buildInvoices(this.transactionsSignal(), this.creditConfigSignal())
+  );
+
+  readonly openInvoice = computed<CreditInvoice | null>(
+    () => this.invoices().find((invoice) => invoice.status === 'aberta') ?? null
+  );
+
+  /** Faturas fechadas ainda não pagas (inclui vencidas). */
+  readonly pendingInvoices = computed<CreditInvoice[]>(() =>
+    this.invoices().filter((invoice) => invoice.status === 'fechada' || invoice.status === 'vencida')
+  );
+
+  /** Parcelas que ainda vão cair em faturas futuras. */
+  readonly committedAhead = computed(() =>
+    this.invoices()
+      .filter((invoice) => invoice.status === 'futura')
+      .reduce((total, invoice) => total + invoice.total, 0)
+  );
 
   readonly bucketBalances = computed(() => {
     const initialState = createBucketMap(this.settingsSignal().buckets);
@@ -90,19 +115,21 @@ export class FinanceStoreService {
     void this.loadInitialData();
   }
 
-  addTransaction(payload: CreateTransactionPayload): void {
+  addTransaction(payload: CreateTransactionPayload): Promise<void> {
     const normalizedAmount = Number(payload.amount);
+    const isCredit = payload.type === 'credito';
     const direction = payload.type === 'entrada' ? 1 : -1;
-    const allocations =
-      payload.allocationMode === 'percentual'
+    const allocations = isCredit
+      ? []
+      : payload.allocationMode === 'percentual'
         ? buildPercentageAllocations(normalizedAmount * direction, this.settingsSignal().buckets)
         : buildSpecificAllocation(normalizedAmount * direction, payload.bucketId);
 
-    if (allocations.length === 0) {
-      return;
+    if (!isCredit && allocations.length === 0) {
+      return Promise.reject(new Error('Selecione um destino válido para o lançamento.'));
     }
 
-    void firstValueFrom(
+    return firstValueFrom(
       this.api.createTransaction({
         description: payload.description,
         type: payload.type,
@@ -111,35 +138,46 @@ export class FinanceStoreService {
         date: payload.date,
         allocationMode: payload.allocationMode,
         allocations,
+        installments: isCredit ? Math.max(1, Math.round(payload.installments ?? 1)) : 1,
+        paidInvoice: payload.type === 'saida' ? payload.paidInvoice ?? null : null,
       })
     )
-      .then(() => this.refreshTransactions())
+      .then(() => {
+        this.refreshTransactions();
+      })
       .catch((error) => {
         console.error('Erro ao criar transacao', error);
+        throw error;
       });
   }
 
-  removeTransaction(transactionId: string): void {
-    void firstValueFrom(this.api.deleteTransaction(transactionId))
-      .then(() => this.refreshTransactions())
+  removeTransaction(transactionId: string): Promise<void> {
+    return firstValueFrom(this.api.deleteTransaction(transactionId))
+      .then(() => {
+        this.refreshTransactions();
+      })
       .catch((error) => {
         console.error('Erro ao remover transacao', error);
+        throw error;
       });
   }
 
-  addGoal(payload: CreateGoalPayload): void {
-    void firstValueFrom(this.api.createGoal(payload))
-      .then(() => this.refreshGoals())
+  addGoal(payload: CreateGoalPayload): Promise<void> {
+    return firstValueFrom(this.api.createGoal(payload))
+      .then(() => {
+        this.refreshGoals();
+      })
       .catch((error) => {
         console.error('Erro ao criar meta', error);
+        throw error;
       });
   }
 
-  updateGoalProgress(goalId: string, amountToAdd: number): void {
+  updateGoalProgress(goalId: string, amountToAdd: number): Promise<void> {
     const goal = this.goalsSignal().find((currentGoal) => currentGoal.id === goalId);
     const amount = Number(amountToAdd);
     if (!goal || !Number.isFinite(amount) || amount <= 0) {
-      return;
+      return Promise.reject(new Error('Informe um valor maior que zero.'));
     }
 
     const previousGoals = this.goalsSignal();
@@ -151,78 +189,31 @@ export class FinanceStoreService {
       )
     );
 
-    void firstValueFrom(this.api.addGoalContribution(goalId, amount))
+    return firstValueFrom(this.api.addGoalContribution(goalId, amount))
       .then(() => this.refreshGoals())
       .catch((error) => {
         console.error('Erro ao adicionar valor à meta', error);
         this.goalsSignal.set(previousGoals);
+        throw error;
       });
   }
 
-  updateGoal(goalId: string, payload: Omit<FinanceGoal, 'id'>): void {
+  updateGoal(goalId: string, payload: Omit<FinanceGoal, 'id'>): Promise<void> {
     const previousGoals = this.goalsSignal();
     const updatedGoal: FinanceGoal = { id: goalId, ...payload };
     this.goalsSignal.set(previousGoals.map((goal) => (goal.id === goalId ? updatedGoal : goal)));
 
-    void firstValueFrom(this.api.updateGoal(goalId, payload))
+    return firstValueFrom(this.api.updateGoal(goalId, payload))
       .then(() => this.refreshGoals())
       .catch((error) => {
         console.error('Erro ao atualizar meta', error);
         this.goalsSignal.set(previousGoals);
+        throw error;
       });
   }
 
-  addBucket(payload: { label: string; percentage: number }): AllocationBucket | null {
-    const label = payload.label.trim();
-    if (!label) {
-      return null;
-    }
-
-    const nextBucket: AllocationBucket = {
-      id: makeBucketId(label),
-      label,
-      percentage: Math.max(0, Number(payload.percentage)),
-    };
-
-    const nextSettings: AllocationSettings = {
-      ...this.settingsSignal(),
-      buckets: [...this.settingsSignal().buckets, nextBucket],
-    };
-
-    this.settingsSignal.set(nextSettings);
-
-    void firstValueFrom(this.api.updateSettings(nextSettings))
-      .then(() => this.refreshSettings())
-      .catch((error) => {
-        console.error('Erro ao adicionar divisao', error);
-        this.refreshSettings();
-      });
-
-    return nextBucket;
-  }
-
-  removeBucket(bucketId: string): void {
-    const nextBuckets = this.settingsSignal().buckets.filter((bucket) => bucket.id !== bucketId);
-    if (nextBuckets.length === 0) {
-      return;
-    }
-
-    const nextSettings: AllocationSettings = {
-      ...this.settingsSignal(),
-      buckets: nextBuckets,
-    };
-
-    this.settingsSignal.set(nextSettings);
-
-    void firstValueFrom(this.api.updateSettings(nextSettings))
-      .then(() => this.refreshSettings())
-      .catch((error) => {
-        console.error('Erro ao remover divisao', error);
-        this.refreshSettings();
-      });
-  }
-
-  updateAllocationSettings(settings: AllocationSettings): boolean {
+  /** Salva renda base e a lista completa de divisões (novas, alteradas e removidas) de uma vez. */
+  updateAllocationSettings(settings: AllocationSettings): Promise<void> {
     const normalizedBuckets = settings.buckets.map((bucket) => ({
       ...bucket,
       percentage: Math.max(0, Number(bucket.percentage)),
@@ -230,9 +221,10 @@ export class FinanceStoreService {
 
     const total = normalizedBuckets.reduce((sum, bucket) => sum + bucket.percentage, 0);
     if (Math.round(total) !== 100) {
-      return false;
+      return Promise.reject(new Error('A soma dos percentuais precisa ser 100.'));
     }
 
+    const previousSettings = this.settingsSignal();
     const nextSettings: AllocationSettings = {
       baseIncome: Math.max(0, Number(settings.baseIncome)),
       buckets: normalizedBuckets,
@@ -240,21 +232,23 @@ export class FinanceStoreService {
 
     this.settingsSignal.set(nextSettings);
 
-    void firstValueFrom(this.api.updateSettings(nextSettings))
+    return firstValueFrom(this.api.updateSettings(nextSettings))
       .then(() => this.refreshSettings())
       .catch((error) => {
         console.error('Erro ao atualizar configuracoes', error);
-        this.refreshSettings();
+        this.settingsSignal.set(previousSettings);
+        throw error;
       });
-
-    return true;
   }
 
-  removeGoal(goalId: string): void {
-    void firstValueFrom(this.api.deleteGoal(goalId))
-      .then(() => this.refreshGoals())
+  removeGoal(goalId: string): Promise<void> {
+    return firstValueFrom(this.api.deleteGoal(goalId))
+      .then(() => {
+        this.refreshGoals();
+      })
       .catch((error) => {
         console.error('Erro ao remover meta', error);
+        throw error;
       });
   }
 
@@ -381,7 +375,7 @@ export class FinanceStoreService {
 
       if (transaction.type === 'entrada') {
         monthValues.entradas += transaction.amount;
-      } else {
+      } else if (transaction.type === 'saida') {
         monthValues.saidas += transaction.amount;
       }
 
@@ -398,7 +392,19 @@ export class FinanceStoreService {
   }
 
   private async loadInitialData(): Promise<void> {
-    await Promise.all([this.refreshSettings(), this.refreshTransactions(), this.refreshGoals()]);
+    await Promise.all([this.refreshSettings(), this.refreshTransactions(), this.refreshGoals(), this.refreshCreditConfig()]);
+    await this.runScheduledSalary();
+  }
+
+  private async runScheduledSalary(): Promise<void> {
+    try {
+      const result = await firstValueFrom(this.api.processAutomaticSalary());
+      if (result.processed) {
+        await this.refreshTransactions();
+      }
+    } catch (error) {
+      console.error('Erro ao verificar salário automático', error);
+    }
   }
 
   private async refreshSettings(): Promise<void> {
@@ -426,6 +432,8 @@ export class FinanceStoreService {
           amount: Number(transaction.amount),
           date: normalizeDate(transaction.date),
           allocationMode: transaction.allocationMode ?? 'especifico',
+          installments: Math.max(1, Number(transaction.installments ?? 1)),
+          paidInvoice: transaction.paidInvoice ?? null,
           allocations: (transaction.allocations ?? []).map((allocation) => ({
             bucketId: allocation.bucketId,
             amount: Number(allocation.amount),
@@ -456,6 +464,30 @@ export class FinanceStoreService {
     }
   }
 
+  private async refreshCreditConfig(): Promise<void> {
+    try {
+      const response = await firstValueFrom(this.api.getCreditConfig());
+      this.creditConfigSignal.set({
+        id: response.id,
+        closingDay: Number(response.closingDay),
+        dueDay: Number(response.dueDay),
+      });
+    } catch (error) {
+      console.error('Erro ao carregar configuração de crédito', error);
+      this.creditConfigSignal.set(DEFAULT_CREDIT_CONFIG);
+    }
+  }
+
+  async updateCreditConfig(config: Omit<CreditConfig, 'id'>): Promise<void> {
+    try {
+      await firstValueFrom(this.api.updateCreditConfig(config));
+      await this.refreshCreditConfig();
+    } catch (error) {
+      console.error('Erro ao atualizar configuração de crédito', error);
+      throw error;
+    }
+  }
+
   async loadSalaryConfig(): Promise<SalaryConfig> {
     try {
       const response = await firstValueFrom(this.api.getSalaryConfig());
@@ -467,7 +499,7 @@ export class FinanceStoreService {
         isEnabled: false,
         amount: 0,
         description: 'Salário automático',
-        businessDay: 5,
+        payDay: 5,
         lastProcessedMonth: 0,
       };
     }
@@ -482,9 +514,9 @@ export class FinanceStoreService {
     }
   }
 
-  async processAutomaticSalary(): Promise<void> {
+  async processAutomaticSalary(): Promise<SalaryProcessResult> {
     try {
-      await firstValueFrom(this.api.processAutomaticSalary());
+      return await firstValueFrom(this.api.processAutomaticSalary());
     } catch (error) {
       console.error('Erro ao processar salário automático', error);
       throw error;

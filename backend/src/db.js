@@ -11,3 +11,22 @@ export async function testDatabaseConnection() {
     connection.release();
   }
 }
+
+/**
+ * Roda `work(connection)` dentro de uma transação: commit se resolver,
+ * rollback se lançar. A conexão sempre volta para o pool.
+ */
+export async function withTransaction(work) {
+  const connection = await pool.getConnection();
+  try {
+    await connection.beginTransaction();
+    const result = await work(connection);
+    await connection.commit();
+    return result;
+  } catch (error) {
+    await connection.rollback();
+    throw error;
+  } finally {
+    connection.release();
+  }
+}

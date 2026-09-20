@@ -1,0 +1,337 @@
+.base-income {
+  margin: 0 0 var(--space-2);
+  color: var(--text-muted);
+  font-size: 0.82rem;
+}
+
+.base-income strong {
+  color: var(--text);
+}
+
+.allocation-meter {
+  width: 110px;
+  flex-shrink: 0;
+}
+
+@media (max-width: 720px) {
+  .allocation-meter {
+    display: none;
+  }
+}
+
+/* ============================================
+   MODAIS
+   ============================================ */
+
+.modal-card {
+  width: 480px;
+  max-width: 100%;
+  max-height: 88vh;
+  overflow-y: auto;
+  padding: var(--space-4);
+}
+
+.modal-card.wide {
+  width: 660px;
+}
+
+.modal-card h3 {
+  margin: 0 0 4px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.modal-card > p {
+  margin: 0 0 var(--space-4);
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  line-height: 1.45;
+}
+
+.modal-card.alert {
+  width: 420px;
+}
+
+.modal-card.alert.error {
+  border-color: var(--danger);
+}
+
+.modal-card.alert.success {
+  border-color: var(--success);
+}
+
+.alert-message {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.55;
+  color: var(--text);
+  white-space: pre-line;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-2);
+  margin-top: var(--space-4);
+}
+
+/* Editor de distribuição */
+
+.income-summary {
+  display: grid;
+  gap: var(--space-2);
+  padding: 10px 12px;
+  margin-bottom: var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.income-summary-button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+}
+
+.income-summary-button span {
+  color: var(--text-muted);
+  font-size: 0.82rem;
+}
+
+.income-summary-button strong {
+  font-size: 0.95rem;
+  color: var(--text);
+}
+
+.income-edit label {
+  display: grid;
+  gap: 4px;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.income-edit input {
+  min-height: 32px;
+  padding: 6px 9px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  background: var(--surface-alt);
+  color: var(--text);
+  font-size: 0.85rem;
+}
+
+.income-edit input:focus {
+  outline: none;
+  border-color: var(--user-tint);
+}
+
+.draft-buckets-container {
+  display: grid;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+}
+
+.draft-row {
+  display: grid;
+  gap: var(--space-2);
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  transition: border-color 0.16s ease;
+}
+
+.draft-row.expanded {
+  border-color: var(--user-tint);
+}
+
+.draft-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  width: 100%;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+}
+
+.summary-name {
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.summary-meta {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+}
+
+.summary-meta strong {
+  color: var(--text);
+  font-size: 0.86rem;
+}
+
+.row-controls {
+  display: none;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.draft-row.expanded .row-controls {
+  display: flex;
+}
+
+.compact-field {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 8px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  background: var(--surface-alt);
+  color: var(--text-muted);
+  font-size: 0.72rem;
+}
+
+.compact-field input {
+  width: 52px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--text);
+  font-size: 0.82rem;
+  text-align: right;
+}
+
+.compact-field input:focus {
+  outline: none;
+}
+
+.range-input {
+  flex: 1;
+  accent-color: var(--user-tint);
+}
+
+.btn-remove-draft,
+.btn.icon-only {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  min-height: 30px;
+  padding: 0;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  background: var(--surface-alt);
+  color: var(--text);
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.btn-remove-draft {
+  border-color: color-mix(in srgb, var(--danger) 40%, transparent);
+  background: transparent;
+  color: var(--danger);
+}
+
+.btn-remove-draft:hover {
+  background: var(--danger-soft);
+}
+
+.draft-add-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-2);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--border);
+}
+
+.draft-add-row input {
+  flex: 1;
+  min-height: 32px;
+  padding: 6px 9px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  background: var(--surface-alt);
+  color: var(--text);
+  font-size: 0.85rem;
+}
+
+.draft-add-row input:focus {
+  outline: none;
+  border-color: var(--user-tint);
+}
+
+.allocation-warning {
+  display: grid;
+  gap: 3px;
+  padding: 10px 12px;
+  margin-bottom: var(--space-3);
+  border: 1px solid color-mix(in srgb, var(--danger) 45%, transparent);
+  border-radius: var(--radius);
+  background: var(--danger-soft);
+  color: var(--text);
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+
+.allocation-warning strong {
+  color: var(--danger);
+}
+
+.allocation-summary {
+  display: grid;
+  gap: 4px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+
+.allocation-summary strong {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.allocation-summary.error {
+  border-color: var(--danger);
+}
+
+.allocation-summary strong.error-text,
+.error-message {
+  color: var(--danger);
+}
+
+.error-message {
+  font-size: 0.75rem;
+}
+
+@media (max-width: 720px) {
+  .modal-actions {
+    flex-direction: column-reverse;
+  }
+
+  .modal-actions .btn {
+    width: 100%;
+  }
+}

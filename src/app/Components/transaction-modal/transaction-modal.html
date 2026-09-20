@@ -1,0 +1,102 @@
+<div class="modal-overlay" *ngIf="modal.isOpen()" (click)="onOverlayClick($event)">
+  <div class="modal-card add-modal" role="dialog" aria-modal="true" aria-labelledby="transaction-modal-title">
+    <div class="modal-head">
+      <h3 id="transaction-modal-title">{{ title }}</h3>
+      <button type="button" class="btn icon-btn small ghost" (click)="close()" aria-label="Fechar">×</button>
+    </div>
+
+    <form (ngSubmit)="submit()" class="modal-form">
+      <div class="type-switch" role="radiogroup" aria-label="Tipo de lançamento" *ngIf="!lockType">
+        <button type="button" [class.active]="type === 'saida'" [class.expense]="type === 'saida'" (click)="type = 'saida'; touch()">
+          <app-icon name="arrow-out" [size]="14" />
+          Saída
+        </button>
+        <button type="button" [class.active]="type === 'entrada'" [class.income]="type === 'entrada'" (click)="type = 'entrada'; touch()">
+          <app-icon name="arrow-in" [size]="14" />
+          Entrada
+        </button>
+        <button type="button" [class.active]="type === 'credito'" [class.credit]="type === 'credito'" (click)="type = 'credito'; touch()">
+          <app-icon name="card" [size]="14" />
+          Crédito
+        </button>
+      </div>
+
+      <label class="field">
+        <span>Descrição</span>
+        <input type="text" placeholder="Ex.: mercado, salário" [(ngModel)]="description" name="description" />
+      </label>
+
+      <label class="field">
+        <span>Categoria</span>
+        <input type="text" placeholder="Ex.: alimentação" [(ngModel)]="category" name="category" />
+      </label>
+
+      <div class="field-pair">
+        <label class="field">
+          <span>Valor{{ type === 'credito' && installments > 1 ? ' total' : '' }}</span>
+          <input type="number" placeholder="0,00" [(ngModel)]="amount" (ngModelChange)="touch()" name="amount" min="0" step="0.01" />
+        </label>
+
+        <label class="field">
+          <span>Data</span>
+          <input type="date" [(ngModel)]="date" (ngModelChange)="touch()" name="date" />
+        </label>
+      </div>
+
+      <ng-container *ngIf="type !== 'credito'; else creditFields">
+        <div class="field-pair">
+          <label class="field">
+            <span>Destino</span>
+            <select [(ngModel)]="allocationMode" name="allocationMode">
+              <option value="especifico">Uma divisão</option>
+              <option value="percentual">Distribuir entre todas</option>
+            </select>
+          </label>
+
+          <label class="field" *ngIf="allocationMode === 'especifico'">
+            <span>Divisão</span>
+            <select [(ngModel)]="selectedBucketId" name="selectedBucketId">
+              <option *ngFor="let bucket of financeStore.settings().buckets" [value]="bucket.id">{{ bucket.label }}</option>
+            </select>
+          </label>
+        </div>
+
+        <p class="hint" *ngIf="paidInvoice">
+          <app-icon name="card" [size]="13" />
+          Marca a fatura de <strong>{{ paidInvoice }}</strong> como paga.
+        </p>
+      </ng-container>
+
+      <ng-template #creditFields>
+        <div class="field-pair">
+          <label class="field">
+            <span>Parcelas <em>1 = à vista</em></span>
+            <input type="number" min="1" max="36" step="1" [(ngModel)]="installments" (ngModelChange)="touch()" name="installments" />
+          </label>
+
+          <div class="field" *ngIf="installmentValue() > 0">
+            <span>Cada parcela</span>
+            <strong class="static-value">{{ installmentValue() | currency: 'BRL' }}</strong>
+          </div>
+        </div>
+
+        <p class="hint" *ngIf="invoiceHint() as hint">
+          <app-icon name="card" [size]="13" />
+          {{ hint }}. Não mexe no saldo até a fatura ser paga.
+        </p>
+      </ng-template>
+
+      <p class="form-error" *ngIf="saveError()">
+        <app-icon name="alert" [size]="15" />
+        {{ saveError() }}
+      </p>
+
+      <div class="modal-actions">
+        <button type="button" class="btn ghost" (click)="close()" [disabled]="saving()">Cancelar</button>
+        <button class="btn primary" type="submit" [disabled]="saving()" [class.is-loading]="saving()">
+          Salvar lançamento
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

@@ -1,0 +1,187 @@
+.stat-strip {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) repeat(2, minmax(0, 1fr));
+  gap: var(--space-5);
+  padding-bottom: var(--space-4);
+  margin-bottom: var(--space-4);
+  border-bottom: 1px solid var(--border);
+}
+
+.stat .eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.stat strong {
+  display: block;
+  margin-top: 2px;
+  font-size: 1.35rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.stat small {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 3px;
+  color: var(--text-muted);
+  font-size: 0.74rem;
+}
+
+.stat small a {
+  color: var(--text-muted);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.stat small a:hover {
+  color: var(--user-tint);
+}
+
+.stat-main strong {
+  font-size: clamp(1.9rem, 3.6vw, 2.5rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+.credit-value {
+  color: var(--credit) !important;
+}
+
+.overdue {
+  color: var(--danger) !important;
+}
+
+/* Lista de faturas */
+
+.invoice-list {
+  display: grid;
+  gap: 2px;
+}
+
+.invoice {
+  border-bottom: 1px solid var(--border);
+}
+
+.invoice-head {
+  display: grid;
+  grid-template-columns: 20px minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  padding: var(--space-3) 0;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.14s ease;
+}
+
+.invoice-head:hover {
+  background: var(--hover);
+}
+
+.invoice-chevron {
+  display: inline-flex;
+  color: var(--text-muted);
+  transition: transform 0.16s ease;
+}
+
+.is-open .invoice-chevron {
+  transform: rotate(-90deg);
+}
+
+.invoice-title {
+  display: grid;
+  min-width: 0;
+}
+
+.invoice-title strong {
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+
+.invoice-title small {
+  color: var(--text-muted);
+  font-size: 0.74rem;
+}
+
+.invoice-total {
+  min-width: 96px;
+  text-align: right;
+  font-size: 0.95rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.invoice-total.credit {
+  color: var(--credit);
+}
+
+.status-vencida .invoice-total {
+  color: var(--danger);
+}
+
+.invoice-body {
+  padding: 0 0 var(--space-3) 32px;
+}
+
+.invoice-body .rows {
+  margin-top: 0;
+}
+
+.row-delete {
+  opacity: 0;
+  transition: opacity 0.14s ease;
+}
+
+.data-row:hover .row-delete,
+.row-delete:focus-visible {
+  opacity: 1;
+}
+
+.empty-state.compact {
+  padding: var(--space-3) 0;
+}
+
+.invoice-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding-top: var(--space-3);
+}
+
+@media (max-width: 860px) {
+  .stat-strip {
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-4);
+  }
+
+  .stat-main {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 720px) {
+  .invoice-head {
+    grid-template-columns: 20px minmax(0, 1fr) auto;
+  }
+
+  .invoice-head .tag {
+    display: none;
+  }
+
+  .invoice-body {
+    padding-left: 0;
+  }
+
+  .row-delete {
+    opacity: 1;
+  }
+}

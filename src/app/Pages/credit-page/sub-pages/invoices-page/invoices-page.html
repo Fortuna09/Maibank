@@ -1,0 +1,133 @@
+<section class="stat-strip" aria-label="Resumo do cartão">
+  <div class="stat stat-main" *ngIf="financeStore.openInvoice() as open">
+    <p class="eyebrow">
+      <app-icon name="card" [size]="13" />
+      Fatura aberta · {{ open.label }}
+    </p>
+    <strong class="credit-value">{{ open.total | currency: 'BRL' }}</strong>
+    <small>
+      fecha {{ open.closingDate | date: "d 'de' MMM" }} · vence {{ open.dueDate | date: "d 'de' MMM" }}
+      · <a routerLink="/configuracoes/credito">ajustar</a>
+    </small>
+  </div>
+
+  <div class="stat">
+    <p class="eyebrow">A pagar</p>
+    <strong [class.overdue]="hasOverdue()">{{ pendingTotal() | currency: 'BRL' }}</strong>
+    <small *ngIf="financeStore.pendingInvoices().length; else nothingPending">
+      {{ financeStore.pendingInvoices().length }} {{ financeStore.pendingInvoices().length === 1 ? 'fatura fechada' : 'faturas fechadas' }}
+      <span class="tag expense-tag" *ngIf="hasOverdue()">vencida</span>
+    </small>
+    <ng-template #nothingPending><small>nenhuma fatura fechada</small></ng-template>
+  </div>
+
+  <div class="stat">
+    <p class="eyebrow">Parcelas futuras</p>
+    <strong>{{ financeStore.committedAhead() | currency: 'BRL' }}</strong>
+    <small>já comprometido nas próximas faturas</small>
+  </div>
+</section>
+
+<section class="section">
+  <div class="section-head">
+    <h2>Faturas</h2>
+    <button type="button" class="link-action" (click)="showPaid.set(!showPaid())" *ngIf="paidInvoices().length">
+      {{ showPaid() ? 'Ocultar pagas' : 'Ver pagas (' + paidInvoices().length + ')' }}
+    </button>
+  </div>
+
+  <div class="invoice-list">
+    <ng-container *ngFor="let invoice of activeInvoices()">
+      <ng-container *ngTemplateOutlet="invoiceBlock; context: { $implicit: invoice }"></ng-container>
+    </ng-container>
+
+    <ng-container *ngIf="showPaid()">
+      <ng-container *ngFor="let invoice of paidInvoices()">
+        <ng-container *ngTemplateOutlet="invoiceBlock; context: { $implicit: invoice }"></ng-container>
+      </ng-container>
+    </ng-container>
+  </div>
+</section>
+
+<ng-template #invoiceBlock let-invoice>
+  <div class="invoice" [class.is-open]="isExpanded(invoice)" [class.status-vencida]="invoice.status === 'vencida'">
+    <button type="button" class="invoice-head" (click)="toggle(invoice)" [attr.aria-expanded]="isExpanded(invoice)">
+      <span class="invoice-chevron">
+        <app-icon [name]="isExpanded(invoice) ? 'chevron-left' : 'chevron-right'" [size]="14" />
+      </span>
+
+      <span class="invoice-title">
+        <strong>{{ invoice.label }}</strong>
+        <small>
+          vence {{ invoice.dueDate | date: "d 'de' MMM" }}
+          · {{ invoice.items.length }} {{ invoice.items.length === 1 ? 'item' : 'itens' }}
+        </small>
+      </span>
+
+      <span
+        class="tag"
+        [class.credit-tag]="invoice.status === 'aberta'"
+        [class.warning-tag]="invoice.status === 'fechada'"
+        [class.expense-tag]="invoice.status === 'vencida'"
+        [class.income-tag]="invoice.status === 'paga'"
+      >
+        {{ statusLabel(invoice.status) }}
+      </span>
+
+      <span class="invoice-total" [class.credit]="invoice.status === 'aberta'">{{ invoice.total | currency: 'BRL' }}</span>
+    </button>
+
+    <div class="invoice-body" *ngIf="isExpanded(invoice)">
+      <div class="rows" *ngIf="invoice.items.length; else emptyInvoice">
+        <div class="data-row" *ngFor="let item of invoice.items">
+          <span class="row-icon is-credit"><app-icon [name]="iconFor(item.category)" [size]="16" /></span>
+
+          <div class="row-body">
+            <p class="row-title">{{ item.description }}</p>
+            <small class="row-sub">
+              {{ item.category }} · {{ item.date }}
+              <ng-container *ngIf="item.installments > 1"> · parcela {{ item.installment }}/{{ item.installments }}</ng-container>
+            </small>
+          </div>
+
+          <span class="row-value">{{ item.amount | currency: 'BRL' }}</span>
+
+          <button
+            type="button"
+            class="btn icon-btn small danger row-delete"
+            [class.is-loading]="deletingId() === item.transactionId"
+            (click)="deletePurchase(item.transactionId)"
+            [attr.aria-label]="'Apagar ' + item.description + (item.installments > 1 ? ' (todas as parcelas)' : '')"
+            [title]="item.installments > 1 ? 'Apaga a compra inteira, com todas as parcelas' : 'Apagar compra'"
+          >
+            <app-icon name="trash" [size]="14" />
+          </button>
+        </div>
+      </div>
+
+      <ng-template #emptyInvoice>
+        <div class="empty-state compact">
+          <p>Nenhuma compra nesta fatura ainda.</p>
+          <button type="button" class="btn small" (click)="openCreditModal()" *ngIf="invoice.status === 'aberta'">
+            <app-icon name="plus" [size]="14" />
+            Lançar compra no crédito
+          </button>
+        </div>
+      </ng-template>
+
+      <div class="invoice-foot" *ngIf="invoice.status === 'fechada' || invoice.status === 'vencida'">
+        <span class="row-sub">
+          {{ invoice.status === 'vencida' ? 'Venceu' : 'Vence' }} {{ invoice.dueDate | date: "d 'de' MMMM" }}
+        </span>
+        <button type="button" class="btn primary small" (click)="payInvoice(invoice)">
+          <app-icon name="check" [size]="14" />
+          Registrar pagamento
+        </button>
+      </div>
+
+      <div class="invoice-foot" *ngIf="invoice.status === 'paga'">
+        <span class="row-sub">Paga · lançada como saída no histórico</span>
+      </div>
+    </div>
+  </div>
+</ng-template>

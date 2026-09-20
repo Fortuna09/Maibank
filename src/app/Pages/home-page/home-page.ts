@@ -1,54 +1,111 @@
-import { CurrencyPipe, NgIf } from '@angular/common';
-import { Component, computed, inject } from '@angular/core';
+import { CurrencyPipe, DatePipe, NgFor, NgIf } from '@angular/common';
+import { Component, computed, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { NavBar } from '../../Components/nav-bar/nav-bar';
-import { FinanceStoreService } from '../../Services/finance-store.service';
+import { Icon } from '../../Components/icon/icon';
+import { AppearanceService } from '../../Services/appearance.service';
+import { FinanceGoal, FinanceStoreService, FinanceTransaction } from '../../Services/finance-store.service';
+import { TransactionModalService } from '../../Services/transaction-modal.service';
+import { categoryIcon, transactionIcon } from '../../Utils/finance.utils';
 
 @Component({
   selector: 'app-home-page',
-  imports: [NavBar, RouterLink, CurrencyPipe, NgIf],
+  imports: [Icon, RouterLink, CurrencyPipe, DatePipe, NgFor, NgIf],
   templateUrl: './home-page.html',
   styleUrl: './home-page.scss',
 })
-export class HomePage {
+export class HomePage implements OnInit, OnDestroy {
   readonly financeStore = inject(FinanceStoreService);
+  readonly appearance = inject(AppearanceService);
+  readonly modal = inject(TransactionModalService);
+  readonly isPrivacyMode = signal(false);
+  readonly today = new Date();
 
-  readonly currentMonthExpenses = computed(() => this.getCurrentMonthTotal('saida'));
-  readonly currentMonthIncome = computed(() => this.getCurrentMonthTotal('entrada'));
-  readonly activeGoal = computed(
-    () => this.financeStore.goals().find((goal) => goal.currentAmount < goal.targetAmount) ?? null
+  readonly greeting = computed(() => {
+    const hour = new Date().getHours();
+    const period = hour < 12 ? 'Bom dia' : hour < 18 ? 'Boa tarde' : 'Boa noite';
+    const name = this.appearance.userName();
+    return name ? `${period}, ${name}` : period;
+  });
+
+  readonly dailyBucket = computed(() => {
+    const buckets = this.financeStore.settings().buckets;
+    const normalize = (value: string) =>
+      value.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+
+    const match =
+      buckets.find((bucket) => bucket.id === 'uso-diario') ??
+      buckets.find((bucket) => /uso|diari/.test(normalize(bucket.label)));
+
+    if (!match) {
+      return null;
+    }
+
+    return {
+      label: match.label,
+      amount: this.financeStore.bucketBalances()[match.id] ?? 0,
+    };
+  });
+
+  readonly goals = computed<FinanceGoal[]>(() => this.financeStore.goals());
+
+  readonly goalIndex = signal(0);
+  readonly currentGoal = computed(() => {
+    const goals = this.goals();
+    return goals.length ? goals[this.goalIndex() % goals.length] : null;
+  });
+
+  readonly recentTransactions = computed<FinanceTransaction[]>(() =>
+    [...this.financeStore.transactions()]
+      .sort((left, right) => new Date(right.date).getTime() - new Date(left.date).getTime())
+      .slice(0, 3)
   );
-  readonly activeGoalProgress = computed(() => {
-    const goal = this.activeGoal();
-    return goal ? this.financeStore.getGoalProgress(goal) : 100;
-  });
-  readonly monthlyStatus = computed(() => {
-    const income = this.currentMonthIncome();
-    const expenses = this.currentMonthExpenses();
 
-    if (income === 0 && expenses === 0) {
-      return 'Nenhum lançamento registrado neste mês.';
-    }
+  private carouselTimer?: number;
 
-    if (income >= expenses) {
-      return 'As entradas cobrem as despesas deste mês.';
-    }
-
-    return 'As despesas estão acima das entradas deste mês.';
-  });
-
-  private getCurrentMonthTotal(type: 'entrada' | 'saida'): number {
-    const now = new Date();
-    const month = now.getMonth();
-    const year = now.getFullYear();
-
-    return this.financeStore
-      .transactions()
-      .filter((transaction) => {
-        const date = new Date(`${transaction.date}T00:00:00`);
-        return transaction.type === type && date.getMonth() === month && date.getFullYear() === year;
-      })
-      .reduce((total, transaction) => total + transaction.amount, 0);
+  ngOnInit(): void {
+    this.isPrivacyMode.set(localStorage.getItem('maibank-privacy-mode') === 'true');
+    this.carouselTimer = window.setInterval(() => this.nextGoal(), 6000);
   }
 
+  ngOnDestroy(): void {
+    if (this.carouselTimer) {
+      window.clearInterval(this.carouselTimer);
+    }
+  }
+
+  nextGoal(): void {
+    const total = this.goals().length;
+    if (total > 1) {
+      this.goalIndex.update((index) => (index + 1) % total);
+    }
+  }
+
+  previousGoal(): void {
+    const total = this.goals().length;
+    if (total > 1) {
+      this.goalIndex.update((index) => (index - 1 + total) % total);
+    }
+  }
+
+  togglePrivacyMode(): void {
+    const nextValue = !this.isPrivacyMode();
+    this.isPrivacyMode.set(nextValue);
+    localStorage.setItem('maibank-privacy-mode', String(nextValue));
+  }
+
+  iconFor(label: string): string {
+    return categoryIcon(label);
+  }
+
+  typeIcon(transaction: FinanceTransaction): string {
+    return transactionIcon(transaction.type);
+  }
+
+  goalRemaining(goal: FinanceGoal): number {
+    return this.financeStore.getGoalForecast(goal).remainingAmount;
+  }
+
+  goalForecast(goal: FinanceGoal): string {
+    return this.financeStore.getGoalForecast(goal).statusText;
+  }
 }

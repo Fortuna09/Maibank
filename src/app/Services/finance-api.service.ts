@@ -3,10 +3,12 @@ import { Injectable, inject } from '@angular/core';
 import {
   AllocationSettings,
   CreateGoalPayload,
+  CreditConfig,
   CreateTransactionPayload,
   FinanceGoal,
   FinanceTransaction,
   SalaryConfig,
+  SalaryProcessResult,
 } from '../Models/finance.model';
 
 @Injectable({
@@ -38,7 +40,15 @@ export class FinanceApiService {
   }
 
   processAutomaticSalary() {
-    return this.http.post<{ id: string }>(`${this.apiBaseUrl}/salary-config/process`, {});
+    return this.http.post<SalaryProcessResult>(`${this.apiBaseUrl}/salary-config/process`, {});
+  }
+
+  getCreditConfig() {
+    return this.http.get<CreditConfig>(`${this.apiBaseUrl}/credit-config`);
+  }
+
+  updateCreditConfig(config: Omit<CreditConfig, 'id'>) {
+    return this.http.put(`${this.apiBaseUrl}/credit-config`, config);
   }
 
   getTransactions() {

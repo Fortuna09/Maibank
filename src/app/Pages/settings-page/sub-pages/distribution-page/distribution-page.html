@@ -1,0 +1,111 @@
+<section class="section">
+  <div class="section-head">
+    <h2>Parâmetros de distribuição</h2>
+    <button class="btn" (click)="openOrcamentoEditor()">
+      <app-icon name="sliders" [size]="15" />
+      Editar distribuição
+    </button>
+  </div>
+
+  <p class="base-income">
+    Renda base de <strong>{{ financeStore.settings().baseIncome | currency: 'BRL' }}</strong> dividida assim:
+  </p>
+
+  <div class="rows">
+    <div class="data-row" *ngFor="let preview of financeStore.getAllocationPreviewBySalary(financeStore.settings().baseIncome)">
+      <span class="row-icon"><app-icon [name]="iconFor(preview.label)" [size]="16" /></span>
+
+      <div class="row-body">
+        <p class="row-title">{{ preview.label }}</p>
+        <small class="row-sub">{{ preview.percentage }}% da renda</small>
+      </div>
+
+      <div class="allocation-meter" aria-hidden="true">
+        <div class="progress-track">
+          <span class="progress-fill" [style.width.%]="preview.percentage"></span>
+        </div>
+      </div>
+
+      <strong class="row-value">{{ preview.amount | currency: 'BRL' }}</strong>
+    </div>
+  </div>
+</section>
+
+<!-- Modal de Validação (Aviso/Erro) -->
+<div class="modal-overlay" *ngIf="isShowingValidationAlert" (click)="confirmValidation()">
+  <div class="modal-card alert" [class.error]="validationIsError" [class.success]="!validationIsError" (click)="$event.stopPropagation()">
+    <p class="alert-message" [innerHTML]="validationMessage"></p>
+    <div class="modal-actions" style="margin-top: 20px;">
+      <button type="button" class="btn primary" (click)="confirmValidation()">
+        {{ validationIsError ? 'Entendido' : 'Confirmar' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de Edição de Distribuição -->
+<div class="modal-overlay" *ngIf="isEditingOrcamento" (click)="closeOrcamentoEditor()">
+  <div class="modal-card wide" (click)="$event.stopPropagation()">
+    <h3>Ajustar distribuição</h3>
+    <p>Altere a renda base e gerencie como ela será dividida. Você pode digitar a porcentagem ou o valor em reais.</p>
+
+    <div class="income-summary" [class.expanded]="isEditingIncomeBase">
+      <button type="button" class="income-summary-button" (click)="toggleIncomeBaseEdit()">
+        <span>Renda base</span>
+        <strong>{{ draftIncomeBase | currency: 'BRL' }}</strong>
+      </button>
+
+      <div class="income-edit" *ngIf="isEditingIncomeBase">
+        <label>Renda base mensal (R$)
+          <input type="number" min="0" step="0.01" [(ngModel)]="draftIncomeBase" (ngModelChange)="onDraftIncomeChange()" />
+        </label>
+      </div>
+    </div>
+
+    <div class="allocation-warning" *ngIf="isPercentageOverLimit()">
+      <strong>Atenção:</strong>
+      <span>A soma está acima de 100% e as funções da aplicação ficam bloqueadas até ajustar os valores.</span>
+    </div>
+
+    <div class="draft-buckets-container">
+      <div class="draft-row" *ngFor="let b of draftBuckets; let i = index" [class.expanded]="expandedBucketIndex === i">
+        <button type="button" class="draft-summary" (click)="toggleDraftBucket(i)">
+          <span class="summary-name">{{ b.label || 'Nova divisão' }}</span>
+          <span class="summary-meta">
+            <strong>{{ b.percentage | number:'1.0-2' }}%</strong>
+            <small>{{ b.amount | currency: 'BRL' }}</small>
+          </span>
+        </button>
+
+        <div class="row-controls">
+          <label class="compact-field">
+            <span>%</span>
+            <input type="number" min="0" max="100" step="0.1" [(ngModel)]="b.percentage" (ngModelChange)="onDraftPercentageChange(i)" />
+          </label>
+
+          <input class="range-input" type="range" min="0" max="100" step="0.5" [ngModel]="b.percentage" (ngModelChange)="onSliderChange(i, $event)" />
+
+          <button type="button" class="icon-button danger btn-remove-draft" (click)="removeDraftBucket(i)">×</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="draft-add-row" [class.visible]="isAddingBucket">
+      <input *ngIf="isAddingBucket" type="text" [(ngModel)]="newBucketLabel" placeholder="Nome de uma nova divisão..." />
+      <button type="button" class="btn icon-only" (click)="toggleAddBucket()" [attr.aria-label]="isAddingBucket ? 'Cancelar adição' : 'Adicionar divisão'">
+        {{ isAddingBucket ? '×' : '+' }}
+      </button>
+      <button *ngIf="isAddingBucket" type="button" class="btn ghost" (click)="addDraftBucket()">Adicionar</button>
+    </div>
+
+    <div class="allocation-summary" [class.error]="isPercentageOverLimit()">
+      <span>Soma: <strong [class.error-text]="isPercentageOverLimit()">{{ draftTotalPercentage | number:'1.0-2' }}%</strong></span>
+      <small *ngIf="isPercentageOverLimit()" class="error-message">Ultrapassou 100% — ajuste os valores para continuar.</small>
+    </div>
+
+    <div class="modal-actions" style="margin-top: 16px;">
+      <button type="button" class="btn ghost" (click)="closeOrcamentoEditor()">Cancelar</button>
+      <button type="button" class="btn primary" [disabled]="isPercentageOverLimit() || saving()" [class.is-loading]="saving()" (click)="saveOrcamentoDraft()">Salvar distribuição</button>
+    </div>
+  </div>
+</div>

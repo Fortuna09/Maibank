@@ -1,0 +1,178 @@
+<section class="section">
+  <div class="section-head">
+    <h2>Simular uma compra</h2>
+    <span class="tag">Nada aqui é salvo</span>
+  </div>
+
+  <p class="intro">
+    Diga o que quer comprar e veja como fica o saldo da divisão nos próximos {{ horizon }} meses — comprando e sem comprar.
+  </p>
+
+  <div class="sim-form">
+    <label class="field field-wide">
+      <span>O que você quer comprar</span>
+      <input type="text" placeholder="Ex.: notebook, curso, viagem" [ngModel]="description()" (ngModelChange)="description.set($event)" />
+    </label>
+
+    <label class="field">
+      <span>Valor total</span>
+      <input type="number" min="0" step="0.01" placeholder="0,00" [ngModel]="purchaseTotal()" (ngModelChange)="purchaseTotal.set(+$event || 0)" />
+    </label>
+
+    <label class="field">
+      <span>Forma de pagamento</span>
+      <select [ngModel]="purchaseMode()" (ngModelChange)="purchaseMode.set($event)">
+        <option value="avista">À vista</option>
+        <option value="parcelado">Parcelado</option>
+        <option value="recorrente">Todo mês</option>
+      </select>
+    </label>
+
+    <label class="field" *ngIf="purchaseMode() === 'parcelado'">
+      <span>Parcelas</span>
+      <input type="number" min="1" max="24" step="1" [ngModel]="installments()" (ngModelChange)="installments.set(+$event || 1)" />
+    </label>
+
+    <label class="field">
+      <span>Sai de qual divisão</span>
+      <select [ngModel]="selectedBucket()?.id" (ngModelChange)="bucketId.set($event)">
+        <option *ngFor="let bucket of buckets()" [value]="bucket.id">{{ bucket.label }}</option>
+      </select>
+    </label>
+
+    <label class="field">
+      <span>
+        Renda mensal
+        <em class="field-note" *ngIf="salaryConfigured()">do salário automático</em>
+      </span>
+      <input
+        type="number"
+        min="0"
+        step="0.01"
+        [ngModel]="monthlyIncome()"
+        (ngModelChange)="monthlyIncome.set(+$event || 0)"
+        [disabled]="salaryConfigured()"
+      />
+    </label>
+  </div>
+
+  <p class="context" *ngIf="selectedBucket() as bucket">
+    <app-icon [name]="iconFor(bucket.label)" [size]="13" />
+    {{ bucket.label }} tem <strong>{{ startBalance() | currency: 'BRL' }}</strong> hoje
+    e recebe <strong>{{ monthlyInflow() | currency: 'BRL' }}</strong> por mês ({{ bucket.percentage }}% da renda).
+  </p>
+</section>
+
+<ng-container *ngIf="result() as result">
+  <section class="section" *ngIf="hasPurchase(); else noPurchase" [appPulseOn]="result">
+    <div class="section-head">
+      <h2>Daqui a {{ horizon }} meses</h2>
+      <span class="row-sub" *ngIf="purchaseMode() === 'parcelado'">
+        {{ installments() }}× de {{ monthlyInstallment() | currency: 'BRL' }}
+      </span>
+      <span class="row-sub" *ngIf="purchaseMode() === 'recorrente'">
+        {{ purchaseTotal() | currency: 'BRL' }} por mês, {{ horizon }} meses
+      </span>
+    </div>
+
+    <div class="outcome">
+      <div class="outcome-stat">
+        <p class="eyebrow">Sem comprar</p>
+        <strong>{{ result.finalWithout | currency: 'BRL' }}</strong>
+      </div>
+
+      <div class="outcome-stat outcome-with">
+        <p class="eyebrow">
+          <app-icon name="bag" [size]="13" />
+          Comprando{{ description() ? ' ' + description() : '' }}
+        </p>
+        <strong [class.negative]="result.finalWith < 0">{{ result.finalWith | currency: 'BRL' }}</strong>
+      </div>
+
+      <div class="outcome-stat">
+        <p class="eyebrow">Diferença</p>
+        <strong class="expense">-{{ result.totalDifference | currency: 'BRL' }}</strong>
+        <small>é o que a compra custa até lá</small>
+      </div>
+    </div>
+
+    <p class="form-error warning" *ngIf="result.firstNegativeMonth as neg">
+      <app-icon name="alert" [size]="15" />
+      Comprando, o saldo de {{ selectedBucket()?.label }} ficaria negativo em <strong>{{ neg.label }}</strong>
+      ({{ neg.with | currency: 'BRL' }}).
+    </p>
+
+    <div class="chart-legend">
+      <span><i class="legend-line dashed"></i> Sem comprar</span>
+      <span><i class="legend-line solid"></i> Comprando</span>
+    </div>
+
+    <div class="chart-canvas-wrap">
+      <svg #chart class="sim-chart" viewBox="0 0 760 240" preserveAspectRatio="none" aria-label="Projeção do saldo"></svg>
+    </div>
+  </section>
+
+  <ng-template #noPurchase>
+    <div class="empty-state">
+      <span class="empty-icon"><app-icon name="bag" [size]="20" /></span>
+      <p>Informe o valor da compra para ver a projeção.</p>
+    </div>
+  </ng-template>
+
+  <div class="split" *ngIf="hasPurchase()" [appPulseOn]="result">
+    <section class="section">
+      <div class="section-head">
+        <h2>Mês a mês</h2>
+      </div>
+
+      <div class="rows">
+        <div class="data-row month-row head-row">
+          <span class="month-label">Mês</span>
+          <span class="month-num">Sem comprar</span>
+          <span class="month-num">Comprando</span>
+          <span class="month-num">Compra</span>
+        </div>
+
+        <div class="data-row month-row" *ngFor="let month of result.months">
+          <span class="month-label">{{ month.label }}</span>
+          <span class="month-num">{{ month.without | currency: 'BRL' }}</span>
+          <span class="month-num" [class.negative]="month.with < 0">{{ month.with | currency: 'BRL' }}</span>
+          <span class="month-num muted">{{ month.purchaseCost > 0 ? ('-' + (month.purchaseCost | currency: 'BRL')) : '—' }}</span>
+        </div>
+      </div>
+    </section>
+
+    <aside class="section">
+      <div class="section-head">
+        <h2>Impacto nas metas</h2>
+      </div>
+
+      <p class="intro" *ngIf="impacts().length">
+        Se você cobrir a compra deixando de guardar para a meta:
+      </p>
+
+      <div class="rows" *ngIf="impacts().length; else noGoals">
+        <div class="data-row" *ngFor="let impact of impacts()">
+          <span class="row-icon"><app-icon [name]="iconFor(impact.goal.title)" [size]="16" /></span>
+          <div class="row-body">
+            <p class="row-title">{{ impact.goal.title }}</p>
+            <small class="row-sub">
+              {{ impact.monthsBefore }} {{ impact.monthsBefore === 1 ? 'mês' : 'meses' }}
+              → {{ impact.monthsAfter }} {{ impact.monthsAfter === 1 ? 'mês' : 'meses' }}
+            </small>
+          </div>
+          <span class="tag" [class.warning-tag]="impact.delayMonths > 0">
+            {{ impact.delayMonths > 0 ? '+' + impact.delayMonths + (impact.delayMonths === 1 ? ' mês' : ' meses') : 'sem atraso' }}
+          </span>
+        </div>
+      </div>
+
+      <ng-template #noGoals>
+        <div class="empty-state">
+          <span class="empty-icon"><app-icon name="flag" [size]="20" /></span>
+          <p>Nenhuma meta em andamento para comparar.</p>
+        </div>
+      </ng-template>
+    </aside>
+  </div>
+</ng-container>

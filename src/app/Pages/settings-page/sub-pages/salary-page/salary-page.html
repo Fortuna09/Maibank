@@ -1,0 +1,67 @@
+<section class="section">
+  <div class="section-head">
+    <h2>Salário automático</h2>
+    <span class="tag" [class.income-tag]="draft.isEnabled">{{ draft.isEnabled ? 'Ativo' : 'Inativo' }}</span>
+  </div>
+
+  <p class="intro">
+    Lança sua renda como entrada todo mês e distribui entre as divisões conforme as porcentagens configuradas.
+    O lançamento acontece na primeira vez que você abrir o app no dia escolhido ou depois.
+  </p>
+
+  <form class="salary-form" (ngSubmit)="save()">
+    <label class="toggle-row">
+      <input type="checkbox" [(ngModel)]="draft.isEnabled" name="isEnabled" />
+      <span>
+        <strong>Ativar lançamento automático</strong>
+        <small>Desligado, nada é lançado sozinho — você registra o salário à mão.</small>
+      </span>
+    </label>
+
+    <div class="salary-fields" *ngIf="draft.isEnabled">
+      <label class="field">
+        <span>Valor do salário</span>
+        <input type="number" min="0" step="0.01" placeholder="0,00" [(ngModel)]="draft.amount" name="amount" />
+      </label>
+
+      <label class="field">
+        <span>Dia do mês em que cai</span>
+        <input type="number" min="1" max="28" step="1" [(ngModel)]="draft.payDay" name="payDay" />
+      </label>
+
+      <label class="field field-wide">
+        <span>Descrição do lançamento</span>
+        <input type="text" placeholder="Ex.: Salário" [(ngModel)]="draft.description" name="description" />
+      </label>
+    </div>
+
+    <p class="context" *ngIf="draft.isEnabled && draft.amount > 0">
+      <app-icon name="calendar" [size]="13" />
+      Todo dia <strong>{{ draft.payDay }}</strong>, <strong>{{ draft.amount | currency: 'BRL' }}</strong> entra e é dividido entre as divisões.
+    </p>
+
+    <p class="form-error" *ngIf="error()">
+      <app-icon name="alert" [size]="15" />
+      {{ error() }}
+    </p>
+
+    <div class="actions">
+      <button
+        type="button"
+        class="btn ghost"
+        *ngIf="draft.isEnabled"
+        [disabled]="processing()"
+        [class.is-loading]="processing()"
+        (click)="processNow()"
+      >
+        <app-icon name="arrow-in" [size]="15" />
+        Processar salário agora
+      </button>
+
+      <button type="submit" class="btn primary" [disabled]="saving()" [class.is-loading]="saving()">
+        <app-icon name="check" [size]="15" />
+        Salvar
+      </button>
+    </div>
+  </form>
+</section>

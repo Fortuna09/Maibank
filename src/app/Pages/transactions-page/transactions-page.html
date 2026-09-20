@@ -1,0 +1,19 @@
+<main class="page section-shell" aria-label="Lançamentos">
+  <div class="subnav-wrap">
+    <div class="page-inner subnav-row">
+      <nav class="subnav" aria-label="Seções de lançamentos">
+        <a routerLink="geral" routerLinkActive="active-tab" [routerLinkActiveOptions]="{ exact: true }">Geral</a>
+        <a routerLink="historico" routerLinkActive="active-tab">Histórico</a>
+      </nav>
+
+      <button type="button" class="btn primary small subnav-action" (click)="modal.open()">
+        <app-icon name="plus" [size]="14" />
+        Novo lançamento
+      </button>
+    </div>
+  </div>
+
+  <div class="page-inner subnav-panel" aria-live="polite">
+    <router-outlet />
+  </div>
+</main>
