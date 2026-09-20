@@ -40,3 +40,7 @@ testem.log
 # System files
 .DS_Store
 Thumbs.db
+
+# Segredos do backend (chaves de API, senha do banco)
+backend/.env
+backend/node_modules
