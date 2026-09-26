@@ -5,7 +5,7 @@ import { Icon } from '../../Components/icon/icon';
 import { GoalSaveFrequency } from '../../Models/finance.model';
 import { FeedbackService } from '../../Services/feedback.service';
 import { FinanceGoal, FinanceStoreService } from '../../Services/finance-store.service';
-import { categoryIcon } from '../../Utils/finance.utils';
+import { categoryIcon, todayLocalIso } from '../../Utils/finance.utils';
 
 @Component({
   selector: 'app-goals-page',
@@ -67,7 +67,7 @@ export class GoalsPage {
             dueDate: this.dueDate || null,
             saveAmount: this.saveAmount,
             saveFrequency: this.saveFrequency,
-            createdAt: new Date().toISOString().slice(0, 10),
+            createdAt: todayLocalIso(),
           }),
         { success: 'Meta criada' }
       )

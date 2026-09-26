@@ -10,13 +10,15 @@ import {
   SalaryConfig,
   SalaryProcessResult,
 } from '../Models/finance.model';
+import { todayLocalIso } from '../Utils/finance.utils';
 
 @Injectable({
   providedIn: 'root',
 })
 export class FinanceApiService {
   private readonly http = inject(HttpClient);
-  private readonly apiBaseUrl = 'http://localhost:3001/api';
+  // Relativo: em produção a Vercel serve front e API no mesmo domínio; no dev o `ng serve` faz proxy.
+  private readonly apiBaseUrl = '/api';
 
   getSettings() {
     return this.http.get<{ baseIncome: number; buckets: Array<{ id: string; label: string; percentage: number }> }>(
@@ -75,7 +77,7 @@ export class FinanceApiService {
       dueDate: payload.dueDate,
       saveAmount: Math.max(0, Number(payload.saveAmount)),
       saveFrequency: payload.saveFrequency,
-      createdAt: payload.createdAt ?? new Date().toISOString().slice(0, 10),
+      createdAt: payload.createdAt ?? todayLocalIso(),
     });
   }
 
@@ -87,7 +89,7 @@ export class FinanceApiService {
       currentAmount: Math.max(0, Number(payload.currentAmount)),
       saveAmount: Math.max(0, Number(payload.saveAmount)),
       saveFrequency: payload.saveFrequency,
-      createdAt: payload.createdAt ?? new Date().toISOString().slice(0, 10),
+      createdAt: payload.createdAt ?? todayLocalIso(),
     });
   }
 
@@ -95,7 +97,7 @@ export class FinanceApiService {
     return this.http.delete(`${this.apiBaseUrl}/goals/${goalId}`);
   }
 
-  addGoalContribution(goalId: string, amount: number, date = new Date().toISOString().slice(0, 10)) {
+  addGoalContribution(goalId: string, amount: number, date = todayLocalIso()) {
     return this.http.post(`${this.apiBaseUrl}/goals/${goalId}/contributions`, { amount, date });
   }
 }

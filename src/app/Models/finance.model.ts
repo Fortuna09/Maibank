@@ -19,7 +19,7 @@ export interface AllocationSettings {
 }
 
 export interface SalaryConfig {
-  id: number;
+  id?: number;
   isEnabled: boolean;
   amount: number;
   description: string;
@@ -50,7 +50,7 @@ export interface FinanceTransaction {
 }
 
 export interface CreditConfig {
-  id: number;
+  id?: number;
   closingDay: number;
   dueDay: number;
 }
@@ -90,12 +90,12 @@ export interface CreateGoalPayload {
   createdAt?: string;
 }
 
+/** Espelha as divisões com que o backend cria toda conta nova (backend/src/modules/settings/defaults.js). */
 export const DEFAULT_ALLOCATION_SETTINGS: AllocationSettings = {
-  baseIncome: 2700,
+  baseIncome: 0,
   buckets: [
-    { id: 'reserva-emergencia', label: 'Reserva de emergencia', percentage: 37 },
-    { id: 'uso-diario', label: 'Uso diario', percentage: 37 },
-    { id: 'carro', label: 'Gastos com carro', percentage: 11 },
-    { id: 'planos-futuros', label: 'Planos futuros', percentage: 15 },
+    { id: 'uso-diario', label: 'Uso diário', percentage: 50 },
+    { id: 'reserva-emergencia', label: 'Reserva de emergência', percentage: 30 },
+    { id: 'planos-futuros', label: 'Planos futuros', percentage: 20 },
   ],
 };

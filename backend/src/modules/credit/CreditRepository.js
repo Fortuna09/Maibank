@@ -1,18 +1,22 @@
 import { pool } from '../../db.js';
 
-const DEFAULT_CONFIG = { id: 1, closing_day: 25, due_day: 5 };
+const DEFAULT_ROW = { closing_day: 25, due_day: 5 };
 
 export class CreditRepository {
   constructor(db = pool) {
     this.db = db;
   }
 
-  async findConfigRow() {
-    const [rows] = await this.db.query('SELECT * FROM credit_config LIMIT 1');
-    return rows[0] || DEFAULT_CONFIG;
+  async findConfigRow(userId) {
+    const { rows } = await this.db.query('SELECT closing_day, due_day FROM credit_config WHERE user_id = $1', [userId]);
+    return rows[0] ?? DEFAULT_ROW;
   }
 
-  async updateConfig({ closingDay, dueDay }) {
-    await this.db.query('UPDATE credit_config SET closing_day = ?, due_day = ? WHERE id = 1', [closingDay, dueDay]);
+  async upsertConfig(userId, { closingDay, dueDay }) {
+    await this.db.query(
+      `INSERT INTO credit_config (user_id, closing_day, due_day) VALUES ($1, $2, $3)
+       ON CONFLICT (user_id) DO UPDATE SET closing_day = EXCLUDED.closing_day, due_day = EXCLUDED.due_day`,
+      [userId, closingDay, dueDay]
+    );
   }
 }

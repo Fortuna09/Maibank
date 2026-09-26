@@ -285,8 +285,48 @@
   margin: 0;
 }
 
-.settings-toggle {
+/* Rodapé da barra: ajuda (?) + configurações */
+.nav-footer {
+  display: flex;
+  gap: 6px;
   margin-top: auto;
+}
+
+.nav-footer .settings-toggle {
+  flex: 1;
+  min-width: 0;
+}
+
+.help-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  flex-shrink: 0;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  background: var(--surface-alt);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.help-toggle:hover,
+.help-toggle:focus-visible {
+  color: var(--text);
+  border-color: color-mix(in srgb, var(--user-tint) 55%, var(--border));
+}
+
+.sidebar.sidebar-collapsed .nav-footer {
+  flex-direction: column;
+}
+
+.sidebar.sidebar-collapsed .help-toggle {
+  width: 100%;
+  min-height: 36px;
+}
+
+.settings-toggle {
   display: inline-flex;
   align-items: center;
   justify-content: center;

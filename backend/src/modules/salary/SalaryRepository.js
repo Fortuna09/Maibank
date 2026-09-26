@@ -1,11 +1,10 @@
 import { pool } from '../../db.js';
 
-const DEFAULT_CONFIG = {
-  id: 1,
+const DEFAULT_ROW = {
   is_enabled: false,
   amount: 0,
   description: 'Salário automático',
-  business_day: 5,
+  pay_day: 5,
   last_processed_month: 0,
 };
 
@@ -14,20 +13,30 @@ export class SalaryRepository {
     this.db = db;
   }
 
-  /** Linha crua da configuração (a tabela tem uma só). */
-  async findConfigRow() {
-    const [rows] = await this.db.query('SELECT * FROM salary_config LIMIT 1');
-    return rows[0] || DEFAULT_CONFIG;
+  /** Configuração do usuário, ou os valores padrão se ele nunca salvou. */
+  async findConfigRow(userId) {
+    const { rows } = await this.db.query('SELECT * FROM salary_config WHERE user_id = $1', [userId]);
+    return rows[0] ?? DEFAULT_ROW;
   }
 
-  async updateConfig({ isEnabled, amount, description, payDay }) {
+  async upsertConfig(userId, { isEnabled, amount, description, payDay }) {
     await this.db.query(
-      'UPDATE salary_config SET is_enabled = ?, amount = ?, description = ?, business_day = ? WHERE id = 1',
-      [isEnabled, amount, description, payDay]
+      `INSERT INTO salary_config (user_id, is_enabled, amount, description, pay_day) VALUES ($1, $2, $3, $4, $5)
+       ON CONFLICT (user_id) DO UPDATE
+         SET is_enabled = EXCLUDED.is_enabled, amount = EXCLUDED.amount,
+             description = EXCLUDED.description, pay_day = EXCLUDED.pay_day`,
+      [userId, isEnabled, amount, description, payDay]
     );
   }
 
-  async markProcessed(connection, month) {
-    await connection.query('UPDATE salary_config SET last_processed_month = ? WHERE id = 1', [month]);
+  /** Garante a linha e a trava até o fim da transação (evita lançar o salário duas vezes). */
+  async lockConfig(client, userId) {
+    await client.query('INSERT INTO salary_config (user_id) VALUES ($1) ON CONFLICT (user_id) DO NOTHING', [userId]);
+    const { rows } = await client.query('SELECT * FROM salary_config WHERE user_id = $1 FOR UPDATE', [userId]);
+    return rows[0];
+  }
+
+  async markProcessed(client, userId, month) {
+    await client.query('UPDATE salary_config SET last_processed_month = $2 WHERE user_id = $1', [userId, month]);
   }
 }

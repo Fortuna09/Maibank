@@ -1,0 +1,35 @@
+<section class="section">
+  <div class="section-head">
+    <h2>Tour guiado</h2>
+  </div>
+
+  <div class="tour-row">
+    <p>Um passeio rápido pelas telas, mostrando para que serve cada parte. Leva um minuto.</p>
+    <button type="button" class="btn primary" (click)="tour.start()">
+      <app-icon name="help" [size]="15" />
+      Rever o tour
+    </button>
+  </div>
+</section>
+
+<section class="section">
+  <div class="section-head">
+    <h2>Perguntas frequentes</h2>
+  </div>
+
+  <div class="faq">
+    @for (topic of topics; track topic.question) {
+      <details>
+        <summary>
+          <span>{{ topic.question }}</span>
+          <app-icon name="chevron-right" [size]="15" />
+        </summary>
+        <div class="faq-answer">
+          @for (paragraph of topic.answer; track $index) {
+            <p>{{ paragraph }}</p>
+          }
+        </div>
+      </details>
+    }
+  </div>
+</section>

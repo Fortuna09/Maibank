@@ -1,5 +1,6 @@
-import { Injectable, computed, inject, signal } from '@angular/core';
+import { Injectable, computed, effect, inject, signal, untracked } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
+import { AuthService } from './auth.service';
 import { FinanceApiService } from './finance-api.service';
 import {
   AllocationBucket,
@@ -33,6 +34,7 @@ export * from '../Models/finance.model';
 })
 export class FinanceStoreService {
   private readonly api = inject(FinanceApiService);
+  private readonly auth = inject(AuthService);
 
   private readonly transactionsSignal = signal<FinanceTransaction[]>([]);
   private readonly goalsSignal = signal<FinanceGoal[]>([]);
@@ -112,7 +114,18 @@ export class FinanceStoreService {
   });
 
   constructor() {
-    void this.loadInitialData();
+    // Os dados são da conta logada: carrega ao entrar (ou trocar de conta) e zera ao sair.
+    effect(() => {
+      const user = this.auth.user();
+      untracked(() => (user ? void this.loadInitialData() : this.reset()));
+    });
+  }
+
+  private reset(): void {
+    this.transactionsSignal.set([]);
+    this.goalsSignal.set([]);
+    this.settingsSignal.set(DEFAULT_ALLOCATION_SETTINGS);
+    this.creditConfigSignal.set(DEFAULT_CREDIT_CONFIG);
   }
 
   addTransaction(payload: CreateTransactionPayload): Promise<void> {
@@ -495,7 +508,6 @@ export class FinanceStoreService {
     } catch (error) {
       console.error('Erro ao carregar configuração de salário', error);
       return {
-        id: 1,
         isEnabled: false,
         amount: 0,
         description: 'Salário automático',

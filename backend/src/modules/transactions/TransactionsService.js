@@ -3,27 +3,30 @@ import { withTransaction } from '../../db.js';
 import { HttpError } from '../../http/HttpError.js';
 
 const TYPES = new Set(['entrada', 'saida', 'credito']);
+const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
+const INVOICE_PATTERN = /^\d{4}-\d{2}$/;
 
 export class TransactionsService {
   constructor(repository) {
     this.repository = repository;
   }
 
-  list() {
-    return this.repository.findAll();
+  list(userId) {
+    return this.repository.findAll(userId);
   }
 
   /**
    * Cria um lançamento com suas alocações. Crédito não mexe em saldo nem
    * divisões — só cai na fatura — então não tem alocações.
    */
-  async create(payload) {
+  async create(userId, payload) {
     const { description, type, amount, category, date, allocationMode, allocations, installments, paidInvoice } = payload;
 
     const isCredit = type === 'credito';
     const allocationList = isCredit ? [] : Array.isArray(allocations) ? allocations : [];
+    const numericAmount = Number(amount);
 
-    if (!description || !TYPES.has(type) || !amount || !category || !date || !allocationMode) {
+    if (!description || !TYPES.has(type) || !(numericAmount > 0) || !category || !DATE_PATTERN.test(String(date)) || !allocationMode) {
       throw HttpError.badRequest('Dados de transacao invalidos.');
     }
     if (!isCredit && allocationList.length === 0) {
@@ -32,27 +35,30 @@ export class TransactionsService {
 
     const transaction = {
       id: randomUUID(),
-      description,
+      description: String(description).slice(0, 200),
       type,
-      amount: Number(amount),
-      category,
+      amount: numericAmount,
+      category: String(category).slice(0, 120),
       date,
       allocationMode,
-      installments: isCredit ? Math.max(1, Math.round(Number(installments) || 1)) : 1,
-      paidInvoice: paidInvoice ? String(paidInvoice).slice(0, 7) : null,
+      installments: isCredit ? Math.min(60, Math.max(1, Math.round(Number(installments) || 1))) : 1,
+      paidInvoice: INVOICE_PATTERN.test(String(paidInvoice ?? '')) ? paidInvoice : null,
     };
 
-    await withTransaction(async (connection) => {
-      await this.repository.insert(connection, transaction);
+    await withTransaction(async (client) => {
+      await this.repository.insert(client, userId, transaction);
       for (const allocation of allocationList) {
-        await this.repository.insertAllocation(connection, transaction.id, allocation);
+        await this.repository.insertAllocation(client, userId, transaction.id, allocation);
       }
     });
 
     return { id: transaction.id };
   }
 
-  remove(id) {
-    return this.repository.deleteById(id);
+  async remove(userId, id) {
+    const deleted = await this.repository.deleteById(userId, id);
+    if (!deleted) {
+      throw HttpError.notFound('Lançamento não encontrado.');
+    }
   }
 }

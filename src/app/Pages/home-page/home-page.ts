@@ -3,6 +3,7 @@ import { Component, computed, inject, OnDestroy, OnInit, signal } from '@angular
 import { RouterLink } from '@angular/router';
 import { Icon } from '../../Components/icon/icon';
 import { AppearanceService } from '../../Services/appearance.service';
+import { AuthService } from '../../Services/auth.service';
 import { FinanceGoal, FinanceStoreService, FinanceTransaction } from '../../Services/finance-store.service';
 import { TransactionModalService } from '../../Services/transaction-modal.service';
 import { categoryIcon, transactionIcon } from '../../Utils/finance.utils';
@@ -16,6 +17,7 @@ import { categoryIcon, transactionIcon } from '../../Utils/finance.utils';
 export class HomePage implements OnInit, OnDestroy {
   readonly financeStore = inject(FinanceStoreService);
   readonly appearance = inject(AppearanceService);
+  private readonly auth = inject(AuthService);
   readonly modal = inject(TransactionModalService);
   readonly isPrivacyMode = signal(false);
   readonly today = new Date();
@@ -23,7 +25,7 @@ export class HomePage implements OnInit, OnDestroy {
   readonly greeting = computed(() => {
     const hour = new Date().getHours();
     const period = hour < 12 ? 'Bom dia' : hour < 18 ? 'Boa tarde' : 'Boa noite';
-    const name = this.appearance.userName();
+    const name = this.appearance.userName() || this.auth.firstName();
     return name ? `${period}, ${name}` : period;
   });
 

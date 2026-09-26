@@ -1,0 +1,49 @@
+<section class="section">
+  <div class="section-head">
+    <h2>Sua conta</h2>
+  </div>
+
+  @if (auth.user(); as user) {
+    <div class="rows account-rows">
+      <div class="data-row">
+        <span class="row-icon"><app-icon name="user" [size]="16" /></span>
+        <div class="row-body">
+          <small class="row-sub">Nome</small>
+          <p class="row-title">{{ user.name }}</p>
+        </div>
+      </div>
+
+      <div class="data-row">
+        <span class="row-icon"><app-icon name="mail" [size]="16" /></span>
+        <div class="row-body">
+          <small class="row-sub">E-mail</small>
+          <p class="row-title">{{ user.email }}</p>
+        </div>
+        <span class="tag income-tag">confirmado</span>
+      </div>
+    </div>
+  }
+
+  <p class="intro">
+    Seus lançamentos, metas e configurações ficam guardados na sua conta. Aparência, capa e a conversa com a Mai
+    ficam só neste navegador — a conversa e a chave da Mai são apagadas quando você sai.
+  </p>
+
+  <div class="actions">
+    @if (confirmingAll()) {
+      <span class="confirm-text">Encerrar a sessão em todos os navegadores e celulares, inclusive este?</span>
+      <button type="button" class="btn ghost" (click)="confirmingAll.set(false)" [disabled]="leaving() !== null">Cancelar</button>
+      <button type="button" class="btn danger" (click)="logoutEverywhere()" [disabled]="leaving() !== null" [class.is-loading]="leaving() === 'all'">
+        Sair de todos
+      </button>
+    } @else {
+      <button type="button" class="btn ghost" (click)="confirmingAll.set(true)" [disabled]="leaving() !== null">
+        Sair de todos os dispositivos
+      </button>
+      <button type="button" class="btn" (click)="logout()" [disabled]="leaving() !== null" [class.is-loading]="leaving() === 'this'">
+        <app-icon name="logout" [size]="15" />
+        Sair
+      </button>
+    }
+  </div>
+</section>

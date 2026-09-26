@@ -8,9 +8,11 @@ import {
   AssistantPanelState,
 } from '../Models/assistant.model';
 import { AppearanceService } from './appearance.service';
+import { AuthService } from './auth.service';
 import { MockAssistantClient } from './assistant-mock.client';
 import { FeedbackService } from './feedback.service';
 import { FinanceStoreService } from './finance-store.service';
+import { todayLocalIso } from '../Utils/finance.utils';
 
 const STORAGE_PANEL = 'maibank-assistant-panel';
 const STORAGE_MESSAGES = 'maibank-assistant-messages';
@@ -45,6 +47,7 @@ export class AssistantService {
   private readonly appearance = inject(AppearanceService);
   private readonly feedback = inject(FeedbackService);
   private readonly router = inject(Router);
+  private readonly auth = inject(AuthService);
 
   /** Troque por um cliente real quando a chave estiver configurada (ver assistant-prompt.ts). */
   private client: AssistantClient = new MockAssistantClient();
@@ -63,6 +66,14 @@ export class AssistantService {
   readonly isConnected = computed(() => this.apiKey().trim().length > 0);
 
   constructor() {
+    // A conversa tem dados financeiros e a chave é de quem a colou: nada disso fica para a próxima pessoa no navegador.
+    this.auth.onLogout(() => {
+      this.messages.set([]);
+      this.unread.set(0);
+      this.apiKey.set('');
+      this.panel.set('closed');
+    });
+
     effect(() => write(STORAGE_PANEL, this.panel()));
     effect(() => write(STORAGE_MESSAGES, this.messages().slice(-MAX_MESSAGES)));
     effect(() => write(STORAGE_API_KEY, this.apiKey()));
@@ -213,8 +224,8 @@ export class AssistantService {
     const openInvoice = this.financeStore.openInvoice();
 
     return {
-      today: new Date().toISOString().slice(0, 10),
-      userName: this.appearance.userName(),
+      today: todayLocalIso(),
+      userName: this.appearance.userName() || this.auth.firstName(),
       saldoTotal: this.financeStore.saldoAtual(),
       buckets: settings.buckets.map((bucket) => ({
         id: bucket.id,

@@ -44,3 +44,6 @@ Thumbs.db
 # Segredos do backend (chaves de API, senha do banco)
 backend/.env
 backend/node_modules
+
+# Backups do banco (dados financeiros pessoais)
+infra/backups/

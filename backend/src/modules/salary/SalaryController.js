@@ -10,17 +10,17 @@ export class SalaryController {
     this.router.post('/process', asyncHandler(this.process));
   }
 
-  get = async (_req, res) => {
-    res.json(await this.service.getConfig());
+  get = async (req, res) => {
+    res.json(await this.service.getConfig(req.user.id));
   };
 
   update = async (req, res) => {
-    await this.service.updateConfig(req.body ?? {});
+    await this.service.updateConfig(req.user.id, req.body ?? {});
     res.json({ ok: true });
   };
 
-  process = async (_req, res) => {
-    const result = await this.service.process();
+  process = async (req, res) => {
+    const result = await this.service.process(req.user.id);
     // 201 só quando um lançamento foi criado; "nada a fazer" é 200 para não sujar o console do app.
     res.status(result.processed ? 201 : 200).json({ ok: true, ...result });
   };

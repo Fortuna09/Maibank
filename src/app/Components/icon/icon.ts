@@ -102,6 +102,23 @@ import { Component, input } from '@angular/core';
         @case ('shrink') {
           <path d="M10 4.5V10H4.5M14 19.5V14h5.5M10 10 4.5 4.5M14 14l5.5 5.5" />
         }
+        @case ('help') {
+          <circle cx="12" cy="12" r="8.6" />
+          <path d="M9.7 9.5a2.4 2.4 0 0 1 4.6 1c0 1.6-2.3 2-2.3 3.3" />
+          <path d="M12 16.9v.1" />
+        }
+        @case ('user') {
+          <circle cx="12" cy="8.4" r="3.6" />
+          <path d="M5 20c.9-3.6 3.7-5.6 7-5.6s6.1 2 7 5.6" />
+        }
+        @case ('logout') {
+          <path d="M13.5 4.5H6.5A1.5 1.5 0 0 0 5 6v12a1.5 1.5 0 0 0 1.5 1.5h7" />
+          <path d="M10 12h10M16.5 8.5 20 12l-3.5 3.5" />
+        }
+        @case ('mail') {
+          <rect x="3.5" y="5.5" width="17" height="13" rx="1.5" />
+          <path d="m4 7 8 6 8-6" />
+        }
         @case ('card') {
           <rect x="3" y="5.5" width="18" height="13" rx="1.5" />
           <path d="M3 10h18M7 15h3.5" />

@@ -1,0 +1,8 @@
+# Nunca enviar para a Vercel (vale para deploy pela CLI; pelo GitHub o .gitignore já cobre)
+infra/backups
+backend/.env
+**/.env
+node_modules
+backend/node_modules
+dist
+.angular

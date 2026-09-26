@@ -2,10 +2,11 @@ import { CurrencyPipe, NgFor, NgIf } from '@angular/common';
 import { Component, computed, effect, ElementRef, inject, signal, viewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
+import { AmountModeSwitch } from '../../../../Components/amount-mode-switch/amount-mode-switch';
 import { Icon } from '../../../../Components/icon/icon';
 import { PulseOnDirective } from '../../../../Directives/pulse-on.directive';
 import { FinanceStoreService } from '../../../../Services/finance-store.service';
-import { categoryIcon } from '../../../../Utils/finance.utils';
+import { AmountMode, categoryIcon, installmentFromTotal, totalFromInstallment } from '../../../../Utils/finance.utils';
 import {
   goalImpacts,
   projectBucket,
@@ -17,7 +18,7 @@ const HORIZON_MONTHS = 6;
 
 @Component({
   selector: 'app-purchase-simulation-page',
-  imports: [FormsModule, NgFor, NgIf, CurrencyPipe, Icon, PulseOnDirective],
+  imports: [FormsModule, NgFor, NgIf, CurrencyPipe, Icon, PulseOnDirective, AmountModeSwitch],
   templateUrl: './purchase-simulation-page.html',
   styleUrl: './purchase-simulation-page.scss',
 })
@@ -29,6 +30,9 @@ export class PurchaseSimulationPage {
 
   readonly description = signal('');
   readonly purchaseTotal = signal(0);
+  /** Só vale no parcelado: dá para digitar a parcela em vez do total. */
+  readonly amountMode = signal<AmountMode>('total');
+  readonly perInstallment = signal(0);
   readonly purchaseMode = signal<PurchaseMode>('avista');
   readonly installments = signal(3);
   readonly bucketId = signal('');
@@ -55,7 +59,16 @@ export class PurchaseSimulationPage {
     return bucket ? Math.round(((this.monthlyIncome() * bucket.percentage) / 100) * 100) / 100 : 0;
   });
 
-  readonly hasPurchase = computed(() => this.purchaseTotal() > 0);
+  readonly installmentCount = computed(() => Math.max(1, Math.round(this.installments() || 1)));
+
+  readonly usesInstallmentInput = computed(() => this.purchaseMode() === 'parcelado' && this.amountMode() === 'parcela');
+
+  /** Valor que entra no motor: o digitado, ou parcela × quantidade. */
+  readonly total = computed(() =>
+    this.usesInstallmentInput() ? totalFromInstallment(this.perInstallment(), this.installmentCount()) : this.purchaseTotal()
+  );
+
+  readonly hasPurchase = computed(() => this.total() > 0);
 
   readonly result = computed<SimulationResult | null>(() => {
     const bucket = this.selectedBucket();
@@ -67,7 +80,7 @@ export class PurchaseSimulationPage {
       startBalance: this.startBalance(),
       monthlyIncome: this.monthlyIncome(),
       bucketPercentage: bucket.percentage,
-      purchaseTotal: this.purchaseTotal(),
+      purchaseTotal: this.total(),
       purchaseMode: this.purchaseMode(),
       installments: this.installments(),
       months: HORIZON_MONTHS,
@@ -83,7 +96,7 @@ export class PurchaseSimulationPage {
   });
 
   readonly monthlyInstallment = computed(() =>
-    this.purchaseMode() === 'parcelado' ? this.purchaseTotal() / Math.max(1, this.installments()) : 0
+    this.purchaseMode() === 'parcelado' ? this.total() / this.installmentCount() : 0
   );
 
   readonly chartEffect = effect(() => {
@@ -97,6 +110,25 @@ export class PurchaseSimulationPage {
   constructor() {
     void this.loadIncome();
     this.applyQueryParams();
+  }
+
+  setPurchaseMode(mode: PurchaseMode): void {
+    // Saindo do parcelado: para "todo mês" a parcela já é o valor mensal; para à vista, vale o total.
+    if (this.usesInstallmentInput() && mode !== 'parcelado') {
+      this.purchaseTotal.set(mode === 'recorrente' ? this.perInstallment() : this.total());
+      this.amountMode.set('total');
+    }
+    this.purchaseMode.set(mode);
+  }
+
+  setAmountMode(mode: AmountMode): void {
+    if (mode === 'parcela') {
+      const total = this.purchaseTotal();
+      this.perInstallment.set(total > 0 ? installmentFromTotal(total, this.installmentCount()) : 0);
+    } else {
+      this.purchaseTotal.set(this.total());
+    }
+    this.amountMode.set(mode);
   }
 
   /** A assistente (e links) podem abrir a simulação já preenchida: ?descricao=&valor=&forma=&parcelas=&divisao= */

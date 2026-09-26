@@ -1,0 +1,51 @@
+<h1 class="auth-title">Entrar</h1>
+<p class="auth-sub">Que bom te ver de novo.</p>
+
+<form class="auth-form" (ngSubmit)="submit()" novalidate>
+  <label class="field">
+    <span>E-mail</span>
+    <input type="email" name="email" autocomplete="email" inputmode="email" [(ngModel)]="email" autofocus />
+  </label>
+
+  <div class="field">
+    <span class="field-head">
+      Senha
+      <a class="auth-link small" routerLink="/esqueci-senha" [queryParams]="email.trim() ? { email: email.trim() } : {}">Esqueci minha senha</a>
+    </span>
+    <span class="input-with-action">
+      <input
+        [type]="showPassword() ? 'text' : 'password'"
+        name="password"
+        autocomplete="current-password"
+        aria-label="Senha"
+        [(ngModel)]="password"
+      />
+      <button
+        type="button"
+        class="input-action"
+        (click)="showPassword.set(!showPassword())"
+        [attr.aria-label]="showPassword() ? 'Esconder senha' : 'Mostrar senha'"
+      >
+        <app-icon [name]="showPassword() ? 'eye-off' : 'eye'" [size]="15" />
+      </button>
+    </span>
+  </div>
+
+  @if (error()) {
+    <p class="form-error" role="alert">
+      <app-icon name="alert" [size]="15" />
+      <span>
+        {{ error() }}
+        @if (needsVerification()) {
+          <button type="button" class="inline-action" (click)="resendVerification()" [disabled]="resending() || resent()">
+            {{ resent() ? 'Link reenviado.' : 'Reenviar e-mail' }}
+          </button>
+        }
+      </span>
+    </p>
+  }
+
+  <button type="submit" class="btn primary block" [disabled]="loading()" [class.is-loading]="loading()">Entrar</button>
+</form>
+
+<p class="auth-switch">Ainda não tem conta? <a routerLink="/criar-conta">Criar conta</a></p>

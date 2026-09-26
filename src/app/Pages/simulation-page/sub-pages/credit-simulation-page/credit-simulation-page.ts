@@ -1,16 +1,18 @@
 import { CurrencyPipe, DatePipe, NgFor, NgIf } from '@angular/common';
 import { Component, computed, effect, ElementRef, inject, signal, viewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { AmountModeSwitch } from '../../../../Components/amount-mode-switch/amount-mode-switch';
 import { Icon } from '../../../../Components/icon/icon';
 import { PulseOnDirective } from '../../../../Directives/pulse-on.directive';
 import { FinanceStoreService } from '../../../../Services/finance-store.service';
 import { CreditProjection, parseLocalDate, projectInvoices } from '../../../../Utils/credit.utils';
+import { AmountMode, installmentFromTotal, todayLocalIso, totalFromInstallment } from '../../../../Utils/finance.utils';
 
 const HORIZON_MONTHS = 6;
 
 @Component({
   selector: 'app-credit-simulation-page',
-  imports: [FormsModule, NgFor, NgIf, CurrencyPipe, DatePipe, Icon, PulseOnDirective],
+  imports: [FormsModule, NgFor, NgIf, CurrencyPipe, DatePipe, Icon, PulseOnDirective, AmountModeSwitch],
   templateUrl: './credit-simulation-page.html',
   styleUrl: './credit-simulation-page.scss',
 })
@@ -19,22 +21,31 @@ export class CreditSimulationPage {
 
   readonly description = signal('');
   readonly purchaseTotal = signal(0);
+  readonly amountMode = signal<AmountMode>('total');
+  readonly perInstallment = signal(0);
   readonly installments = signal(1);
-  readonly purchaseDate = signal(new Date().toISOString().slice(0, 10));
+  readonly purchaseDate = signal(todayLocalIso());
   readonly monthlyIncome = signal(0);
   readonly salaryConfigured = signal(false);
 
   private readonly chartCanvas = viewChild<ElementRef<SVGSVGElement>>('chart');
 
-  readonly hasPurchase = computed(() => this.purchaseTotal() > 0);
+  readonly installmentCount = computed(() => Math.max(1, Math.round(this.installments() || 1)));
+
+  /** Total da compra: o digitado, ou parcela × quantidade (com juros embutidos, se houver). */
+  readonly total = computed(() =>
+    this.amountMode() === 'parcela' ? totalFromInstallment(this.perInstallment(), this.installmentCount()) : this.purchaseTotal()
+  );
+
+  readonly hasPurchase = computed(() => this.total() > 0);
 
   readonly projection = computed<CreditProjection>(() =>
     projectInvoices(
       this.financeStore.invoices(),
       {
-        total: this.purchaseTotal(),
-        installments: Math.max(1, Math.round(this.installments() || 1)),
-        date: parseLocalDate(this.purchaseDate() || new Date().toISOString().slice(0, 10)),
+        total: this.total(),
+        installments: this.installmentCount(),
+        date: parseLocalDate(this.purchaseDate() || todayLocalIso()),
       },
       this.financeStore.creditConfig(),
       HORIZON_MONTHS
@@ -58,6 +69,15 @@ export class CreditSimulationPage {
 
   constructor() {
     void this.loadIncome();
+  }
+
+  setAmountMode(mode: AmountMode): void {
+    if (mode === 'parcela') {
+      this.perInstallment.set(this.purchaseTotal() > 0 ? installmentFromTotal(this.purchaseTotal(), this.installmentCount()) : 0);
+    } else {
+      this.purchaseTotal.set(this.total());
+    }
+    this.amountMode.set(mode);
   }
 
   private async loadIncome(): Promise<void> {

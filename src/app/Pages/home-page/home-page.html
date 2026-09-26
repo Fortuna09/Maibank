@@ -31,7 +31,7 @@
       </button>
 
       <div class="toolbar-actions">
-        <button class="link-action" type="button" (click)="modal.open()">
+        <button class="link-action" type="button" (click)="modal.open()" data-tour="new-transaction">
           <app-icon name="plus" [size]="15" />
           Novo lançamento
         </button>
@@ -45,7 +45,7 @@
 
     <div class="split">
       <div>
-        <section class="balance" aria-label="Saldo disponível">
+        <section class="balance" aria-label="Saldo disponível" data-tour="home-balance">
           <div class="balance-main" *ngIf="dailyBucket() as daily; else totalOnly">
             <p class="eyebrow">
               <app-icon name="bag" [size]="13" />

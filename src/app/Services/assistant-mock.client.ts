@@ -6,6 +6,7 @@ import {
   AssistantReply,
 } from '../Models/assistant.model';
 import { TransactionType } from '../Models/finance.model';
+import { todayLocalIso } from '../Utils/finance.utils';
 
 /**
  * Cliente local, sem modelo: entende meia dúzia de frases por regex só para
@@ -63,6 +64,29 @@ function parseInstallments(text: string): number {
   return times ? Math.min(36, Math.max(1, Number(times[1]))) : 1;
 }
 
+function toNumber(raw: string): number {
+  const value = Number(raw.includes(',') ? raw.replace(/\./g, '').replace(',', '.') : raw);
+  return Number.isFinite(value) ? value : 0;
+}
+
+/**
+ * "12x de 89,90" / "3 parcelas de 100": a pessoa sabe a parcela, não o total.
+ * O total vira parcela × quantidade (com juros embutidos, se houver).
+ */
+function parseInstallmentPrice(text: string): { count: number; value: number; total: number } | null {
+  const normalized = normalize(text);
+  const match = normalized.match(
+    /(\d+)\s*(?:x|vezes|parcelas?)\s*de\s*(?:r\$\s*)?(\d{1,3}(?:\.\d{3})+(?:,\d{1,2})?|\d+(?:[.,]\d{1,2})?)/
+  );
+  if (!match) {
+    return null;
+  }
+
+  const count = Math.min(36, Math.max(1, Number(match[1])));
+  const value = toNumber(match[2]);
+  return value > 0 ? { count, value, total: Math.round(value * count * 100) / 100 } : null;
+}
+
 function parseDescription(text: string): string {
   let cleaned = text
     .replace(/r\$\s*/gi, '')
@@ -116,7 +140,7 @@ function parseDueDate(text: string, today: Date): string | null {
     year += 1;
   }
   const lastDay = new Date(year, month + 1, 0);
-  return lastDay.toISOString().slice(0, 10);
+  return todayLocalIso(lastDay);
 }
 
 function monthsUntil(dueDate: string, today: Date): number {
@@ -140,7 +164,7 @@ export class MockAssistantClient implements AssistantClient {
     const text = lastUserText(history);
     const normalized = normalize(text);
     const today = new Date();
-    const todayIso = today.toISOString().slice(0, 10);
+    const todayIso = todayLocalIso(today);
 
     if (/^(oi|ola|e ai|eai|bom dia|boa tarde|boa noite|hey|opa)\b/.test(normalized)) {
       return {
@@ -149,11 +173,12 @@ export class MockAssistantClient implements AssistantClient {
     }
 
     if (/\b(simul\w*|e se eu|se eu comprar|quanto fica|vale a pena|compensa)\b/.test(normalized)) {
-      const total = parseAmount(text);
+      const byInstallment = parseInstallmentPrice(text);
+      const total = byInstallment?.total ?? parseAmount(text);
       if (!total) {
         return { text: 'Quanto custa essa compra? Com o valor eu abro a simulação.' };
       }
-      const installments = parseInstallments(text);
+      const installments = byInstallment?.count ?? parseInstallments(text);
       const mode = installments > 1 ? 'parcelado' : /todo mes|mensal|por mes/.test(normalized) ? 'recorrente' : 'avista';
       const description = parseDescription(text.replace(/\b(simul\w*|e se eu|se eu comprar|quanto fica|vale a pena|compensa)\b/gi, ''));
       const action: AssistantAction = {
@@ -207,7 +232,8 @@ export class MockAssistantClient implements AssistantClient {
     const isExpense = /\b(gastei|paguei|comprei|torrei|saiu|gasto|conta|lanc\w*|registra|anota)\b/.test(normalized);
 
     if (isIncome || isCredit || isExpense) {
-      const amount = parseAmount(text);
+      const byInstallment = isIncome ? null : parseInstallmentPrice(text);
+      const amount = byInstallment?.total ?? parseAmount(text);
       if (!amount) {
         return { text: 'Entendi o lançamento, só faltou o valor. Quanto foi?' };
       }
@@ -215,7 +241,7 @@ export class MockAssistantClient implements AssistantClient {
       const type: TransactionType = isIncome ? 'entrada' : isCredit ? 'credito' : 'saida';
       const description = parseDescription(text);
       const category = inferCategory(description, type);
-      const installments = type === 'credito' ? parseInstallments(text) : 1;
+      const installments = type === 'credito' ? byInstallment?.count ?? parseInstallments(text) : 1;
       const distribute = type === 'entrada' && /salario|distribu/.test(normalized);
 
       const action: AssistantAction = {

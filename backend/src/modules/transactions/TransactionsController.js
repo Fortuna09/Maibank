@@ -10,17 +10,17 @@ export class TransactionsController {
     this.router.delete('/:id', asyncHandler(this.remove));
   }
 
-  list = async (_req, res) => {
-    res.json(await this.service.list());
+  list = async (req, res) => {
+    res.json(await this.service.list(req.user.id));
   };
 
   create = async (req, res) => {
-    const created = await this.service.create(req.body ?? {});
+    const created = await this.service.create(req.user.id, req.body ?? {});
     res.status(201).json(created);
   };
 
   remove = async (req, res) => {
-    await this.service.remove(req.params.id);
+    await this.service.remove(req.user.id, req.params.id);
     res.status(204).send();
   };
 }

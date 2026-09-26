@@ -1,0 +1,26 @@
+@if (state() === 'verifying') {
+  <span class="auth-state-icon"><app-icon name="mail" [size]="20" /></span>
+  <h1 class="auth-title">Confirmando seu e-mail…</h1>
+  <p class="auth-sub">Só um instante.</p>
+  <button type="button" class="btn block is-loading" disabled>Confirmando</button>
+} @else {
+  <span class="auth-state-icon"><app-icon name="alert" [size]="20" /></span>
+  <h1 class="auth-title">Link não funcionou</h1>
+  <p class="auth-sub">{{ error() }}</p>
+
+  @if (resent()) {
+    <p class="field-hint">Se existir uma conta aguardando confirmação com esse e-mail, enviamos um novo link.</p>
+  } @else {
+    <form class="auth-form" (ngSubmit)="resend()" novalidate>
+      <label class="field">
+        <span>Seu e-mail</span>
+        <input type="email" name="email" autocomplete="email" inputmode="email" [(ngModel)]="email" />
+      </label>
+      <button type="submit" class="btn primary block" [disabled]="resending() || !email.trim()" [class.is-loading]="resending()">
+        Enviar novo link
+      </button>
+    </form>
+  }
+
+  <p class="auth-switch">Já confirmou antes? <a routerLink="/entrar">Entrar</a></p>
+}

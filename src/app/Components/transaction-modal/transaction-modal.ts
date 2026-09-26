@@ -1,19 +1,21 @@
 import { CurrencyPipe, NgFor, NgIf } from '@angular/common';
 import { Component, computed, effect, HostListener, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { AmountModeSwitch } from '../amount-mode-switch/amount-mode-switch';
 import { Icon } from '../icon/icon';
 import { AllocationBucketId, AllocationMode, FinanceStoreService, TransactionType } from '../../Services/finance-store.service';
 import { FeedbackService } from '../../Services/feedback.service';
 import { TransactionModalService } from '../../Services/transaction-modal.service';
 import { closingDateFor, dueDateFor, invoiceLabel, monthKey, parseLocalDate } from '../../Utils/credit.utils';
+import { AmountMode, installmentFromTotal, todayLocalIso, totalFromInstallment } from '../../Utils/finance.utils';
 
 function today(): string {
-  return new Date().toISOString().slice(0, 10);
+  return todayLocalIso();
 }
 
 @Component({
   selector: 'app-transaction-modal',
-  imports: [FormsModule, NgFor, NgIf, CurrencyPipe, Icon],
+  imports: [FormsModule, NgFor, NgIf, CurrencyPipe, Icon, AmountModeSwitch],
   templateUrl: './transaction-modal.html',
   styleUrl: './transaction-modal.scss',
 })
@@ -28,7 +30,10 @@ export class TransactionModal {
   type: TransactionType = 'saida';
   allocationMode: AllocationMode = 'especifico';
   selectedBucketId: AllocationBucketId = 'uso-diario';
-  amount = 0;
+  amount: number | null = null;
+  /** No crédito dá para digitar só a parcela; o total vira parcela × quantidade. */
+  amountMode: AmountMode = 'total';
+  installmentAmount: number | null = null;
   date = today();
   installments = 1;
   paidInvoice: string | null = null;
@@ -60,10 +65,23 @@ export class TransactionModal {
     return `${count} parcelas, de ${first} até ${last}`;
   });
 
-  readonly installmentValue = computed(() => {
+  /** Valor que vai para o banco: o digitado, ou parcela × quantidade no modo parcela. */
+  readonly total = computed(() => {
+    this.formVersion();
+    return this.usesInstallmentInput() ? totalFromInstallment(this.installmentAmount ?? 0, this.installments) : Number(this.amount) || 0;
+  });
+
+  /** A conta do outro lado: quanto dá cada parcela, ou quanto dá o total. */
+  readonly derivedValue = computed(() => {
     this.formVersion();
     const count = Math.max(1, Math.round(this.installments || 1));
-    return this.type === 'credito' && count > 1 ? this.amount / count : 0;
+    if (this.type !== 'credito' || count < 2 || this.total() <= 0) {
+      return null;
+    }
+
+    return this.amountMode === 'parcela'
+      ? { label: 'Total a pagar', value: this.total() }
+      : { label: 'Cada parcela', value: installmentFromTotal(this.amount ?? 0, count) };
   });
 
   constructor() {
@@ -85,6 +103,31 @@ export class TransactionModal {
     this.formVersion.update((value) => value + 1);
   }
 
+  setType(type: TransactionType): void {
+    // Saindo do crédito, o valor digitado como parcela vira o total.
+    if (this.type === 'credito' && type !== 'credito' && this.amountMode === 'parcela') {
+      this.amount = this.total() || null;
+      this.amountMode = 'total';
+    }
+    this.type = type;
+    this.touch();
+  }
+
+  /** Troca o modo levando junto o que já foi digitado, para não precisar redigitar. */
+  setAmountMode(mode: AmountMode): void {
+    if (mode === 'parcela') {
+      this.installmentAmount = this.amount ? installmentFromTotal(this.amount, this.installments) : null;
+    } else {
+      this.amount = this.total() || null;
+    }
+    this.amountMode = mode;
+    this.touch();
+  }
+
+  private usesInstallmentInput(): boolean {
+    return this.type === 'credito' && this.amountMode === 'parcela';
+  }
+
   close(): void {
     this.modal.close();
   }
@@ -96,7 +139,8 @@ export class TransactionModal {
   }
 
   submit(): void {
-    if (!this.description.trim() || !this.category.trim() || this.amount <= 0) {
+    const total = this.total();
+    if (!this.description.trim() || !this.category.trim() || total <= 0) {
       this.saveError.set('Preencha descrição, categoria e um valor maior que zero.');
       return;
     }
@@ -110,7 +154,7 @@ export class TransactionModal {
           this.financeStore.addTransaction({
             description: this.description.trim(),
             type: this.type,
-            amount: this.amount,
+            amount: total,
             category: this.category.trim(),
             date: this.date,
             allocationMode: this.type === 'credito' ? 'especifico' : this.allocationMode,
@@ -136,7 +180,9 @@ export class TransactionModal {
     this.type = preset?.type ?? 'saida';
     this.allocationMode = preset?.allocationMode ?? 'especifico';
     this.selectedBucketId = preset?.bucketId ?? 'uso-diario';
-    this.amount = preset?.amount ?? 0;
+    this.amount = preset?.amount ?? null;
+    this.amountMode = 'total';
+    this.installmentAmount = null;
     this.date = preset?.date ?? today();
     this.installments = preset?.installments ?? 1;
     this.paidInvoice = preset?.paidInvoice ?? null;

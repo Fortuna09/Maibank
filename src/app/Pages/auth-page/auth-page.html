@@ -1,0 +1,34 @@
+<div class="auth-layout">
+  <aside class="auth-brand" aria-label="Sobre o Maibank">
+    <div class="brand-name">Maibank</div>
+
+    <div class="brand-pitch">
+      <h1>Seu dinheiro, dividido do seu jeito.</h1>
+      <p>Lance entradas e gastos, veja para onde cada real vai e decida compras olhando o futuro.</p>
+
+      <ul class="feature-list">
+        @for (feature of features; track feature.title) {
+          <li>
+            <span class="feature-icon"><app-icon [name]="feature.icon" [size]="16" /></span>
+            <span>
+              <strong>{{ feature.title }}</strong>
+              <small>{{ feature.text }}</small>
+            </span>
+          </li>
+        }
+      </ul>
+    </div>
+
+    <p class="brand-note">
+      <app-icon name="shield" [size]="14" />
+      Sem conexão com banco: você lança o que quiser e os dados ficam só na sua conta.
+    </p>
+  </aside>
+
+  <main class="auth-main">
+    <div class="auth-mobile-brand">Maibank</div>
+    <div class="auth-form-wrap">
+      <router-outlet />
+    </div>
+  </main>
+</div>

@@ -10,6 +10,32 @@ export function roundCurrency(value: number): number {
   return Math.round(value * 100) / 100;
 }
 
+/**
+ * Data de hoje (ou de `date`) no fuso do navegador, AAAA-MM-DD.
+ * `toISOString()` usa UTC: depois das 21h em Brasília já daria o dia seguinte.
+ */
+export function todayLocalIso(date: Date = new Date()): string {
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${date.getFullYear()}-${month}-${day}`;
+}
+
+/** Como o usuário informa uma compra parcelada: o valor cheio ou só o de cada parcela. */
+export type AmountMode = 'total' | 'parcela';
+
+function installmentCount(count: number): number {
+  return Math.max(1, Math.round(Number(count) || 1));
+}
+
+/** Total pago a partir da parcela — se houver juros, já vêm embutidos. */
+export function totalFromInstallment(installmentValue: number, count: number): number {
+  return roundCurrency(Math.max(0, Number(installmentValue) || 0) * installmentCount(count));
+}
+
+export function installmentFromTotal(total: number, count: number): number {
+  return roundCurrency(Math.max(0, Number(total) || 0) / installmentCount(count));
+}
+
 export function categoryIcon(label: string | null | undefined): string {
   const value = (label ?? '')
     .toLowerCase()

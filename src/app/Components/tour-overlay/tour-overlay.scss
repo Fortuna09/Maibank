@@ -1,0 +1,125 @@
+/* Camada que bloqueia cliques no app enquanto o tour está aberto */
+.tour-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 500;
+  animation: tour-fade 0.25s ease both;
+}
+
+/* O "buraco" iluminado: um retângulo transparente com uma sombra que cobre o resto da tela */
+.tour-spot {
+  position: fixed;
+  border-radius: var(--radius);
+  box-shadow:
+    0 0 0 2px var(--user-tint),
+    0 0 0 9999px rgba(0, 0, 0, 0.62);
+  pointer-events: none;
+  transition:
+    top 0.35s cubic-bezier(0.2, 0.8, 0.2, 1),
+    left 0.35s cubic-bezier(0.2, 0.8, 0.2, 1),
+    width 0.35s cubic-bezier(0.2, 0.8, 0.2, 1),
+    height 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* Sem alvo: o destaque encolhe no centro e a tela fica toda escura */
+.tour-spot.is-empty {
+  top: 50% !important;
+  left: 50% !important;
+  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.62);
+}
+
+.tour-card {
+  position: fixed;
+  width: min(340px, calc(100vw - 24px));
+  padding: var(--space-4);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  background: var(--bg-elevated);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+  overflow: hidden;
+  opacity: 0;
+  transition:
+    top 0.35s cubic-bezier(0.2, 0.8, 0.2, 1),
+    left 0.35s cubic-bezier(0.2, 0.8, 0.2, 1),
+    opacity 0.2s ease;
+}
+
+.tour-card.is-placed {
+  opacity: 1;
+}
+
+/* Antes de aparecer, não desliza: surge já no lugar */
+.tour-card:not(.is-placed) {
+  transition: opacity 0.2s ease;
+}
+
+.tour-progress {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--border);
+}
+
+.tour-progress span {
+  display: block;
+  height: 100%;
+  background: var(--user-tint);
+  transition: width 0.35s ease;
+}
+
+.tour-count {
+  margin: 2px 0 6px;
+  color: var(--text-muted);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.tour-card h3 {
+  margin: 0 0 6px;
+  color: var(--text);
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.tour-text {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.84rem;
+  line-height: 1.55;
+}
+
+.tour-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: var(--space-4);
+}
+
+.tour-spacer {
+  flex: 1;
+}
+
+@keyframes tour-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tour-layer {
+    animation: none;
+  }
+
+  .tour-spot,
+  .tour-card,
+  .tour-progress span {
+    transition: none;
+  }
+}

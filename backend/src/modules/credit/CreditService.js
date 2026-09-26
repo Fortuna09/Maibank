@@ -9,17 +9,16 @@ export class CreditService {
     this.repository = repository;
   }
 
-  async getConfig() {
-    const row = await this.repository.findConfigRow();
+  async getConfig(userId) {
+    const row = await this.repository.findConfigRow(userId);
     return {
-      id: row.id,
       closingDay: clampMonthDay(row.closing_day, DEFAULT_CLOSING_DAY),
       dueDay: clampMonthDay(row.due_day, DEFAULT_DUE_DAY),
     };
   }
 
-  async updateConfig({ closingDay, dueDay }) {
-    await this.repository.updateConfig({
+  async updateConfig(userId, { closingDay, dueDay }) {
+    await this.repository.upsertConfig(userId, {
       closingDay: clampMonthDay(closingDay, DEFAULT_CLOSING_DAY),
       dueDay: clampMonthDay(dueDay, DEFAULT_DUE_DAY),
     });

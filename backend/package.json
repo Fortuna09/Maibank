@@ -3,15 +3,21 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "main": "src/server.js",
+  "main": "src/app.js",
   "scripts": {
     "dev": "node --watch src/server.js",
-    "start": "node src/server.js"
+    "start": "node src/server.js",
+    "migrate": "node src/database/migrate.js",
+    "migrate:deploy": "node src/database/migrate.js --if-configured"
   },
   "dependencies": {
-    "cors": "^2.8.5",
+    "bcryptjs": "^3.0.3",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
-    "mysql2": "^3.11.3"
+    "jsonwebtoken": "^9.0.3",
+    "pg": "^8.23.0"
+  },
+  "engines": {
+    "node": ">=20.19"
   }
 }

@@ -14,14 +14,32 @@
       <input type="text" placeholder="Ex.: notebook, curso, viagem" [ngModel]="description()" (ngModelChange)="description.set($event)" />
     </label>
 
-    <label class="field">
-      <span>Valor total</span>
-      <input type="number" min="0" step="0.01" placeholder="0,00" [ngModel]="purchaseTotal()" (ngModelChange)="purchaseTotal.set(+$event || 0)" />
-    </label>
+    <div class="field">
+      <span class="field-head">
+        {{ purchaseMode() === 'recorrente' ? 'Valor por mês' : 'Valor' }}
+        @if (purchaseMode() === 'parcelado') {
+          <app-amount-mode-switch [mode]="amountMode()" (modeChange)="setAmountMode($event)" />
+        }
+      </span>
+      @if (usesInstallmentInput()) {
+        <input type="number" min="0" step="0.01" placeholder="valor de cada parcela" aria-label="Valor da parcela" [ngModel]="perInstallment() || null" (ngModelChange)="perInstallment.set(+$event || 0)" />
+      } @else {
+        <input type="number" min="0" step="0.01" placeholder="0,00" aria-label="Valor" [ngModel]="purchaseTotal() || null" (ngModelChange)="purchaseTotal.set(+$event || 0)" />
+      }
+      @if (purchaseMode() === 'parcelado' && installmentCount() > 1 && total() > 0) {
+        <p class="field-derived">
+          @if (usesInstallmentInput()) {
+            total <strong>{{ total() | currency: 'BRL' }}</strong>
+          } @else {
+            {{ installmentCount() }}x de <strong>{{ monthlyInstallment() | currency: 'BRL' }}</strong>
+          }
+        </p>
+      }
+    </div>
 
     <label class="field">
       <span>Forma de pagamento</span>
-      <select [ngModel]="purchaseMode()" (ngModelChange)="purchaseMode.set($event)">
+      <select [ngModel]="purchaseMode()" (ngModelChange)="setPurchaseMode($event)">
         <option value="avista">À vista</option>
         <option value="parcelado">Parcelado</option>
         <option value="recorrente">Todo mês</option>
@@ -71,7 +89,7 @@
         {{ installments() }}× de {{ monthlyInstallment() | currency: 'BRL' }}
       </span>
       <span class="row-sub" *ngIf="purchaseMode() === 'recorrente'">
-        {{ purchaseTotal() | currency: 'BRL' }} por mês, {{ horizon }} meses
+        {{ total() | currency: 'BRL' }} por mês, {{ horizon }} meses
       </span>
     </div>
 

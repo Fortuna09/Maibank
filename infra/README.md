@@ -1,62 +1,40 @@
-# Infra local (MySQL)
+# Infra local (Postgres)
 
-## Subir banco local
+Em produção o banco é o Neon; aqui é o mesmo Postgres rodando no Docker.
+
+## Subir o banco
 
 Na raiz do projeto:
 
 ```bash
-docker compose -f infra/docker-compose.mysql.yml up -d
+npm run db:up
+# ou: docker compose -f infra/docker-compose.yml up -d
 ```
 
-Se voce estava usando uma imagem diferente (exemplo: mysql 8.4), recrie o ambiente para evitar incompatibilidade:
-
-```bash
-docker compose -f infra/docker-compose.mysql.yml down -v
-docker compose -f infra/docker-compose.mysql.yml up -d
-```
-
-Se o terminal do VS Code nao reconhecer `docker`, feche e reabra o VS Code.
-No Windows, o CLI costuma ficar em:
-
-```text
-C:\Users\rafin\AppData\Local\Programs\DockerDesktop\resources\bin
-```
+As tabelas são criadas pelas migrations ao subir a API (`npm run api`).
 
 ## Credenciais locais
 
-- Banco: maibank
-- Usuario: maibank_user
-- Senha: maibank_pass
-- Porta: 3306
+- Banco: `maibank` · Usuário: `maibank` · Senha: `maibank` · Porta: `5432`
+- `DATABASE_URL=postgres://maibank:maibank@localhost:5432/maibank`
 
-## Teste rapido de conexao
+## Consultar
 
 ```bash
-docker exec -it maibank-mysql mysql -u maibank_user -pmaibank_pass maibank -e "SHOW TABLES;"
+docker exec -it maibank-postgres psql -U maibank -d maibank -c "\dt"
 ```
 
-## Visualizar no MySQL Workbench
+Qualquer cliente Postgres (DBeaver, pgAdmin, extensão do VS Code) conecta com os dados acima.
 
-1. Abra o MySQL Workbench.
-2. Clique em `+` em `MySQL Connections`.
-3. Preencha:
-	- Connection Name: `Maibank Local`
-	- Hostname: `127.0.0.1`
-	- Port: `3306`
-	- Username: `maibank_user`
-4. Clique em `Store in Vault...` e informe a senha `maibank_pass`.
-5. Clique em `Test Connection` e depois em `OK`.
-6. Abra a conexao e, no painel `SCHEMAS`, atualize com refresh.
-7. Expanda o schema `maibank` para ver as tabelas.
+## Zerar o banco local
 
-Consulta util no Workbench:
-
-```sql
-USE maibank;
-SHOW TABLES;
-SELECT * FROM allocation_buckets;
+```bash
+docker exec maibank-postgres psql -U maibank -d maibank -c "DROP SCHEMA public CASCADE; CREATE SCHEMA public;"
 ```
 
-## Observacao
+Depois suba a API de novo para recriar as tabelas.
 
-Este banco esta preparado para a proxima etapa (backend/API). No estado atual do projeto, o frontend ainda salva em localStorage.
+## Backups
+
+`infra/backups/` guarda dumps locais e está no `.gitignore` (são dados financeiros pessoais).
+O backup do MySQL antigo (`maibank-2026-09-26_1458.sql`) só restaura num MySQL.

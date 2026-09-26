@@ -1,0 +1,44 @@
+@if (tour.current(); as step) {
+  <div class="tour-layer" aria-live="polite">
+    <div
+      class="tour-spot"
+      [class.is-empty]="!spot()"
+      [style.top.px]="spot()?.top ?? 0"
+      [style.left.px]="spot()?.left ?? 0"
+      [style.width.px]="spot()?.width ?? 0"
+      [style.height.px]="spot()?.height ?? 0"
+    ></div>
+
+    <section
+      #card
+      class="tour-card"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="tour-title"
+      [class.is-placed]="cardVisible()"
+      [style.top.px]="cardPosition()?.top ?? 0"
+      [style.left.px]="cardPosition()?.left ?? 0"
+    >
+      <div class="tour-progress" aria-hidden="true">
+        <span [style.width.%]="((tour.index()! + 1) / tour.steps.length) * 100"></span>
+      </div>
+
+      <p class="tour-count">{{ tour.index()! + 1 }} de {{ tour.steps.length }}</p>
+      <h3 id="tour-title">{{ step.title }}</h3>
+      <p class="tour-text">{{ step.text }}</p>
+
+      <div class="tour-actions">
+        @if (!tour.isLast()) {
+          <button type="button" class="btn ghost small" (click)="tour.finish()">Pular tour</button>
+        }
+        <span class="tour-spacer"></span>
+        @if (!tour.isFirst()) {
+          <button type="button" class="btn small" (click)="tour.previous()">Voltar</button>
+        }
+        <button type="button" class="btn primary small" (click)="tour.next()">
+          {{ tour.isLast() ? 'Concluir' : tour.isFirst() ? 'Começar' : 'Próximo' }}
+        </button>
+      </div>
+    </section>
+  </div>
+}

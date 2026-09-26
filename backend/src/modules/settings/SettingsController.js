@@ -9,12 +9,12 @@ export class SettingsController {
     this.router.put('/', asyncHandler(this.update));
   }
 
-  get = async (_req, res) => {
-    res.json(await this.service.getSettings());
+  get = async (req, res) => {
+    res.json(await this.service.getSettings(req.user.id));
   };
 
   update = async (req, res) => {
-    await this.service.updateSettings(req.body ?? {});
+    await this.service.updateSettings(req.user.id, req.body ?? {});
     res.json({ ok: true });
   };
 }

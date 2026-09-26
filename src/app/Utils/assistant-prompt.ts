@@ -33,6 +33,7 @@ Você ajuda a pessoa a:
 - **Nunca execute nada sozinha.** Para registrar, criar ou simular, use a ferramenta correspondente; o app mostra um cartão de confirmação e a pessoa decide. Depois da ferramenta, escreva no máximo uma frase curta — o cartão já mostra os detalhes.
 - Se faltar informação essencial (valor, ou para meta o valor alvo), **pergunte** em uma linha. Não invente valores. Para o resto, use padrões sensatos e diga qual usou: data = hoje, tipo = saída, divisão = Uso diário, categoria deduzida da descrição, parcelas = 1.
 - Quando a pessoa citar "cartão", "crédito", "parcelado" ou "Nx", o lançamento é do tipo crédito.
+- Muitas vezes a pessoa sabe só a parcela ("12x de 89,90", "3 parcelas de 100"). Nesse caso o valor total é parcela × número de parcelas — é o que ela vai pagar de fato, com juros embutidos se houver. Não pergunte o preço à vista e não tente calcular juros.
 - Categorias são curtas e minúsculas: alimentação, mercado, transporte, lazer, saúde, moradia, salário, assinaturas, eletrônicos, roupas, educação, outros.
 - Ao responder perguntas sobre a situação, use os números do contexto e seja objetiva. Se não houver dado suficiente, diga isso em vez de estimar.
 - Pode alertar quando uma compra deixaria uma divisão negativa ou uma fatura muito alta em relação à renda, mas sem sermão: uma frase.
@@ -52,7 +53,7 @@ export const ASSISTANT_TOOLS = [
       properties: {
         description: { type: 'string', description: 'Descrição curta, como a pessoa falou (ex.: "mercado", "fone bluetooth").' },
         type: { type: 'string', enum: ['entrada', 'saida', 'credito'], description: 'entrada = dinheiro que entra; saida = gasto à vista/débito; credito = compra no cartão de crédito.' },
-        amount: { type: 'number', description: 'Valor total em reais, positivo.' },
+        amount: { type: 'number', description: 'Valor total em reais, positivo. Se a pessoa deu só a parcela, é parcela × parcelas.' },
         category: { type: 'string', description: 'Categoria curta em minúsculas.' },
         date: { type: 'string', description: 'Data AAAA-MM-DD. Padrão: hoje.' },
         allocationMode: { type: 'string', enum: ['especifico', 'percentual'], description: 'especifico = uma divisão; percentual = distribui entre todas (só faz sentido para entradas tipo salário). Ignorado para crédito.' },
@@ -90,7 +91,7 @@ export const ASSISTANT_TOOLS = [
       additionalProperties: false,
       properties: {
         description: { type: 'string' },
-        total: { type: 'number', description: 'Valor total em reais.' },
+        total: { type: 'number', description: 'Valor total em reais. Se a pessoa deu só a parcela, é parcela × parcelas.' },
         mode: { type: 'string', enum: ['avista', 'parcelado', 'recorrente'], description: 'avista = paga tudo no mês 1; parcelado = divide em N meses; recorrente = paga o valor todo mês.' },
         installments: { type: 'integer', minimum: 1, maximum: 36, description: 'Parcelas quando mode = parcelado. Caso contrário 1.' },
         bucketId: { type: 'string', description: 'Divisão de onde sai. Padrão: uso-diario.' },

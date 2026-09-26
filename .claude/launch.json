@@ -4,8 +4,34 @@
     {
       "name": "maibank-dev",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "start"],
+      "runtimeArgs": [
+        "run",
+        "start"
+      ],
       "port": 4200
+    },
+    {
+      "name": "maibank-api",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "--prefix",
+        "backend",
+        "run",
+        "dev"
+      ],
+      "port": 3001
+    },
+    {
+      "name": "maibank-web-test",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "run",
+        "start",
+        "--",
+        "--port",
+        "4300"
+      ],
+      "port": 4300
     }
   ]
 }

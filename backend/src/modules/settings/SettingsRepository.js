@@ -1,50 +1,58 @@
 import { pool } from '../../db.js';
+import { DEFAULT_BASE_INCOME, DEFAULT_BUCKETS } from './defaults.js';
 
 export class SettingsRepository {
   constructor(db = pool) {
     this.db = db;
   }
 
-  async findSettings() {
-    const [rows] = await this.db.query(
-      'SELECT id, base_income AS baseIncome FROM allocation_settings ORDER BY id ASC LIMIT 1'
+  async findBaseIncome(userId) {
+    const { rows } = await this.db.query('SELECT base_income FROM allocation_settings WHERE user_id = $1', [userId]);
+    return rows[0] ? Number(rows[0].base_income) : DEFAULT_BASE_INCOME;
+  }
+
+  async findBuckets(userId, executor = this.db) {
+    const { rows } = await executor.query(
+      'SELECT id, label, percentage FROM allocation_buckets WHERE user_id = $1 ORDER BY position ASC, id ASC',
+      [userId]
     );
-    const row = rows[0] || { id: 1, baseIncome: 2700 };
-    return { id: row.id, baseIncome: Number(row.baseIncome) };
+    return rows.map((bucket) => ({ id: bucket.id, label: bucket.label, percentage: Number(bucket.percentage) }));
   }
 
-  async findBuckets(connection = this.db) {
-    const [rows] = await connection.query('SELECT id, label, percentage FROM allocation_buckets ORDER BY id ASC');
-    return rows.map((bucket) => ({
-      id: bucket.id,
-      label: bucket.label,
-      percentage: Number(bucket.percentage),
-    }));
-  }
-
-  async updateBaseIncome(connection, baseIncome) {
-    await connection.query(
-      'UPDATE allocation_settings SET base_income = ? WHERE id = (SELECT id FROM (SELECT id FROM allocation_settings ORDER BY id ASC LIMIT 1) AS t)',
-      [baseIncome]
+  async upsertBaseIncome(client, userId, baseIncome) {
+    await client.query(
+      `INSERT INTO allocation_settings (user_id, base_income) VALUES ($1, $2)
+       ON CONFLICT (user_id) DO UPDATE SET base_income = EXCLUDED.base_income`,
+      [userId, baseIncome]
     );
   }
 
-  async countAllocationsForBucket(connection, bucketId) {
-    const [[row]] = await connection.query(
-      'SELECT COUNT(*) AS count FROM transaction_allocations WHERE bucket_id = ?',
-      [bucketId]
+  async countAllocationsForBucket(client, userId, bucketId) {
+    const { rows } = await client.query(
+      'SELECT COUNT(*) AS count FROM transaction_allocations WHERE user_id = $1 AND bucket_id = $2',
+      [userId, bucketId]
     );
-    return Number(row.count);
+    return rows[0].count;
   }
 
-  async deleteBucket(connection, bucketId) {
-    await connection.query('DELETE FROM allocation_buckets WHERE id = ?', [bucketId]);
+  async deleteBucket(client, userId, bucketId) {
+    await client.query('DELETE FROM allocation_buckets WHERE user_id = $1 AND id = $2', [userId, bucketId]);
   }
 
-  async upsertBucket(connection, bucket) {
-    await connection.query(
-      'INSERT INTO allocation_buckets (id, label, percentage) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE label = VALUES(label), percentage = VALUES(percentage)',
-      [bucket.id, bucket.label, bucket.percentage]
+  async upsertBucket(client, userId, bucket, position) {
+    await client.query(
+      `INSERT INTO allocation_buckets (user_id, id, label, percentage, position) VALUES ($1, $2, $3, $4, $5)
+       ON CONFLICT (user_id, id) DO UPDATE
+         SET label = EXCLUDED.label, percentage = EXCLUDED.percentage, position = EXCLUDED.position`,
+      [userId, bucket.id, bucket.label, bucket.percentage, position]
     );
+  }
+
+  /** Configuração inicial de uma conta nova (roda na mesma transação do cadastro). */
+  async seedDefaults(client, userId) {
+    await this.upsertBaseIncome(client, userId, DEFAULT_BASE_INCOME);
+    for (const [position, bucket] of DEFAULT_BUCKETS.entries()) {
+      await this.upsertBucket(client, userId, bucket, position);
+    }
   }
 }

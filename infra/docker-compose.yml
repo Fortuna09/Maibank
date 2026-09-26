@@ -1,0 +1,22 @@
+# Postgres local para desenvolvimento. Em produção o banco é o Neon (mesmo Postgres).
+services:
+  maibank-postgres:
+    image: postgres:17-alpine
+    container_name: maibank-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: maibank
+      POSTGRES_USER: maibank
+      POSTGRES_PASSWORD: maibank
+    ports:
+      - '5432:5432'
+    volumes:
+      - maibank_pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U maibank -d maibank']
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  maibank_pg_data:

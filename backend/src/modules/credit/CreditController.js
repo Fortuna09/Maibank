@@ -9,12 +9,12 @@ export class CreditController {
     this.router.put('/', asyncHandler(this.update));
   }
 
-  get = async (_req, res) => {
-    res.json(await this.service.getConfig());
+  get = async (req, res) => {
+    res.json(await this.service.getConfig(req.user.id));
   };
 
   update = async (req, res) => {
-    await this.service.updateConfig(req.body ?? {});
+    await this.service.updateConfig(req.user.id, req.body ?? {});
     res.json({ ok: true });
   };
 }

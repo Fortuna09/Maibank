@@ -4,11 +4,14 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "start:backend": "cd backend && npm run start",
-    "dev:backend": "cd backend && npm run dev",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "api": "npm --prefix backend run dev",
+    "db:up": "docker compose -f infra/docker-compose.yml up -d",
+    "db:migrate": "npm --prefix backend run migrate",
+    "start:backend": "npm --prefix backend run start",
+    "dev:backend": "npm --prefix backend run dev"
   },
   "prettier": {
     "printWidth": 100,

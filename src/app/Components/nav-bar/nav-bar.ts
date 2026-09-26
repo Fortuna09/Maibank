@@ -2,6 +2,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { AppearanceService } from '../../Services/appearance.service';
 import { AssistantService } from '../../Services/assistant.service';
+import { TourService } from '../../Services/tour.service';
 import { Icon } from '../icon/icon';
 import { MaiMark } from '../mai-mark/mai-mark';
 
@@ -14,6 +15,7 @@ import { MaiMark } from '../mai-mark/mai-mark';
 export class NavBar implements OnInit {
   readonly appearance = inject(AppearanceService);
   readonly assistant = inject(AssistantService);
+  readonly tour = inject(TourService);
   isMenuOpen = true;
 
   ngOnInit(): void {
