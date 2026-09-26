@@ -79,6 +79,7 @@
             · {{ transaction.installments }}x de {{ transaction.amount / transaction.installments | currency: 'BRL' }}
           </ng-container>
           <ng-container *ngIf="transaction.paidInvoice"> · fatura {{ transaction.paidInvoice }}</ng-container>
+          <ng-container *ngIf="transaction.recurringId"> · todo mês</ng-container>
         </small>
       </div>
 

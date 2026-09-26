@@ -30,7 +30,7 @@ export const WELCOME_TOUR: TourStep[] = [
   },
   {
     title: 'Lançamentos',
-    text: 'O resumo de cada divisão e o histórico completo, com busca e gráfico. Para apagar um lançamento, passe o mouse sobre ele.',
+    text: 'O resumo de cada divisão, o histórico completo com busca e gráfico, e os recorrentes — o que entra ou sai todo mês. Para apagar um lançamento, passe o mouse sobre ele.',
     target: '[data-tour="nav-lancamentos"]',
   },
   {

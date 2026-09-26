@@ -20,6 +20,7 @@ export const routes: Routes = [
 					{ path: '', pathMatch: 'full', redirectTo: 'geral' },
 					{ path: 'geral', loadComponent: () => import('./Pages/transactions-page/sub-pages/overview-page/overview-page').then((m) => m.OverviewPage) },
 					{ path: 'historico', loadComponent: () => import('./Pages/transactions-page/sub-pages/history-page/history-page').then((m) => m.HistoryPage) },
+					{ path: 'recorrentes', loadComponent: () => import('./Pages/transactions-page/sub-pages/recurring-page/recurring-page').then((m) => m.RecurringPage) },
 				],
 			},
 			{ path: 'metas', loadComponent: () => import('./Pages/goals-page/goals-page').then((m) => m.GoalsPage) },

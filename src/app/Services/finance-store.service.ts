@@ -9,6 +9,7 @@ import {
   CreateGoalPayload,
   CreateTransactionPayload,
   CreditConfig,
+  RecurringTransaction,
   FinanceGoal,
   FinanceTransaction,
   TransactionType,
@@ -40,11 +41,13 @@ export class FinanceStoreService {
   private readonly goalsSignal = signal<FinanceGoal[]>([]);
   private readonly settingsSignal = signal<AllocationSettings>(DEFAULT_ALLOCATION_SETTINGS);
   private readonly creditConfigSignal = signal<CreditConfig>(DEFAULT_CREDIT_CONFIG);
+  private readonly recurringSignal = signal<RecurringTransaction[]>([]);
 
   readonly transactions = this.transactionsSignal.asReadonly();
   readonly goals = this.goalsSignal.asReadonly();
   readonly settings = this.settingsSignal.asReadonly();
   readonly creditConfig = this.creditConfigSignal.asReadonly();
+  readonly recurring = this.recurringSignal.asReadonly();
 
   readonly totalEntradas = computed(() =>
     this.transactionsSignal()
@@ -126,6 +129,7 @@ export class FinanceStoreService {
     this.goalsSignal.set([]);
     this.settingsSignal.set(DEFAULT_ALLOCATION_SETTINGS);
     this.creditConfigSignal.set(DEFAULT_CREDIT_CONFIG);
+    this.recurringSignal.set([]);
   }
 
   addTransaction(payload: CreateTransactionPayload): Promise<void> {
@@ -153,10 +157,14 @@ export class FinanceStoreService {
         allocations,
         installments: isCredit ? Math.max(1, Math.round(payload.installments ?? 1)) : 1,
         paidInvoice: payload.type === 'saida' ? payload.paidInvoice ?? null : null,
+        recurring: !isCredit && payload.recurringDay ? { dayOfMonth: payload.recurringDay } : null,
       })
     )
       .then(() => {
         this.refreshTransactions();
+        if (payload.recurringDay) {
+          void this.refreshRecurring();
+        }
       })
       .catch((error) => {
         console.error('Erro ao criar transacao', error);
@@ -407,6 +415,37 @@ export class FinanceStoreService {
   private async loadInitialData(): Promise<void> {
     await Promise.all([this.refreshSettings(), this.refreshTransactions(), this.refreshGoals(), this.refreshCreditConfig()]);
     await this.runScheduledSalary();
+    await this.runScheduledRecurring();
+  }
+
+  /** Ao abrir o app, lança os recorrentes que venceram desde a última visita. */
+  private async runScheduledRecurring(): Promise<void> {
+    try {
+      const { created } = await firstValueFrom(this.api.processRecurring());
+      if (created > 0) {
+        await this.refreshTransactions();
+      }
+    } catch (error) {
+      console.error('Erro ao lançar recorrentes', error);
+    }
+    await this.refreshRecurring();
+  }
+
+  async refreshRecurring(): Promise<void> {
+    try {
+      const response = await firstValueFrom(this.api.getRecurring());
+      this.recurringSignal.set((response ?? []).map((item) => ({ ...item, amount: Number(item.amount) })));
+    } catch (error) {
+      console.error('Erro ao carregar recorrentes', error);
+    }
+  }
+
+  /** Para de repetir; o que já foi lançado continua no histórico. */
+  removeRecurring(recurringId: string): Promise<void> {
+    return firstValueFrom(this.api.deleteRecurring(recurringId)).then(() => {
+      this.recurringSignal.update((list) => list.filter((item) => item.id !== recurringId));
+      void this.refreshTransactions();
+    });
   }
 
   private async runScheduledSalary(): Promise<void> {

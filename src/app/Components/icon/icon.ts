@@ -102,6 +102,12 @@ import { Component, input } from '@angular/core';
         @case ('shrink') {
           <path d="M10 4.5V10H4.5M14 19.5V14h5.5M10 10 4.5 4.5M14 14l5.5 5.5" />
         }
+        @case ('repeat') {
+          <path d="M16.5 3.5 19.5 6.5 16.5 9.5" />
+          <path d="M4.5 11.5v-1a4 4 0 0 1 4-4h11" />
+          <path d="M7.5 20.5 4.5 17.5 7.5 14.5" />
+          <path d="M19.5 12.5v1a4 4 0 0 1-4 4h-11" />
+        }
         @case ('help') {
           <circle cx="12" cy="12" r="8.6" />
           <path d="M9.7 9.5a2.4 2.4 0 0 1 4.6 1c0 1.6-2.3 2-2.3 3.3" />

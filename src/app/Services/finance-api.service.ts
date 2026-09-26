@@ -7,6 +7,7 @@ import {
   CreateTransactionPayload,
   FinanceGoal,
   FinanceTransaction,
+  RecurringTransaction,
   SalaryConfig,
   SalaryProcessResult,
 } from '../Models/finance.model';
@@ -57,7 +58,19 @@ export class FinanceApiService {
     return this.http.get<FinanceTransaction[]>(`${this.apiBaseUrl}/transactions`);
   }
 
-  createTransaction(payload: Omit<FinanceTransaction, 'id'>) {
+  getRecurring() {
+    return this.http.get<RecurringTransaction[]>(`${this.apiBaseUrl}/recurring`);
+  }
+
+  processRecurring() {
+    return this.http.post<{ created: number }>(`${this.apiBaseUrl}/recurring/process`, {});
+  }
+
+  deleteRecurring(recurringId: string) {
+    return this.http.delete(`${this.apiBaseUrl}/recurring/${recurringId}`);
+  }
+
+  createTransaction(payload: Omit<FinanceTransaction, 'id'> & { recurring?: { dayOfMonth: number } | null }) {
     return this.http.post<{ id: string }>(`${this.apiBaseUrl}/transactions`, payload);
   }
 

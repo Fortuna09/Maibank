@@ -15,6 +15,8 @@ export interface TransactionPreset {
   paidInvoice?: string | null;
   /** Trava o tipo quando o contexto já define (ex.: pagamento de fatura é sempre saída). */
   lockType?: boolean;
+  /** Abre com "Repetir todo mês" já ligado. */
+  recurring?: boolean;
   /** Texto do toast ao salvar; padrão "Lançamento salvo". */
   successMessage?: string;
 }

@@ -2,6 +2,7 @@ import { randomUUID } from 'crypto';
 import { withTransaction } from '../../db.js';
 import { HttpError } from '../../http/HttpError.js';
 import { clampMonthDay, localDateParts, todayIso } from '../../utils/monthDay.js';
+import { splitByPercentage } from '../../utils/money.js';
 
 const DEFAULT_PAY_DAY = 5;
 
@@ -82,27 +83,12 @@ export class SalaryService {
       };
 
       await this.transactionsRepository.insert(client, userId, transaction);
-      for (const allocation of this.splitByPercentage(amount, buckets)) {
+      for (const allocation of splitByPercentage(amount, buckets)) {
         await this.transactionsRepository.insertAllocation(client, userId, transaction.id, allocation);
       }
       await this.repository.markProcessed(client, userId, currentMonth);
 
       return { processed: true, id: transaction.id };
-    });
-  }
-
-  /** Divide o valor pelas porcentagens; a última divisão absorve o arredondamento. */
-  splitByPercentage(amount, buckets) {
-    let allocated = 0;
-
-    return buckets.map((bucket, index) => {
-      const isLast = index === buckets.length - 1;
-      const share = isLast
-        ? Math.round((amount - allocated) * 100) / 100
-        : Math.round(((amount * bucket.percentage) / 100) * 100) / 100;
-
-      allocated += share;
-      return { bucketId: bucket.id, amount: share };
     });
   }
 }

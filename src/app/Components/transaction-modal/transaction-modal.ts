@@ -3,6 +3,7 @@ import { Component, computed, effect, HostListener, inject, signal } from '@angu
 import { FormsModule } from '@angular/forms';
 import { AmountModeSwitch } from '../amount-mode-switch/amount-mode-switch';
 import { Icon } from '../icon/icon';
+import { ToggleSwitch } from '../toggle-switch/toggle-switch';
 import { AllocationBucketId, AllocationMode, FinanceStoreService, TransactionType } from '../../Services/finance-store.service';
 import { FeedbackService } from '../../Services/feedback.service';
 import { TransactionModalService } from '../../Services/transaction-modal.service';
@@ -15,7 +16,7 @@ function today(): string {
 
 @Component({
   selector: 'app-transaction-modal',
-  imports: [FormsModule, NgFor, NgIf, CurrencyPipe, Icon, AmountModeSwitch],
+  imports: [FormsModule, NgFor, NgIf, CurrencyPipe, Icon, AmountModeSwitch, ToggleSwitch],
   templateUrl: './transaction-modal.html',
   styleUrl: './transaction-modal.scss',
 })
@@ -39,6 +40,9 @@ export class TransactionModal {
   paidInvoice: string | null = null;
   lockType = false;
   successMessage = 'Lançamento salvo';
+  /** Entrada/saída que se repete todo mês no dia `recurringDay`. */
+  recurring = false;
+  recurringDay = 1;
 
   readonly saving = signal(false);
   readonly saveError = signal<string | null>(null);
@@ -103,6 +107,29 @@ export class TransactionModal {
     this.formVersion.update((value) => value + 1);
   }
 
+  /** Crédito e pagamento de fatura não se repetem. */
+  canRepeat(): boolean {
+    return this.type !== 'credito' && !this.paidInvoice;
+  }
+
+  setRecurring(on: boolean): void {
+    this.recurring = on;
+    if (on) {
+      // Sugere o dia da data escolhida (até 28, que existe em todo mês).
+      this.recurringDay = Math.min(28, Number(this.date.slice(8, 10)) || 1);
+    }
+  }
+
+  recurringHint(): string {
+    const day = Math.min(28, Math.max(1, Math.round(Number(this.recurringDay) || 1)));
+    const verb = this.type === 'entrada' ? 'entra em' : 'sai de';
+    const destination =
+      this.allocationMode === 'percentual'
+        ? 'todas as divisões'
+        : this.financeStore.getBucketLabel(this.selectedBucketId);
+    return `Todo dia ${day} ${verb} ${destination}. Este lançamento é o primeiro; os próximos entram sozinhos.`;
+  }
+
   setType(type: TransactionType): void {
     // Saindo do crédito, o valor digitado como parcela vira o total.
     if (this.type === 'credito' && type !== 'credito' && this.amountMode === 'parcela') {
@@ -161,8 +188,9 @@ export class TransactionModal {
             bucketId: this.selectedBucketId,
             installments: this.installments,
             paidInvoice: this.paidInvoice,
+            recurringDay: this.canRepeat() && this.recurring ? this.recurringDay : null,
           }),
-        { success: this.successMessage }
+        { success: this.canRepeat() && this.recurring ? 'Lançamento recorrente criado' : this.successMessage }
       )
       .then(() => this.close())
       .catch(() => {
@@ -187,6 +215,11 @@ export class TransactionModal {
     this.installments = preset?.installments ?? 1;
     this.paidInvoice = preset?.paidInvoice ?? null;
     this.lockType = preset?.lockType ?? false;
+    this.recurring = false;
+    this.recurringDay = 1;
+    if (preset?.recurring) {
+      this.setRecurring(true);
+    }
     this.successMessage = preset?.successMessage ?? 'Lançamento salvo';
 
     this.saveError.set(null);

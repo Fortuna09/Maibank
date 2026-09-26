@@ -26,3 +26,23 @@ export function todayIso(date = new Date()) {
   const { year, month, day } = localDateParts(date);
   return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
 }
+
+/** Mês como número AAAAMM (ex.: 202609), usado para saber o que já foi lançado. */
+export function monthKeyOf(isoDate) {
+  const [year, month] = String(isoDate).split('-').map(Number);
+  return year * 100 + month;
+}
+
+export function nextMonthKey(key) {
+  const year = Math.floor(key / 100);
+  const month = key % 100;
+  return month === 12 ? (year + 1) * 100 + 1 : key + 1;
+}
+
+/** Data AAAA-MM-DD de um dia dentro de um mês AAAAMM. */
+export function dateInMonth(key, day) {
+  const year = Math.floor(key / 100);
+  const month = key % 100;
+  return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+}
+

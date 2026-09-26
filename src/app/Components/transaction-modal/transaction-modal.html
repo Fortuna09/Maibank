@@ -81,6 +81,25 @@
           <app-icon name="card" [size]="13" />
           Marca a fatura de <strong>{{ paidInvoice }}</strong> como paga.
         </p>
+
+        <div class="recurring" *ngIf="canRepeat()" [class.is-on]="recurring">
+          <div class="recurring-row">
+            <span class="recurring-icon"><app-icon name="repeat" [size]="15" /></span>
+            <span class="recurring-text">
+              <strong>Repetir todo mês</strong>
+              <small>Assinaturas, contas fixas, rendas que se repetem.</small>
+            </span>
+            <app-toggle-switch [checked]="recurring" (checkedChange)="setRecurring($event)" label="Repetir todo mês" />
+          </div>
+
+          <div class="recurring-details" *ngIf="recurring">
+            <label class="field day-field">
+              <span>Dia do mês</span>
+              <input type="number" min="1" max="28" step="1" [(ngModel)]="recurringDay" name="recurringDay" />
+            </label>
+            <p class="hint">{{ recurringHint() }}</p>
+          </div>
+        </div>
       </ng-container>
 
       <ng-template #creditFields>

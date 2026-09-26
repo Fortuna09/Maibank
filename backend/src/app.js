@@ -13,6 +13,9 @@ import { CreditService } from './modules/credit/CreditService.js';
 import { GoalsController } from './modules/goals/GoalsController.js';
 import { GoalsRepository } from './modules/goals/GoalsRepository.js';
 import { GoalsService } from './modules/goals/GoalsService.js';
+import { RecurringController } from './modules/recurring/RecurringController.js';
+import { RecurringRepository } from './modules/recurring/RecurringRepository.js';
+import { RecurringService } from './modules/recurring/RecurringService.js';
 import { SalaryController } from './modules/salary/SalaryController.js';
 import { SalaryRepository } from './modules/salary/SalaryRepository.js';
 import { SalaryService } from './modules/salary/SalaryService.js';
@@ -33,6 +36,7 @@ import { TransactionsService } from './modules/transactions/TransactionsService.
 export function createApp() {
   const settingsRepository = new SettingsRepository();
   const transactionsRepository = new TransactionsRepository();
+  const recurringRepository = new RecurringRepository();
 
   const sessions = new SessionTokens();
   const authService = new AuthService(new AuthRepository(), settingsRepository, new Mailer());
@@ -40,7 +44,8 @@ export function createApp() {
 
   const auth = new AuthController(authService, sessions, authenticate);
   const settings = new SettingsController(new SettingsService(settingsRepository));
-  const transactions = new TransactionsController(new TransactionsService(transactionsRepository));
+  const transactions = new TransactionsController(new TransactionsService(transactionsRepository, recurringRepository));
+  const recurring = new RecurringController(new RecurringService(recurringRepository, settingsRepository, transactionsRepository));
   const goals = new GoalsController(new GoalsService(new GoalsRepository()));
   const salary = new SalaryController(new SalaryService(new SalaryRepository(), settingsRepository, transactionsRepository));
   const credit = new CreditController(new CreditService(new CreditRepository()));
@@ -63,6 +68,7 @@ export function createApp() {
   // Daqui para baixo tudo exige login, e cada consulta é filtrada pelo usuário da sessão.
   app.use('/api/settings', authenticate, settings.router);
   app.use('/api/transactions', authenticate, transactions.router);
+  app.use('/api/recurring', authenticate, recurring.router);
   app.use('/api/goals', authenticate, goals.router);
   app.use('/api/salary-config', authenticate, salary.router);
   app.use('/api/credit-config', authenticate, credit.router);

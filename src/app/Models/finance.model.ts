@@ -47,6 +47,22 @@ export interface FinanceTransaction {
   installments: number;
   /** Só para saídas que pagam uma fatura: mês da fatura no formato YYYY-MM. */
   paidInvoice: string | null;
+  /** Preenchido quando o lançamento foi gerado por um recorrente (ou é a primeira ocorrência dele). */
+  recurringId?: string | null;
+}
+
+/** Modelo de um lançamento que se repete todo mês (assinatura, aluguel, renda fixa). */
+export interface RecurringTransaction {
+  id: string;
+  description: string;
+  type: 'entrada' | 'saida';
+  amount: number;
+  category: string;
+  allocationMode: AllocationMode;
+  bucketId: AllocationBucketId | null;
+  dayOfMonth: number;
+  /** Próxima data em que ele será lançado (AAAA-MM-DD). */
+  nextDate: string;
 }
 
 export interface CreditConfig {
@@ -78,6 +94,8 @@ export interface CreateTransactionPayload {
   bucketId?: AllocationBucketId;
   installments?: number;
   paidInvoice?: string | null;
+  /** Dia do mês em que se repete; vazio = lançamento único. */
+  recurringDay?: number | null;
 }
 
 export interface CreateGoalPayload {

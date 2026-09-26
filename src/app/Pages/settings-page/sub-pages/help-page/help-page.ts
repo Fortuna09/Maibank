@@ -45,6 +45,13 @@ const TOPICS: HelpTopic[] = [
     ],
   },
   {
+    question: 'Como cadastrar algo que se repete todo mês?',
+    answer: [
+      'No Novo lançamento (entrada ou saída), ligue "Repetir todo mês" e escolha o dia. O lançamento de agora é o primeiro; nos meses seguintes ele entra sozinho quando você abrir o app no dia ou depois.',
+      'Tudo que se repete fica em Lançamentos > Recorrentes, com o total que entra e sai por mês. Parar não apaga o que já foi lançado.',
+    ],
+  },
+  {
     question: 'Como funciona o salário automático?',
     answer: [
       'Em Configurações > Salário você informa o valor e o dia do mês em que ele cai. A partir desse dia, ao abrir o app, o salário entra uma vez por mês e já é distribuído entre as divisões.',

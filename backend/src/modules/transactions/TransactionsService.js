@@ -1,14 +1,16 @@
 import { randomUUID } from 'crypto';
 import { withTransaction } from '../../db.js';
 import { HttpError } from '../../http/HttpError.js';
+import { clampMonthDay, monthKeyOf } from '../../utils/monthDay.js';
 
 const TYPES = new Set(['entrada', 'saida', 'credito']);
 const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 const INVOICE_PATTERN = /^\d{4}-\d{2}$/;
 
 export class TransactionsService {
-  constructor(repository) {
+  constructor(repository, recurringRepository) {
     this.repository = repository;
+    this.recurringRepository = recurringRepository;
   }
 
   list(userId) {
@@ -18,6 +20,8 @@ export class TransactionsService {
   /**
    * Cria um lançamento com suas alocações. Crédito não mexe em saldo nem
    * divisões — só cai na fatura — então não tem alocações.
+   * Com `recurring.dayOfMonth`, este lançamento é a primeira ocorrência de um modelo
+   * que se repete todo mês a partir do mês seguinte.
    */
   async create(userId, payload) {
     const { description, type, amount, category, date, allocationMode, allocations, installments, paidInvoice } = payload;
@@ -33,6 +37,11 @@ export class TransactionsService {
       throw HttpError.badRequest('Dados de transacao invalidos.');
     }
 
+    const recurringDay = payload.recurring?.dayOfMonth;
+    if (recurringDay != null && isCredit) {
+      throw HttpError.badRequest('Compras no crédito ainda não podem ser recorrentes.');
+    }
+
     const transaction = {
       id: randomUUID(),
       description: String(description).slice(0, 200),
@@ -46,6 +55,19 @@ export class TransactionsService {
     };
 
     await withTransaction(async (client) => {
+      if (recurringDay != null) {
+        transaction.recurringId = await this.recurringRepository.insert(client, userId, {
+          description: transaction.description,
+          type,
+          amount: numericAmount,
+          category: transaction.category,
+          allocationMode: allocationMode === 'percentual' ? 'percentual' : 'especifico',
+          bucketId: allocationMode === 'percentual' ? null : String(allocationList[0]?.bucketId ?? ''),
+          dayOfMonth: clampMonthDay(recurringDay, 1),
+          lastGeneratedMonth: monthKeyOf(date),
+        });
+      }
+
       await this.repository.insert(client, userId, transaction);
       for (const allocation of allocationList) {
         await this.repository.insertAllocation(client, userId, transaction.id, allocation);

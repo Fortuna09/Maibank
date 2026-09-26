@@ -1,0 +1,76 @@
+.stat-strip {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-5);
+  padding-bottom: var(--space-4);
+  margin-bottom: var(--space-4);
+  border-bottom: 1px solid var(--border);
+}
+
+.stat .eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.stat strong {
+  display: block;
+  margin-top: 2px;
+  color: var(--text);
+  font-size: 1.35rem;
+  font-weight: 600;
+}
+
+.stat strong.income {
+  color: var(--success);
+}
+
+.stat strong.expense {
+  color: var(--danger);
+}
+
+.stat small {
+  display: block;
+  margin-top: 2px;
+  color: var(--text-muted);
+  font-size: 0.72rem;
+}
+
+.stop-btn {
+  opacity: 0;
+  transition: opacity 0.14s ease;
+}
+
+.data-row:hover .stop-btn,
+.stop-btn:focus-visible {
+  opacity: 1;
+}
+
+.confirm {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  white-space: nowrap;
+}
+
+.footnote {
+  margin: var(--space-3) 0 0;
+  color: var(--text-muted);
+  font-size: 0.74rem;
+}
+
+.empty-state p {
+  max-width: 420px;
+}
+
+@media (max-width: 720px) {
+  .stat-strip {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .stop-btn {
+    opacity: 1;
+  }
+}

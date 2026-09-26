@@ -22,6 +22,14 @@
       "port": 3001
     },
     {
+      "name": "maibank-api-test",
+      "runtimeExecutable": "node",
+      "runtimeArgs": [
+        "C:/Users/rafin/AppData/Local/Temp/claude/C--Users-rafin-Documents-Finan-as-Maibank/dfaf005a-477a-46da-87bd-7395e1a3f97b/scratchpad/api-test.mjs"
+      ],
+      "port": 3002
+    },
+    {
       "name": "maibank-web-test",
       "runtimeExecutable": "npm",
       "runtimeArgs": [
@@ -29,7 +37,9 @@
         "start",
         "--",
         "--port",
-        "4300"
+        "4300",
+        "--proxy-config",
+        "C:/Users/rafin/AppData/Local/Temp/claude/C--Users-rafin-Documents-Finan-as-Maibank/dfaf005a-477a-46da-87bd-7395e1a3f97b/scratchpad/proxy-test.json"
       ],
       "port": 4300
     }

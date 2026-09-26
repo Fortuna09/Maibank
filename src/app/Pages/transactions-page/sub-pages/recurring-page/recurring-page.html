@@ -1,0 +1,67 @@
+<section class="stat-strip" aria-label="Resumo dos recorrentes">
+  <div class="stat">
+    <p class="eyebrow"><app-icon name="arrow-in" [size]="13" /> Entra todo mês</p>
+    <strong class="income">{{ monthlyIn() | currency: 'BRL' }}</strong>
+  </div>
+  <div class="stat">
+    <p class="eyebrow"><app-icon name="arrow-out" [size]="13" /> Sai todo mês</p>
+    <strong class="expense">{{ monthlyOut() | currency: 'BRL' }}</strong>
+  </div>
+  <div class="stat">
+    <p class="eyebrow"><app-icon name="repeat" [size]="13" /> Sobra fixa</p>
+    <strong [class.expense]="monthlyNet() < 0">{{ monthlyNet() | currency: 'BRL' }}</strong>
+    <small>sem contar salário e gastos avulsos</small>
+  </div>
+</section>
+
+<section class="section">
+  <div class="section-head">
+    <h2>Todo mês</h2>
+    <button type="button" class="link-action" (click)="openNew()">
+      <app-icon name="plus" [size]="14" />
+      Novo recorrente
+    </button>
+  </div>
+
+  @if (financeStore.recurring().length) {
+    <div class="rows">
+      @for (item of financeStore.recurring(); track item.id) {
+        <div class="data-row">
+          <span class="row-icon" [class.is-income]="item.type === 'entrada'" [class.is-expense]="item.type === 'saida'">
+            <app-icon name="repeat" [size]="16" />
+          </span>
+
+          <div class="row-body">
+            <p class="row-title">{{ item.description }}</p>
+            <small class="row-sub">
+              todo dia {{ item.dayOfMonth }} · {{ item.category }} · {{ destination(item) }} · próximo
+              {{ item.nextDate + 'T12:00:00' | date: "d 'de' MMM" }}
+            </small>
+          </div>
+
+          @if (confirmingId() === item.id) {
+            <span class="confirm">
+              Parar de lançar?
+              <button type="button" class="btn small ghost" (click)="confirmingId.set(null)" [disabled]="stoppingId() === item.id">Não</button>
+              <button type="button" class="btn small danger" (click)="stop(item)" [class.is-loading]="stoppingId() === item.id">Parar</button>
+            </span>
+          } @else {
+            <span class="row-value" [class.income]="item.type === 'entrada'" [class.expense]="item.type === 'saida'">
+              {{ item.type === 'entrada' ? '+' : '-' }}{{ item.amount | currency: 'BRL' }}
+            </span>
+            <button type="button" class="btn small ghost stop-btn" (click)="confirmingId.set(item.id)" [attr.aria-label]="'Parar ' + item.description">
+              Parar
+            </button>
+          }
+        </div>
+      }
+    </div>
+    <p class="footnote">Parar não apaga o que já foi lançado — só impede os próximos meses.</p>
+  } @else {
+    <div class="empty-state">
+      <span class="empty-icon"><app-icon name="repeat" [size]="20" /></span>
+      <p>Nada se repete ainda. Assinaturas, aluguel, uma renda fixa: cadastre uma vez e o app lança todo mês.</p>
+      <button type="button" class="btn small" (click)="openNew()">Novo lançamento recorrente</button>
+    </div>
+  }
+</section>

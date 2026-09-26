@@ -10,7 +10,8 @@ export class TransactionsRepository {
     const [transactions, allocations] = await Promise.all([
       this.db.query(
         `SELECT id, description, type, amount, category, transaction_date AS date,
-                allocation_mode AS "allocationMode", installments, paid_invoice AS "paidInvoice"
+                allocation_mode AS "allocationMode", installments, paid_invoice AS "paidInvoice",
+                recurring_id AS "recurringId"
            FROM transactions
           WHERE user_id = $1
           ORDER BY transaction_date DESC, created_at DESC`,
@@ -42,6 +43,7 @@ export class TransactionsRepository {
       allocationMode: transaction.allocationMode,
       installments: Math.max(1, Number(transaction.installments ?? 1)),
       paidInvoice: transaction.paidInvoice ?? null,
+      recurringId: transaction.recurringId ?? null,
       allocations: allocationsByTransaction.get(transaction.id) ?? [],
     }));
   }
@@ -49,8 +51,8 @@ export class TransactionsRepository {
   async insert(client, userId, transaction) {
     await client.query(
       `INSERT INTO transactions
-         (id, user_id, description, type, amount, category, transaction_date, allocation_mode, installments, paid_invoice)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
+         (id, user_id, description, type, amount, category, transaction_date, allocation_mode, installments, paid_invoice, recurring_id)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`,
       [
         transaction.id,
         userId,
@@ -62,6 +64,7 @@ export class TransactionsRepository {
         transaction.allocationMode,
         transaction.installments,
         transaction.paidInvoice,
+        transaction.recurringId ?? null,
       ]
     );
   }
