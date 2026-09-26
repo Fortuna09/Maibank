@@ -33,6 +33,43 @@ function resolveAppUrl() {
   return 'http://localhost:4200';
 }
 
+/**
+ * Por onde os e-mails saem, na ordem: Gmail (SMTP_USER + SMTP_PASS), Resend (RESEND_API_KEY)
+ * ou console (desenvolvimento, sem nada configurado).
+ */
+function resolveMail() {
+  const smtpUser = (process.env.SMTP_USER || '').trim();
+  // O Google mostra a senha de app em blocos com espaço; aceita colada de qualquer jeito.
+  const smtpPass = (process.env.SMTP_PASS || '').replace(/\s+/g, '');
+
+  if (smtpUser && smtpPass) {
+    return {
+      provider: 'smtp',
+      smtp: {
+        host: process.env.SMTP_HOST || 'smtp.gmail.com',
+        port: readNumber('SMTP_PORT', 465),
+        user: smtpUser,
+        pass: smtpPass,
+      },
+      // O Gmail só envia como a própria conta: um EMAIL_FROM de outro endereço é ignorado.
+      from: (process.env.EMAIL_FROM || '').toLowerCase().includes(smtpUser.toLowerCase())
+        ? process.env.EMAIL_FROM
+        : `Maibank <${smtpUser}>`,
+    };
+  }
+
+  if (process.env.RESEND_API_KEY) {
+    return {
+      provider: 'resend',
+      resendApiKey: process.env.RESEND_API_KEY,
+      // Sem domínio próprio, o Resend só entrega para o e-mail dono da conta.
+      from: process.env.EMAIL_FROM || 'Maibank <onboarding@resend.dev>',
+    };
+  }
+
+  return { provider: 'console', from: 'Maibank <dev@localhost>' };
+}
+
 export const config = {
   isProduction,
   port: readNumber('PORT', 3001),
@@ -48,9 +85,5 @@ export const config = {
     refreshAfterDays: 7,
     bcryptRounds: 11,
   },
-  mail: {
-    resendApiKey: process.env.RESEND_API_KEY || '',
-    // Sem domínio próprio, o Resend só entrega para o e-mail dono da conta.
-    from: process.env.EMAIL_FROM || 'Maibank <onboarding@resend.dev>',
-  },
+  mail: resolveMail(),
 };

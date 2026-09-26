@@ -6,8 +6,16 @@ pg.types.setTypeParser(1082, (value) => value);
 // COUNT(*) e ids bigint: números pequenos o bastante para Number.
 pg.types.setTypeParser(20, (value) => Number(value));
 
+/**
+ * O Neon manda `sslmode=require`, que a biblioteca `pg` já trata como `verify-full`
+ * (verifica o certificado) — mas avisa em todo cold start. Deixamos explícito para o aviso sumir.
+ */
+function explicitSslMode(url) {
+  return url.includes('uselibpqcompat') ? url : url.replace(/sslmode=(require|prefer|verify-ca)/, 'sslmode=verify-full');
+}
+
 export const pool = new pg.Pool({
-  connectionString: config.databaseUrl,
+  connectionString: explicitSslMode(config.databaseUrl),
   // Em função serverless cada instância precisa de poucas conexões; o Neon faz o pooling de verdade.
   max: config.isProduction ? 3 : 10,
   // Solta conexões paradas antes de o Neon suspender o banco e derrubá-las.

@@ -20,10 +20,9 @@ npm run api      # API em http://localhost:3001 (aplica as migrations)
 npm start        # app em http://localhost:4200
 ```
 
-Sem chave do Resend, os e-mails de confirmação não saem: o link aparece no terminal da API.
+Sem e-mail configurado (Gmail ou Resend, ver `backend/.env.example`), os e-mails de confirmação não saem: o link aparece no terminal da API.
 
 ## Documentação
 
 - [Arquitetura](docs/ARQUITETURA.md) — como as peças se encaixam, login, dados, migrations.
-- [Deploy](docs/DEPLOY.md) — passo a passo para colocar no ar.
 - [Backend](backend/README.md) — estrutura dos módulos e endpoints.

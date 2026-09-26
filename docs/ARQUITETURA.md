@@ -13,7 +13,7 @@ Navegador (Angular 20, PWA)
    └── /api/*     → função serverless api/index.mjs → Express        Vercel Functions
                         │
                         ├── Postgres ── Neon (plano gratuito, 0,5 GB)   DATABASE_URL
-                        └── E-mails ─── Resend (3.000/mês grátis)       RESEND_API_KEY
+                        └── E-mails ─── Gmail (SMTP) ou Resend          SMTP_USER/SMTP_PASS ou RESEND_API_KEY
 ```
 
 Front e API no **mesmo domínio**: não existe CORS, e o cookie de sessão é *first-party*
@@ -25,7 +25,7 @@ proxy de `/api` para o backend local (`proxy.conf.json`), reproduzindo o mesmo c
 | Front | Angular na Vercel | build estático, CDN grátis |
 | API | Express como função da Vercel | não dorme (o Render grátis leva ~1 min para acordar), mesmo domínio do front |
 | Banco | Postgres no Neon | dados relacionais (lançamento → alocações → divisões), plano grátis que só "cochila" |
-| E-mail | Resend | API simples; grátis até 3.000 e-mails/mês |
+| E-mail | Gmail (SMTP) ou Resend | Gmail: grátis, sem domínio, 500/dia · Resend: com domínio próprio, 3.000/mês |
 
 ## Autenticação
 
@@ -117,7 +117,8 @@ comprimidos, e a tela de login abre rápido no celular.
 | --- | --- | --- |
 | `DATABASE_URL` | Postgres do Docker (padrão) | connection string **pooled** do Neon |
 | `JWT_SECRET` | gerado no `backend/.env` | **obrigatório** — gere um novo, nunca reaproveite o local |
-| `RESEND_API_KEY` | vazio (link aparece no console) | chave do Resend |
+| `SMTP_USER` / `SMTP_PASS` | vazio (link aparece no console) | Gmail + senha de app (grátis, 500/dia) |
+| `RESEND_API_KEY` | vazio | alternativa ao Gmail, com domínio próprio |
 | `EMAIL_FROM` | — | `Maibank <nao-responda@seudominio>` depois de verificar o domínio |
 | `APP_URL` | `http://localhost:4200` | opcional; sem ela usa o domínio de produção da Vercel |
 | `APP_TIMEZONE` | `America/Sao_Paulo` | idem |
