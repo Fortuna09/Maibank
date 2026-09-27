@@ -961,6 +961,16 @@ p {
   body {
     /* Sem o "puxar para recarregar" e sem o elástico que denuncia que é um site */
     overscroll-behavior-y: none;
+    scrollbar-width: none;
+  }
+
+  /* Sem barras de rolagem visíveis: o usuário só rola */
+  *::-webkit-scrollbar {
+    display: none;
+  }
+
+  * {
+    scrollbar-width: none;
   }
 
   body {
@@ -973,9 +983,21 @@ p {
     touch-action: pan-x pan-y;
   }
 
+  /* O app rola dentro desta caixa, não a página: o iOS não deixa esconder o indicador de
+     rolagem da página, mas deixa o de uma caixa. A janela fica parada. */
+  html:has(.app-shell),
+  html:has(.app-shell) body {
+    height: 100%;
+    overflow: hidden;
+  }
+
   .app-shell {
     display: block;
-    min-height: 100dvh;
+    height: 100dvh;
+    min-height: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior-y: contain;
   }
 
   .page {

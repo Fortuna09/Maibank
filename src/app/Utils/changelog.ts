@@ -18,6 +18,18 @@ export interface Release {
  */
 export const CHANGELOG: Release[] = [
   {
+    version: '1.3.0',
+    date: '2026-09-27',
+    title: 'Tema Cromado (em teste)',
+    changes: [
+      {
+        kind: 'novo',
+        text: 'Tema Cromado, inspirado na nova logo: fundo de metal escovado, detalhes cromados e um brilho holográfico discreto. Ainda em teste — escolha em Configurações > Aparência > Tema.',
+      },
+      { kind: 'melhoria', text: 'No celular, sem barra de rolagem aparecendo: é só rolar.' },
+    ],
+  },
+  {
     version: '1.2.0',
     date: '2026-09-27',
     title: 'Celular mais arrumado',

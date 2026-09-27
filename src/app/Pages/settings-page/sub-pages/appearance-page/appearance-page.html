@@ -4,14 +4,25 @@
           <span class="row-icon"><app-icon [name]="appearance.theme === 'dark' ? 'eye-off' : 'eye'" [size]="16" /></span>
           <div class="row-body">
             <h2>Tema</h2>
-            <p>Escolha entre a interface clara e a interface escura.</p>
+            <p>Escuro, claro ou cromado — o cromado é novo e está em teste.</p>
           </div>
-          <button class="btn" type="button" (click)="appearance.toggleTheme()">
-            {{ appearance.theme === 'dark' ? 'Usar claro' : 'Usar escuro' }}
-          </button>
+          <div class="theme-switch" role="radiogroup" aria-label="Tema">
+            @for (option of themeOptions; track option.value) {
+              <button
+                type="button"
+                role="radio"
+                [attr.aria-checked]="appearance.theme === option.value"
+                [class.active]="appearance.theme === option.value"
+                (click)="appearance.setTheme(option.value)"
+              >
+                {{ option.label }}
+              </button>
+            }
+          </div>
         </article>
 
-        <article class="setting-row">
+        <!-- No cromado o destaque é sempre aço: a cor não teria efeito -->
+        <article class="setting-row" *ngIf="appearance.theme !== 'chrome'">
           <span class="row-icon"><app-icon name="sliders" [size]="16" /></span>
           <div class="row-body">
             <h2>Cor de destaque</h2>

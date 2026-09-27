@@ -343,3 +343,62 @@
     margin-top: var(--space-6);
   }
 }
+
+/* ============================================
+   TEMA CROMADO: capa de metal polido com o M da logo e um brilho holográfico leve.
+   Cantos desencontrados, como a fita torcida do M.
+   ============================================ */
+
+.cover-mark {
+  display: none;
+}
+
+:host-context(body[data-theme='chrome']) {
+  .cover:not(.has-image) {
+    background-image: var(--holo), var(--chrome);
+    border-radius: 3px 30px 3px 30px;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.95),
+      inset 0 -1px 0 rgba(0, 0, 0, 0.1),
+      0 12px 32px rgba(20, 22, 26, 0.18);
+  }
+
+  /* inset/left/object-fit desfazem a regra de ".cover img" (feita para a foto de capa) */
+  .cover:not(.has-image) .cover-mark {
+    position: absolute;
+    inset: auto;
+    top: 50%;
+    right: -2%;
+    left: auto;
+    display: block;
+    height: 135%;
+    width: auto;
+    object-fit: contain;
+    aspect-ratio: 1;
+    max-width: none;
+    transform: translateY(-50%) rotate(-8deg);
+    mix-blend-mode: multiply;
+    -webkit-mask-image: radial-gradient(closest-side, #000 60%, transparent 100%);
+    mask-image: radial-gradient(closest-side, #000 60%, transparent 100%);
+    pointer-events: none;
+  }
+
+  .cover:not(.has-image) .cover-overlay {
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0) 62%);
+  }
+
+  .cover:not(.has-image) .greeting {
+    color: #3c4148;
+  }
+
+  .cover:not(.has-image) h1 {
+    background: var(--chrome-dark);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .cover:not(.has-image) .date {
+    color: #4a4f57;
+  }
+}

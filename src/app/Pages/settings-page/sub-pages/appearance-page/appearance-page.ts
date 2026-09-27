@@ -1,7 +1,7 @@
 import { NgFor, NgIf } from '@angular/common';
 import { Component, ElementRef, OnInit, inject, signal, viewChild } from '@angular/core';
 import { Icon } from '../../../../Components/icon/icon';
-import { AppearanceService } from '../../../../Services/appearance.service';
+import { AppearanceService, Theme } from '../../../../Services/appearance.service';
 import { FeedbackService } from '../../../../Services/feedback.service';
 
 @Component({
@@ -16,6 +16,11 @@ export class AppearancePage implements OnInit {
   private readonly preview = viewChild<ElementRef<HTMLDivElement>>('coverPreview');
 
   readonly accentPresets = ['#2dd4ee', '#3b82f6', '#8b5cf6', '#d946ef', '#f43f5e', '#eab308'];
+  readonly themeOptions: Array<{ value: Theme; label: string }> = [
+    { value: 'dark', label: 'Escuro' },
+    { value: 'light', label: 'Claro' },
+    { value: 'chrome', label: 'Cromado' },
+  ];
   readonly saving = signal(false);
 
   private dragging = false;

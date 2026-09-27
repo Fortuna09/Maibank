@@ -26,8 +26,10 @@
   <script>
     // A barra de status (e a do navegador) usa a cor de fundo do tema salvo.
     try {
-      if (localStorage.getItem('maibank-theme') === 'light') {
-        document.querySelector('meta[name="theme-color"]').content = '#ffffff';
+      var savedTheme = localStorage.getItem('maibank-theme');
+      var themeColors = { light: '#ffffff', chrome: '#eceef0' };
+      if (themeColors[savedTheme]) {
+        document.querySelector('meta[name="theme-color"]').content = themeColors[savedTheme];
       }
     } catch (e) {}
 
@@ -43,7 +45,8 @@
   <script>
     // Aplica o tema antes do app carregar: sem o "flash" branco ao abrir.
     try {
-      document.body.setAttribute('data-theme', localStorage.getItem('maibank-theme') === 'light' ? 'light' : 'dark');
+      var theme = localStorage.getItem('maibank-theme');
+      document.body.setAttribute('data-theme', theme === 'light' || theme === 'chrome' ? theme : 'dark');
     } catch (e) {
       document.body.setAttribute('data-theme', 'dark');
     }

@@ -49,11 +49,18 @@ export class TourOverlay {
 
     // O layout pode mudar enquanto o tour está aberto (dados chegando, menu recolhido).
     const timer = window.setInterval(() => this.tour.active() && this.measure(), 400);
-    inject(DestroyRef).onDestroy(() => window.clearInterval(timer));
+
+    // No celular quem rola é a caixa do app, não a janela: escuta a rolagem de qualquer elemento.
+    const onScroll = () => this.onViewportChange();
+    document.addEventListener('scroll', onScroll, { capture: true, passive: true });
+
+    inject(DestroyRef).onDestroy(() => {
+      window.clearInterval(timer);
+      document.removeEventListener('scroll', onScroll, { capture: true });
+    });
   }
 
   @HostListener('window:resize')
-  @HostListener('window:scroll')
   onViewportChange(): void {
     if (this.tour.active()) {
       this.measure();

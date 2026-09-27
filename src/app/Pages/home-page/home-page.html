@@ -10,6 +10,8 @@
         [style.objectPosition]="appearance.coverPositionX() + '% ' + appearance.coverPositionY() + '%'"
         [style.transform]="'scale(' + (appearance.coverZoom() / 100) + ')'"
       />
+      <!-- Tema cromado sem capa própria: o M da logo aparece à direita -->
+      <img *ngIf="!appearance.coverImage()" class="cover-mark" src="brand/logo-m.jpg" alt="" loading="lazy" />
       <div class="cover-overlay"></div>
       <div class="cover-content">
         <p class="greeting">{{ greeting() }}</p>
@@ -51,14 +53,14 @@
               <app-icon name="bag" [size]="13" />
               {{ daily.label }}
             </p>
-            <strong>{{ isPrivacyMode() ? '••••••' : (daily.amount | currency: 'BRL') }}</strong>
+            <strong class="chrome-number">{{ isPrivacyMode() ? '••••••' : (daily.amount | currency: 'BRL') }}</strong>
             <small>disponível para usar no dia a dia</small>
           </div>
 
           <ng-template #totalOnly>
             <div class="balance-main">
               <p class="eyebrow">Saldo atual</p>
-              <strong>{{ isPrivacyMode() ? '••••••' : (financeStore.saldoAtual() | currency: 'BRL') }}</strong>
+              <strong class="chrome-number">{{ isPrivacyMode() ? '••••••' : (financeStore.saldoAtual() | currency: 'BRL') }}</strong>
             </div>
           </ng-template>
 

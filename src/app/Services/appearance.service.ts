@@ -1,6 +1,17 @@
 import { Injectable, signal } from '@angular/core';
 
-export type Theme = 'dark' | 'light';
+export type Theme = 'dark' | 'light' | 'chrome';
+
+/** Cor da barra do sistema/navegador no celular: o fundo da barra superior de cada tema. */
+const THEME_COLORS: Record<Theme, string> = {
+  dark: '#313338',
+  light: '#ffffff',
+  chrome: '#eceef0',
+};
+
+function parseTheme(value: string | null): Theme {
+  return value === 'light' || value === 'chrome' ? value : 'dark';
+}
 
 const DEFAULT_ACCENT = '#3b82f6';
 
@@ -16,8 +27,7 @@ export class AppearanceService {
   readonly coverZoom = signal(100);
 
   initialize(): void {
-    const savedTheme = localStorage.getItem('maibank-theme') as Theme | null;
-    this.theme = savedTheme === 'light' ? 'light' : 'dark';
+    this.theme = parseTheme(localStorage.getItem('maibank-theme'));
     this.applyTheme(this.theme);
 
     this.accentColor = localStorage.getItem('maibank-accent-color') || DEFAULT_ACCENT;
@@ -30,9 +40,9 @@ export class AppearanceService {
     this.coverZoom.set(Number(localStorage.getItem('maibank-cover-zoom')) || 100);
   }
 
-  toggleTheme(): void {
-    this.theme = this.theme === 'dark' ? 'light' : 'dark';
-    this.applyTheme(this.theme);
+  setTheme(theme: Theme): void {
+    this.theme = theme;
+    this.applyTheme(theme);
   }
 
   setAccentColor(color: string): void {
@@ -97,8 +107,8 @@ export class AppearanceService {
   private applyTheme(nextTheme: Theme): void {
     document.body.setAttribute('data-theme', nextTheme);
     localStorage.setItem('maibank-theme', nextTheme);
-    // Barra do navegador/sistema no celular acompanha o fundo do app (--bg de cada tema).
-    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', nextTheme === 'light' ? '#ffffff' : '#313338');
+    // Barra do navegador/sistema no celular acompanha o topo do app.
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', THEME_COLORS[nextTheme]);
   }
 
   private applyAccentColor(color: string): void {
