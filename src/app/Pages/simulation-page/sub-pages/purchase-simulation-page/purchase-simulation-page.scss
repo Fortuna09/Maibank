@@ -35,12 +35,17 @@
 }
 
 .context {
-  display: flex;
-  align-items: center;
-  gap: 6px;
+  display: block;
+  line-height: 1.55;
   margin: var(--space-3) 0 0;
   color: var(--text-muted);
   font-size: 0.8rem;
+}
+
+.context app-icon {
+  display: inline-flex;
+  margin-right: 4px;
+  vertical-align: -2px;
 }
 
 .context strong {
@@ -183,8 +188,13 @@
 }
 
 @media (max-width: 720px) {
+  /* Duas colunas; o "o que você quer comprar" ocupa a linha toda */
+  .sim-form {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .field-wide {
-    grid-column: span 1;
+    grid-column: 1 / -1;
   }
 
   .outcome {

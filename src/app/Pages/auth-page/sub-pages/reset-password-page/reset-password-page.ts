@@ -2,13 +2,15 @@ import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Icon } from '../../../../Components/icon/icon';
+import { PasswordRules } from '../../../../Components/password-rules/password-rules';
 import { apiErrorCode, apiErrorMessage, AuthService } from '../../../../Services/auth.service';
 import { FeedbackService } from '../../../../Services/feedback.service';
+import { passwordProblem } from '../../../../Utils/password-rule';
 
 /** Aberta pelo link do e-mail de "esqueci minha senha". Ao salvar, já entra na conta. */
 @Component({
   selector: 'app-reset-password-page',
-  imports: [FormsModule, RouterLink, Icon],
+  imports: [FormsModule, RouterLink, Icon, PasswordRules],
   templateUrl: './reset-password-page.html',
 })
 export class ResetPasswordPage {
@@ -32,8 +34,9 @@ export class ResetPasswordPage {
     }
 
     this.error.set(null);
-    if (this.password.length < 8) {
-      this.error.set('A senha precisa ter pelo menos 8 caracteres.');
+    const problem = passwordProblem(this.password);
+    if (problem) {
+      this.error.set(problem);
       return;
     }
     if (this.password !== this.confirmation) {

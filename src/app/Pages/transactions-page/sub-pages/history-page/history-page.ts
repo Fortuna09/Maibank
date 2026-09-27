@@ -1,23 +1,29 @@
-import { CurrencyPipe, NgFor, NgIf } from '@angular/common';
-import { Component, inject, signal, AfterViewInit, ViewChild, ElementRef, effect } from '@angular/core';
+import { CurrencyPipe, DatePipe, NgFor, NgIf } from '@angular/common';
+import { Component, ElementRef, effect, inject, signal, viewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Icon } from '../../../../Components/icon/icon';
 import { FeedbackService } from '../../../../Services/feedback.service';
 import { FinanceStoreService, FinanceTransaction } from '../../../../Services/finance-store.service';
+import { elementWidth, fitChart, labelStep } from '../../../../Utils/chart-size';
 import { categoryIcon, transactionIcon, transactionLabel } from '../../../../Utils/finance.utils';
 
 @Component({
   selector: 'app-history-page',
-  imports: [FormsModule, NgFor, NgIf, CurrencyPipe, Icon],
+  imports: [FormsModule, NgFor, NgIf, CurrencyPipe, DatePipe, Icon],
   templateUrl: './history-page.html',
   styleUrl: './history-page.scss',
 })
-export class HistoryPage implements AfterViewInit {
+export class HistoryPage {
   readonly financeStore = inject(FinanceStoreService);
   private readonly feedback = inject(FeedbackService);
 
-  readonly transactionsEffect = effect(() => {
+  private readonly monthlyLineCanvas = viewChild<ElementRef<SVGSVGElement>>('monthlyLine');
+  private readonly chartWidth = elementWidth(this.monthlyLineCanvas);
+
+  // Redesenha quando chegam lançamentos, quando o gráfico aparece e quando a largura muda.
+  readonly chartEffect = effect(() => {
     this.financeStore.transactions();
+    this.chartWidth();
     this.drawChart();
   });
 
@@ -28,8 +34,6 @@ export class HistoryPage implements AfterViewInit {
   chartRangeDays = 30;
 
   readonly deletingId = signal<string | null>(null);
-
-  @ViewChild('monthlyLine', { static: false }) private monthlyLineCanvas!: ElementRef<SVGSVGElement>;
 
   onChartRangeChange(days: number): void {
     this.chartRangeDays = days;
@@ -107,18 +111,14 @@ export class HistoryPage implements AfterViewInit {
     }
   }
 
-  ngAfterViewInit(): void {
-    this.drawChart();
-  }
-
   private drawChart(): void {
-    if (!this.monthlyLineCanvas?.nativeElement) {
+    const canvas = this.monthlyLineCanvas()?.nativeElement;
+    if (!canvas) {
       return;
     }
 
     const series = this.getRangeSeries(this.chartRangeDays);
-    const width = 760;
-    const height = 240;
+    const { width, height } = fitChart(canvas, { width: 760, height: 240 });
     const padding = { top: 16, right: 14, bottom: 30, left: 56 };
     const maxValue = Math.max(
       1,
@@ -146,17 +146,20 @@ export class HistoryPage implements AfterViewInit {
       const y = padding.top + (innerHeight * index) / 3;
       return `
         <line x1="${padding.left}" y1="${y}" x2="${width - padding.right}" y2="${y}" style="stroke: var(--border)" stroke-width="1" />
-        <text x="${padding.left - 10}" y="${y + 3.5}" text-anchor="end" style="fill: var(--text-muted)" font-size="10">R$ ${compact.format(value)}</text>
+        <text x="${padding.left - 10}" y="${y + 3.5}" text-anchor="end" style="fill: var(--text-muted)" font-size="11">R$ ${compact.format(value)}</text>
       `;
     }).join('');
 
-    const labelStep = Math.max(1, Math.ceil(series.labels.length / 6));
+    // Um rótulo de data a cada ~64px (5 no celular), no máximo 6.
+    const step = Math.max(labelStep(series.labels.length, innerWidth, 64), Math.ceil(series.labels.length / 6));
     const xLabels = series.labels
       .map((label, index) => {
-        if (index % labelStep !== 0 && index !== series.labels.length - 1) {
+        const last = series.labels.length - 1;
+        // O último rótulo sempre aparece; o anterior some se ficar colado nele.
+        if ((index % step !== 0 && index !== last) || (index !== last && last - index < step * 0.6)) {
           return '';
         }
-        return `<text x="${toX(index)}" y="${height - 10}" text-anchor="middle" style="fill: var(--text-muted)" font-size="10">${label}</text>`;
+        return `<text x="${toX(index)}" y="${height - 10}" text-anchor="middle" style="fill: var(--text-muted)" font-size="11">${label}</text>`;
       })
       .join('');
 
@@ -169,7 +172,7 @@ export class HistoryPage implements AfterViewInit {
         )
         .join('');
 
-    this.monthlyLineCanvas.nativeElement.innerHTML = `
+    canvas.innerHTML = `
       <defs>
         <linearGradient id="incomeFill" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" style="stop-color: var(--success)" stop-opacity="0.28" />

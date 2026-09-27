@@ -48,7 +48,7 @@
 
     <label class="field" *ngIf="purchaseMode() === 'parcelado'">
       <span>Parcelas</span>
-      <input type="number" min="1" max="24" step="1" [ngModel]="installments()" (ngModelChange)="installments.set(+$event || 1)" />
+      <input type="number" inputmode="numeric" min="1" max="24" step="1" [ngModel]="installments()" (ngModelChange)="installments.set(+$event || 1)" />
     </label>
 
     <label class="field">
@@ -116,8 +116,10 @@
 
     <p class="form-error warning" *ngIf="result.firstNegativeMonth as neg">
       <app-icon name="alert" [size]="15" />
-      Comprando, o saldo de {{ selectedBucket()?.label }} ficaria negativo em <strong>{{ neg.label }}</strong>
-      ({{ neg.with | currency: 'BRL' }}).
+      <span>
+        Comprando, o saldo de {{ selectedBucket()?.label }} ficaria negativo em <strong>{{ neg.label }}</strong>
+        ({{ neg.with | currency: 'BRL' }}).
+      </span>
     </p>
 
     <div class="chart-legend">
@@ -126,7 +128,7 @@
     </div>
 
     <div class="chart-canvas-wrap">
-      <svg #chart class="sim-chart" viewBox="0 0 760 240" preserveAspectRatio="none" aria-label="Projeção do saldo"></svg>
+      <svg #chart class="sim-chart" viewBox="0 0 760 240" aria-label="Projeção do saldo"></svg>
     </div>
   </section>
 

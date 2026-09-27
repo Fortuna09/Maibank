@@ -76,6 +76,13 @@ const TOPICS: HelpTopic[] = [
     ],
   },
   {
+    question: 'Dá para instalar no celular?',
+    answer: [
+      'Dá, e ele abre como um aplicativo, sem a barra do navegador. No iPhone: abra no Safari, toque em Compartilhar e depois em "Adicionar à Tela de Início".',
+      'No Android: abra no Chrome, toque no menu (⋮) e em "Instalar app". Quando sair uma versão nova, o próprio app avisa.',
+    ],
+  },
+  {
     question: 'Meus dados vêm do banco? Quem vê o que eu lanço?',
     answer: [
       'Nada vem do banco: tudo é lançado por você. Seus dados ficam na sua conta e ninguém mais os enxerga.',

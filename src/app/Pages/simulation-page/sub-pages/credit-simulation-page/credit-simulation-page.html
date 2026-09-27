@@ -37,7 +37,7 @@
 
     <label class="field">
       <span>Parcelas <em class="field-note">1 = à vista</em></span>
-      <input type="number" min="1" max="36" step="1" [ngModel]="installments()" (ngModelChange)="installments.set(+$event || 1)" />
+      <input type="number" inputmode="numeric" min="1" max="36" step="1" [ngModel]="installments()" (ngModelChange)="installments.set(+$event || 1)" />
     </label>
 
     <label class="field">
@@ -102,7 +102,7 @@
 
     <p class="form-error warning" *ngIf="peakShare() !== null && peakShare()! >= 40">
       <app-icon name="alert" [size]="15" />
-      A fatura de <strong>{{ projection.peak?.label }}</strong> consumiria {{ peakShare() }}% da sua renda do mês.
+      <span>A fatura de <strong>{{ projection.peak?.label }}</strong> consumiria {{ peakShare() }}% da sua renda do mês.</span>
     </p>
 
     <div class="chart-legend">
@@ -111,7 +111,7 @@
     </div>
 
     <div class="chart-canvas-wrap">
-      <svg #chart class="sim-chart" viewBox="0 0 760 220" preserveAspectRatio="none" aria-label="Projeção das faturas"></svg>
+      <svg #chart class="sim-chart" viewBox="0 0 760 220" aria-label="Projeção das faturas"></svg>
     </div>
 
     <div class="rows">

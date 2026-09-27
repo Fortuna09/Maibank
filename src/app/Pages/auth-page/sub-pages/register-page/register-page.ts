@@ -2,15 +2,17 @@ import { Component, inject, OnDestroy, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { Icon } from '../../../../Components/icon/icon';
+import { PasswordRules } from '../../../../Components/password-rules/password-rules';
 import { apiErrorMessage, AuthService } from '../../../../Services/auth.service';
 import { FeedbackService } from '../../../../Services/feedback.service';
+import { passwordProblem } from '../../../../Utils/password-rule';
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const RESEND_COOLDOWN_SECONDS = 60;
 
 @Component({
   selector: 'app-register-page',
-  imports: [FormsModule, RouterLink, Icon],
+  imports: [FormsModule, RouterLink, Icon, PasswordRules],
   templateUrl: './register-page.html',
 })
 export class RegisterPage implements OnDestroy {
@@ -84,10 +86,7 @@ export class RegisterPage implements OnDestroy {
     if (!EMAIL_PATTERN.test(this.email.trim())) {
       return 'Informe um e-mail válido.';
     }
-    if (this.password.length < 8) {
-      return 'A senha precisa ter pelo menos 8 caracteres.';
-    }
-    return null;
+    return passwordProblem(this.password);
   }
 
   private startCooldown(): void {

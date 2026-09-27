@@ -199,8 +199,12 @@
   .toast-stack {
     right: 12px;
     left: 12px;
-    bottom: 12px;
+    bottom: calc(var(--mobile-tabbar-h) + 12px);
     justify-items: stretch;
+  }
+
+  :host-context(body.assistant-minimized) .toast-stack {
+    bottom: calc(var(--mobile-tabbar-h) + 68px);
   }
 
   .toast-item {

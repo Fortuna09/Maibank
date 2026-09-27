@@ -141,6 +141,35 @@ Esquema novo = arquivo novo em `backend/src/database/migrations/` com o próximo
 - local: ao subir o backend (`npm run api`) ou com `npm run db:migrate`;
 - produção: no build da Vercel (`migrate:deploy`, pulado se não houver `DATABASE_URL`).
 
+## Versões e novidades
+
+Toda entrega que muda algo para quem usa ganha uma entrada **no topo** de
+`src/app/Utils/changelog.ts`, escrita para o usuário (não para quem programa):
+
+```ts
+{
+  version: '1.2.0',             // novidade sobe o meio; só correção sobe o fim (1.1.1)
+  date: '2026-10-05',
+  title: 'Mai de verdade',
+  changes: [
+    { kind: 'novo', text: 'A Mai agora entende qualquer frase…' },
+    { kind: 'correcao', text: 'O saldo não duplica mais ao…' },
+  ],
+},
+```
+
+Depois do deploy:
+- **Aba aberta:** o service worker baixa a versão nova e aparece "Saiu uma versão nova do
+  Maibank · Atualizar" (confere a cada 30 min e quando a aba volta a ficar visível).
+- **Ao entrar:** quem ainda não viu a versão vê um modal com o que mudou desde a última
+  visita (no máximo as 4 últimas versões). Conta nova não vê — vai direto para o tour.
+- O histórico completo fica em Configurações > Novidades; o número da versão aparece no
+  rodapé da navbar.
+
+O "já vi" fica no `localStorage` (`maibank-seen-version:<id da conta>`), então em outro
+navegador a pessoa vê as novidades de novo, uma vez. Deploy sem entrada nova no changelog
+(ajuste interno) mostra só o aviso de atualizar, sem modal.
+
 ## Próximos passos conhecidos
 
 - **Limite de tentativas de login** (hoje só o custo do bcrypt freia força bruta). Em

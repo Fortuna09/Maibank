@@ -108,6 +108,14 @@ import { Component, input } from '@angular/core';
           <path d="M7.5 20.5 4.5 17.5 7.5 14.5" />
           <path d="M19.5 12.5v1a4 4 0 0 1-4 4h-11" />
         }
+        @case ('bell') {
+          <path d="M6.4 16.6V11a5.6 5.6 0 0 1 11.2 0v5.6l1.4 1.6H5z" />
+          <path d="M10.2 20.4a2 2 0 0 0 3.6 0" />
+        }
+        @case ('refresh') {
+          <path d="M19.4 12a7.4 7.4 0 1 1-2.2-5.2" />
+          <path d="M19.6 4.4v3.8h-3.8" />
+        }
         @case ('help') {
           <circle cx="12" cy="12" r="8.6" />
           <path d="M9.7 9.5a2.4 2.4 0 0 1 4.6 1c0 1.6-2.3 2-2.3 3.3" />

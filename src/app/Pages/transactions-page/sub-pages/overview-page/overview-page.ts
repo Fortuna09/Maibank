@@ -1,4 +1,4 @@
-import { CurrencyPipe, NgFor, NgIf } from '@angular/common';
+import { CurrencyPipe, DatePipe, NgFor, NgIf } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { Icon } from '../../../../Components/icon/icon';
@@ -8,7 +8,7 @@ import { categoryIcon, transactionIcon } from '../../../../Utils/finance.utils';
 
 @Component({
   selector: 'app-overview-page',
-  imports: [CurrencyPipe, NgFor, NgIf, Icon, RouterLink],
+  imports: [CurrencyPipe, DatePipe, NgFor, NgIf, Icon, RouterLink],
   templateUrl: './overview-page.html',
   styleUrl: './overview-page.scss',
 })

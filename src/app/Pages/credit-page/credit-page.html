@@ -5,9 +5,9 @@
         <a routerLink="faturas" routerLinkActive="active-tab">Faturas</a>
       </nav>
 
-      <button type="button" class="btn primary small subnav-action" (click)="openCreditModal()">
+      <button type="button" class="btn primary small subnav-action" (click)="openCreditModal()" aria-label="Compra no crédito">
         <app-icon name="plus" [size]="14" />
-        Compra no crédito
+        <span class="subnav-action-label">Compra no crédito</span>
       </button>
     </div>
   </div>

@@ -27,7 +27,6 @@
       #monthlyLine
       class="monthly-line-canvas"
       viewBox="0 0 760 240"
-      preserveAspectRatio="none"
       aria-label="Gráfico de lançamentos"
     ></svg>
   </div>
@@ -74,7 +73,7 @@
       <div class="row-body">
         <p class="row-title">{{ transaction.description }}</p>
         <small class="row-sub">
-          {{ transaction.category }} · {{ transaction.date }}
+          {{ transaction.category }} · {{ transaction.date | date: "d 'de' MMM" }}
           <ng-container *ngIf="transaction.type === 'credito' && transaction.installments > 1">
             · {{ transaction.installments }}x de {{ transaction.amount / transaction.installments | currency: 'BRL' }}
           </ng-container>
@@ -84,7 +83,7 @@
       </div>
 
       <span
-        class="tag"
+        class="tag row-type"
         [class.income-tag]="transaction.type === 'entrada'"
         [class.expense-tag]="transaction.type === 'saida'"
         [class.credit-tag]="transaction.type === 'credito'"

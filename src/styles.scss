@@ -39,6 +39,10 @@
   --space-6: 32px;
   --radius: 3px;
   --content-max: 1180px;
+
+  /* Celular: altura das barras fixas, já contando o entalhe e a barra de gestos do iPhone */
+  --mobile-topbar-h: calc(52px + env(safe-area-inset-top));
+  --mobile-tabbar-h: calc(58px + env(safe-area-inset-bottom));
 }
 
 body[data-theme='dark'] {
@@ -128,6 +132,9 @@ body {
   font-variant-numeric: tabular-nums;
   line-height: 1.5;
   overflow-x: hidden;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
 app-root {
@@ -194,7 +201,9 @@ p {
   flex: 1;
   min-width: 0;
   padding: var(--space-4) var(--space-5) var(--space-6);
-  animation: page-in 0.2s ease both;
+  /* "backwards": terminada a animação, a página não fica numa camada própria —
+     senão os modais de dentro dela ficariam atrás das barras fixas do celular. */
+  animation: page-in 0.2s ease backwards;
 }
 
 @keyframes page-in {
@@ -760,7 +769,7 @@ p {
 
 .form-error {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 6px;
   margin: 0;
   padding: 8px 10px;
@@ -788,6 +797,11 @@ p {
   border: 1px solid var(--border-strong);
   border-radius: var(--radius);
   box-shadow: 0 16px 48px var(--shadow);
+}
+
+.form-error > app-icon {
+  flex-shrink: 0;
+  margin-top: 1px;
 }
 
 /* ============================================
@@ -931,3 +945,155 @@ p {
   transition: background-color 9999s ease-out 0s;
 }
 
+/* ============================================
+   CELULAR (iPhone 14 como referência: 390 × 844)
+   ============================================ */
+
+/* Em tela de toque, o "hover" fica grudado depois do toque: só vale com mouse. */
+@media (hover: none) {
+  .data-row:hover {
+    background: transparent;
+  }
+}
+
+@media (max-width: 720px) {
+  html,
+  body {
+    /* Sem o "puxar para recarregar" e sem o elástico que denuncia que é um site */
+    overscroll-behavior-y: none;
+  }
+
+  body {
+    min-height: 100dvh;
+    touch-action: manipulation;
+  }
+
+  .app-shell {
+    display: block;
+    min-height: 100dvh;
+  }
+
+  .page {
+    padding: var(--space-4) var(--space-4) calc(var(--mobile-tabbar-h) + var(--space-6));
+  }
+
+  /* Telas com abas: as abas colam logo abaixo da barra superior */
+  .page.section-shell {
+    padding-top: 0;
+  }
+
+  .subnav-wrap {
+    top: var(--mobile-topbar-h);
+    margin: 0 calc(-1 * var(--space-4));
+    padding: 0 var(--space-4);
+  }
+
+  .subnav-panel {
+    padding-top: var(--space-4);
+  }
+
+  .section {
+    margin-top: var(--space-5);
+  }
+
+  /* Alvos de toque de pelo menos ~40px */
+  .btn {
+    min-height: 40px;
+    padding: 9px 14px;
+    font-size: 0.86rem;
+  }
+
+  .btn.small {
+    min-height: 34px;
+    padding: 6px 11px;
+    font-size: 0.8rem;
+  }
+
+  .btn.icon-btn {
+    width: 38px;
+    min-height: 38px;
+  }
+
+  .btn.block {
+    min-height: 46px;
+  }
+
+  /* 16px nos campos: abaixo disso o iPhone dá zoom sozinho ao tocar no campo */
+  .input,
+  .field input,
+  .field select,
+  .field textarea,
+  textarea {
+    min-height: 44px;
+    font-size: 16px;
+  }
+
+  .field > span {
+    font-size: 0.76rem;
+  }
+
+  .data-row {
+    padding: 11px 8px;
+  }
+
+  /* "Novo lançamento" vira o botão flutuante do app, acima das abas */
+  .btn.subnav-action {
+    position: fixed;
+    right: var(--space-4);
+    bottom: calc(var(--mobile-tabbar-h) + var(--space-4));
+    z-index: 35;
+    width: 54px;
+    height: 54px;
+    min-height: 54px;
+    padding: 0;
+    gap: 0;
+    box-shadow: 0 10px 24px var(--shadow);
+  }
+
+  .subnav-action-label {
+    display: none;
+  }
+
+  .subnav-action app-icon svg {
+    width: 24px;
+    height: 24px;
+  }
+
+  /* Modais viram folhas que sobem de baixo, largura toda */
+  .modal-overlay {
+    align-items: flex-end;
+    padding: 0;
+    animation: overlay-in 0.2s ease both;
+  }
+
+  body .modal-overlay > .modal-card {
+    width: 100%;
+    max-width: 100%;
+    max-height: calc(100dvh - env(safe-area-inset-top) - 24px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    border-width: 1px 0 0;
+    border-radius: 0;
+    padding-bottom: calc(var(--space-4) + env(safe-area-inset-bottom));
+    animation: sheet-up 0.28s cubic-bezier(0.2, 0.9, 0.3, 1) both;
+  }
+
+  @keyframes overlay-in {
+    from {
+      opacity: 0;
+    }
+  }
+
+  @keyframes sheet-up {
+    from {
+      transform: translateY(100%);
+    }
+  }
+}
+
+@media (max-width: 720px) and (prefers-reduced-motion: reduce) {
+  .modal-overlay,
+  body .modal-overlay > .modal-card {
+    animation: none;
+  }
+}

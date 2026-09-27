@@ -42,7 +42,7 @@
         <div class="row-body">
           <p class="row-title">{{ transaction.description }}</p>
           <small class="row-sub">
-            {{ transaction.category }} · {{ transaction.date }}
+            {{ transaction.category }} · {{ transaction.date | date: "d 'de' MMM" }}
             <ng-container *ngIf="transaction.type === 'credito'">
               · crédito{{ transaction.installments > 1 ? ' em ' + transaction.installments + 'x' : '' }}
             </ng-container>

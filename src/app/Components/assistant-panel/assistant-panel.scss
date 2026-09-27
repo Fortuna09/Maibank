@@ -564,15 +564,37 @@
 }
 
 @media (max-width: 720px) {
+  /* No celular a Mai ocupa a tela toda, respeitando o entalhe e a barra de gestos */
   .assistant-panel,
   .assistant-panel.is-expanded {
     width: 100vw;
     border-left: 0;
+    box-shadow: none;
+  }
+
+  .panel-head {
+    min-height: calc(52px + env(safe-area-inset-top));
+    padding-top: env(safe-area-inset-top);
+  }
+
+  .panel-foot {
+    padding-bottom: calc(var(--space-3) + env(safe-area-inset-bottom));
+  }
+
+  /* 16px: sem zoom automático ao tocar no campo */
+  .composer textarea {
+    font-size: 16px;
+  }
+
+  /* Já ocupa a tela toda, e teclado de celular não tem Shift+Enter */
+  .expand-btn,
+  .composer-hint {
+    display: none;
   }
 
   .assistant-pill {
     right: 12px;
-    bottom: 12px;
+    bottom: calc(var(--mobile-tabbar-h) + 12px);
   }
 }
 

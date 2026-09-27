@@ -12,12 +12,12 @@
     <div class="credit-fields">
       <label class="field">
         <span>Dia de fechamento</span>
-        <input type="number" min="1" max="28" step="1" [ngModel]="closingDay()" (ngModelChange)="closingDay.set(+$event || 1)" name="closingDay" />
+        <input type="number" inputmode="numeric" min="1" max="28" step="1" [ngModel]="closingDay()" (ngModelChange)="closingDay.set(+$event || 1)" name="closingDay" />
       </label>
 
       <label class="field">
         <span>Dia de vencimento</span>
-        <input type="number" min="1" max="28" step="1" [ngModel]="dueDay()" (ngModelChange)="dueDay.set(+$event || 1)" name="dueDay" />
+        <input type="number" inputmode="numeric" min="1" max="28" step="1" [ngModel]="dueDay()" (ngModelChange)="dueDay.set(+$event || 1)" name="dueDay" />
       </label>
     </div>
 

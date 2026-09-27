@@ -362,6 +362,27 @@
   transition: opacity 0.18s ease, width 0.18s ease, visibility 0.18s ease;
 }
 
+/* Versão do app, logo abaixo das configurações: leva ao histórico de novidades */
+.nav-version {
+  align-self: center;
+  margin-top: 8px;
+  padding: 2px 6px;
+  border-radius: 3px;
+  color: var(--text-muted);
+  font-size: 0.68rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  text-decoration: none;
+  opacity: 0.75;
+  transition: color 0.15s ease, opacity 0.15s ease;
+}
+
+.nav-version:hover,
+.nav-version:focus-visible {
+  color: var(--text);
+  opacity: 1;
+}
+
 .sidebar.sidebar-collapsed .theme-label {
   opacity: 0;
   width: 0;
@@ -369,74 +390,175 @@
   overflow: hidden;
 }
 
+/* ============================================
+   CELULAR: barra superior + abas embaixo
+   ============================================ */
+
+.mobile-topbar,
+.tabbar {
+  display: none;
+}
+
 @media (max-width: 720px) {
+  /* A barra lateral some; as duas barras de celular entram no fluxo da página. */
   :host {
-    width: auto;
+    display: contents;
   }
 
   .sidebar {
-    width: 84px;
-    height: 100%;
-    border-right: 1px solid var(--border);
-    border-bottom: 0;
-    padding: 12px 10px 10px;
-    flex-shrink: 0;
-  }
-
-  .sidebar.sidebar-collapsed {
-    width: 84px;
-  }
-
-  .nav-topbar {
-    gap: 10px;
-    justify-content: center;
-  }
-
-  .brand-name,
-  .theme-label,
-  .nav-label {
-    opacity: 0;
-    width: 0;
-    visibility: hidden;
     display: none;
   }
 
-  .background-controls {
+  .mobile-topbar {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    height: var(--mobile-topbar-h);
+    padding: env(safe-area-inset-top) var(--space-2) 0 var(--space-4);
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+    user-select: none;
+  }
+
+  .mobile-title {
+    margin: 0;
+    min-width: 0;
+    overflow: hidden;
+    color: var(--text);
+    font-size: 1.12rem;
+    font-weight: 700;
+    letter-spacing: -0.015em;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .mobile-actions {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+  }
+
+  .topbar-btn {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
     justify-content: center;
+    width: 42px;
+    height: 42px;
+    border: 0;
+    border-radius: var(--radius);
+    background: transparent;
+    color: var(--text-muted);
+    text-decoration: none;
+    cursor: pointer;
+    transition: color 0.14s ease, background 0.14s ease;
   }
 
-  .background-button {
-    flex: 0 0 38px;
-    width: 38px;
-    height: 38px;
-    padding: 0;
+  .topbar-btn:active {
+    background: var(--hover);
   }
 
-  .clear-background {
-    display: none;
+  .topbar-btn.is-active {
+    color: var(--user-tint);
   }
 
-  .nav-items {
+  .topbar-mai {
+    color: var(--mai);
+  }
+
+  .topbar-mai.is-active {
+    color: var(--mai);
+    background: var(--mai-soft);
+  }
+
+  .topbar-badge {
+    position: absolute;
+    top: 5px;
+    right: 4px;
+    min-width: 16px;
+    padding: 0 4px;
+    border-radius: 999px;
+    background: var(--mai);
+    color: #fff;
+    font-size: 0.6rem;
+    font-weight: 700;
+    line-height: 16px;
+    text-align: center;
+  }
+
+  .tabbar {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 40;
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    height: var(--mobile-tabbar-h);
+    padding-bottom: env(safe-area-inset-bottom);
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    user-select: none;
+  }
+
+  .tabbar a {
+    position: relative;
     display: flex;
     flex-direction: column;
-    gap: 8px;
-    margin-top: 12px;
-    width: 100%;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    min-width: 0;
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: color 0.14s ease;
   }
 
-  .nav-items a {
-    min-height: 42px;
-    padding: 10px 0;
-    font-size: 0.88rem;
-    justify-content: center;
-    gap: 0;
+  .tabbar a span {
+    max-width: 100%;
+    overflow: hidden;
+    font-size: 0.64rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
-  .theme-toggle {
-    width: 100%;
-    justify-content: center;
-    padding: 10px 0;
+  /* Aba ativa: o mesmo traço da barra lateral, agora em cima */
+  .tabbar a::before {
+    content: '';
+    position: absolute;
+    top: -1px;
+    left: 28%;
+    right: 28%;
+    height: 2px;
+    background: var(--user-tint);
+    transform: scaleX(0);
+    transition: transform 0.18s ease;
+  }
+
+  .tabbar a.is-active {
+    color: var(--text);
+  }
+
+  .tabbar a.is-active app-icon {
+    color: var(--user-tint);
+  }
+
+  .tabbar a.is-active::before {
+    transform: scaleX(1);
+  }
+
+  .tabbar a:active app-icon {
+    transform: scale(0.92);
+  }
+
+  .tabbar app-icon {
+    display: inline-flex;
+    transition: transform 0.1s ease, color 0.14s ease;
   }
 }
-
-

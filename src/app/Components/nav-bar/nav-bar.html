@@ -69,4 +69,57 @@
       <span class="theme-label">Configurações</span>
     </a>
   </div>
+
+  <a class="nav-version" routerLink="/configuracoes/novidades" title="Novidades e histórico de versões">v{{ version }}</a>
+</nav>
+
+<!-- Celular: barra superior com o nome da seção e os atalhos -->
+<header class="mobile-topbar">
+  <h1 class="mobile-title" [class.is-brand]="sectionTitle() === 'Maibank'">{{ sectionTitle() }}</h1>
+
+  <div class="mobile-actions">
+    <button type="button" class="topbar-btn" data-tour="nav-help" (click)="tour.start()" aria-label="Abrir o tour guiado">
+      <app-icon name="help" [size]="20" />
+    </button>
+    <button
+      type="button"
+      class="topbar-btn topbar-mai"
+      data-tour="nav-mai"
+      [class.is-active]="assistant.isVisible()"
+      (click)="assistant.toggle()"
+      aria-label="Abrir ou fechar a Mai, sua assistente"
+    >
+      <app-mai-mark [size]="18" [active]="assistant.thinking()" />
+      @if (assistant.unread() > 0 && !assistant.isVisible()) {
+        <span class="topbar-badge">{{ assistant.unread() }}</span>
+      }
+    </button>
+    <a class="topbar-btn" data-tour="nav-config" routerLink="/configuracoes" routerLinkActive="is-active" aria-label="Abrir configurações">
+      <app-icon name="settings" [size]="20" />
+    </a>
+  </div>
+</header>
+
+<!-- Celular: abas fixas embaixo, ao alcance do polegar -->
+<nav class="tabbar" aria-label="Navegação principal">
+  <a routerLink="/" routerLinkActive="is-active" [routerLinkActiveOptions]="{ exact: true }">
+    <app-icon name="home" [size]="21" />
+    <span>Início</span>
+  </a>
+  <a routerLink="/lancamentos" routerLinkActive="is-active" data-tour="nav-lancamentos">
+    <app-icon name="wallet" [size]="21" />
+    <span>Lançamentos</span>
+  </a>
+  <a routerLink="/metas" routerLinkActive="is-active" data-tour="nav-metas">
+    <app-icon name="target" [size]="21" />
+    <span>Metas</span>
+  </a>
+  <a routerLink="/credito" routerLinkActive="is-active" data-tour="nav-credito">
+    <app-icon name="card" [size]="21" />
+    <span>Crédito</span>
+  </a>
+  <a routerLink="/simulacao" routerLinkActive="is-active" data-tour="nav-simulacao">
+    <app-icon name="trend-up" [size]="21" />
+    <span>Simulação</span>
+  </a>
 </nav>

@@ -7,9 +7,9 @@
         <a routerLink="recorrentes" routerLinkActive="active-tab">Recorrentes</a>
       </nav>
 
-      <button type="button" class="btn primary small subnav-action" (click)="modal.open()">
+      <button type="button" class="btn primary small subnav-action" (click)="modal.open()" aria-label="Novo lançamento">
         <app-icon name="plus" [size]="14" />
-        Novo lançamento
+        <span class="subnav-action-label">Novo lançamento</span>
       </button>
     </div>
   </div>

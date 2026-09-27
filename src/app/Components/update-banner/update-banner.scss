@@ -1,0 +1,65 @@
+.update-banner {
+  position: fixed;
+  top: 12px;
+  left: 50%;
+  z-index: 350;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  max-width: calc(100vw - 24px);
+  padding: 8px 8px 8px 14px;
+  border: 1px solid var(--border-strong);
+  border-left: 2px solid var(--user-tint);
+  border-radius: var(--radius);
+  background: var(--bg-elevated);
+  color: var(--text);
+  font-size: 0.84rem;
+  font-weight: 600;
+  box-shadow: 0 12px 30px var(--shadow);
+  transform: translateX(-50%);
+  animation: update-in 0.26s cubic-bezier(0.2, 0.9, 0.3, 1) both;
+}
+
+.update-banner > app-icon {
+  color: var(--user-tint);
+  flex-shrink: 0;
+}
+
+.update-banner > span {
+  white-space: nowrap;
+}
+
+@keyframes update-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -8px);
+  }
+}
+
+@media (max-width: 520px) {
+  .update-banner {
+    top: calc(env(safe-area-inset-top) + 8px);
+    left: 12px;
+    right: 12px;
+    transform: none;
+    animation-name: update-in-mobile;
+  }
+
+  .update-banner > span {
+    flex: 1;
+    white-space: normal;
+  }
+}
+
+@keyframes update-in-mobile {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .update-banner {
+    animation: none;
+  }
+}

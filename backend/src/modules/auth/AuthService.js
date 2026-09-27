@@ -213,11 +213,15 @@ export class AuthService {
     return name;
   }
 
+  /** Mesma regra do front (src/app/Utils/password-rule.ts): 8+ caracteres, letras e números. */
   validatePassword(value) {
     const password = String(value ?? '');
     // bcrypt só considera os primeiros 72 bytes; acima disso a senha seria cortada em silêncio.
     if (password.length < 8 || Buffer.byteLength(password, 'utf8') > 72) {
       throw HttpError.badRequest('A senha precisa ter entre 8 e 72 caracteres.', 'WEAK_PASSWORD');
+    }
+    if (!/\p{L}/u.test(password) || !/\d/.test(password)) {
+      throw HttpError.badRequest('A senha precisa misturar letras e números.', 'WEAK_PASSWORD');
     }
     return password;
   }

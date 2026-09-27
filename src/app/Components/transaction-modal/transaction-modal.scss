@@ -198,3 +198,11 @@
     grid-template-columns: 1fr;
   }
 }
+
+@media (max-width: 720px) {
+  /* Na folha do celular, os dois botões dividem a largura */
+  .modal-actions > .btn {
+    flex: 1;
+    min-height: 46px;
+  }
+}

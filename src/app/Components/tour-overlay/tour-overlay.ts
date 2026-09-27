@@ -96,11 +96,14 @@ export class TourOverlay {
     }
   }
 
-  /** As telas são carregadas sob demanda: espera o alvo aparecer (até ~2 s). */
+  /**
+   * As telas são carregadas sob demanda: espera o alvo aparecer (até ~2 s). O mesmo alvo pode
+   * existir duas vezes (barra lateral e barra do celular): vale o que estiver visível.
+   */
   private async findTarget(selector: string, run: number): Promise<Element | null> {
     for (let attempt = 0; attempt < 20 && run === this.focusRun; attempt++) {
-      const element = document.querySelector(selector);
-      if (element && element.getBoundingClientRect().width > 0) {
+      const element = Array.from(document.querySelectorAll(selector)).find((item) => item.getBoundingClientRect().width > 0);
+      if (element) {
         return element;
       }
       await wait(100);

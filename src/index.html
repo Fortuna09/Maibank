@@ -1,14 +1,46 @@
 <!doctype html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
   <meta charset="utf-8">
   <title>Maibank</title>
   <base href="/">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- viewport-fit=cover: o app ocupa a tela toda do iPhone (entalhe e barra de gestos) -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="description" content="Suas finanças divididas do seu jeito: lançamentos, crédito, metas e simulações.">
+  <meta name="color-scheme" content="dark light">
+  <meta name="theme-color" content="#313338">
+
+  <!-- Instalado na tela de início, abre como aplicativo (sem a barra do navegador) -->
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Maibank">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="format-detection" content="telephone=no">
+
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
   <link rel="manifest" href="manifest.webmanifest">
+
+  <script>
+    // Tema claro: barra de status do iPhone com texto escuro e cor da barra do navegador clara.
+    try {
+      if (localStorage.getItem('maibank-theme') === 'light') {
+        document.querySelector('meta[name="theme-color"]').content = '#ffffff';
+        document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"]').content = 'default';
+      }
+    } catch (e) {}
+  </script>
 </head>
 <body>
+  <script>
+    // Aplica o tema antes do app carregar: sem o "flash" branco ao abrir.
+    try {
+      document.body.setAttribute('data-theme', localStorage.getItem('maibank-theme') === 'light' ? 'light' : 'dark');
+    } catch (e) {
+      document.body.setAttribute('data-theme', 'dark');
+    }
+  </script>
   <app-root></app-root>
-  <noscript>Please enable JavaScript to continue using this application.</noscript>
+  <noscript>Ative o JavaScript para usar o Maibank.</noscript>
 </body>
 </html>

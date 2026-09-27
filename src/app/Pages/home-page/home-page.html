@@ -36,7 +36,7 @@
           Novo lançamento
         </button>
 
-        <a class="link-action" routerLink="/lancamentos">
+        <a class="link-action see-all" routerLink="/lancamentos">
           Ver lançamentos
           <app-icon name="chevron-right" [size]="15" />
         </a>
@@ -98,7 +98,7 @@
 
               <div class="row-body">
                 <p class="row-title">{{ transaction.description }}</p>
-                <small class="row-sub">{{ transaction.category }} · {{ transaction.date }}</small>
+                <small class="row-sub">{{ transaction.category }} · {{ transaction.date | date: "d 'de' MMM" }}</small>
               </div>
 
               <span

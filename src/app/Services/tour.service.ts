@@ -76,7 +76,7 @@ export class TourService {
     this.index.set(null);
   }
 
-  private hasSeen(userId: string): boolean {
+  hasSeen(userId: string): boolean {
     try {
       return localStorage.getItem(SEEN_KEY + userId) === '1';
     } catch {

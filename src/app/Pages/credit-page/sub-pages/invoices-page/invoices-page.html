@@ -85,7 +85,7 @@
           <div class="row-body">
             <p class="row-title">{{ item.description }}</p>
             <small class="row-sub">
-              {{ item.category }} · {{ item.date }}
+              {{ item.category }} · {{ item.date | date: "d 'de' MMM" }}
               <ng-container *ngIf="item.installments > 1"> · parcela {{ item.installment }}/{{ item.installments }}</ng-container>
             </small>
           </div>

@@ -30,7 +30,7 @@ export const WELCOME_TOUR: TourStep[] = [
   },
   {
     title: 'Lançamentos',
-    text: 'O resumo de cada divisão, o histórico completo com busca e gráfico, e os recorrentes — o que entra ou sai todo mês. Para apagar um lançamento, passe o mouse sobre ele.',
+    text: 'O resumo de cada divisão, o histórico completo com busca e gráfico, e os recorrentes — o que entra ou sai todo mês. Para apagar um lançamento, use a lixeira ao lado dele no Histórico.',
     target: '[data-tour="nav-lancamentos"]',
   },
   {
@@ -50,7 +50,7 @@ export const WELCOME_TOUR: TourStep[] = [
   },
   {
     title: 'Mai, sua assistente',
-    text: 'Escreva algo como "gastei 50 no mercado" e ela prepara o lançamento — você só confirma. Atalho: Ctrl+I.',
+    text: 'Escreva algo como "gastei 50 no mercado" e ela prepara o lançamento — você só confirma. No computador, o atalho é Ctrl+I.',
     target: '[data-tour="nav-mai"]',
   },
   {

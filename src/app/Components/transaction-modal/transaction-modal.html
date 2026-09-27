@@ -95,7 +95,7 @@
           <div class="recurring-details" *ngIf="recurring">
             <label class="field day-field">
               <span>Dia do mês</span>
-              <input type="number" min="1" max="28" step="1" [(ngModel)]="recurringDay" name="recurringDay" />
+              <input type="number" inputmode="numeric" min="1" max="28" step="1" [(ngModel)]="recurringDay" name="recurringDay" />
             </label>
             <p class="hint">{{ recurringHint() }}</p>
           </div>
@@ -106,7 +106,7 @@
         <div class="field-pair">
           <label class="field">
             <span>Parcelas <em>1 = à vista</em></span>
-            <input type="number" min="1" max="36" step="1" [(ngModel)]="installments" (ngModelChange)="touch()" name="installments" />
+            <input type="number" inputmode="numeric" min="1" max="36" step="1" [(ngModel)]="installments" (ngModelChange)="touch()" name="installments" />
           </label>
 
           <div class="field" *ngIf="derivedValue() as derived">

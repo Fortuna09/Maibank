@@ -6,6 +6,7 @@
   display: grid;
   grid-template-columns: minmax(340px, 0.9fr) minmax(0, 1.1fr);
   min-height: 100vh;
+  min-height: 100dvh;
 }
 
 /* Apresentação */
@@ -142,7 +143,8 @@
 
   .auth-main {
     justify-content: flex-start;
-    padding: var(--space-5) var(--space-4);
+    /* Instalado no iPhone, o topo fica sob o relógio/bateria: desce o conteúdo */
+    padding: calc(var(--space-5) + env(safe-area-inset-top)) var(--space-4) calc(var(--space-5) + env(safe-area-inset-bottom));
   }
 
   .auth-mobile-brand {

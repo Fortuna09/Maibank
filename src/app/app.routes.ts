@@ -53,6 +53,7 @@ export const routes: Routes = [
 					{ path: 'assistente', loadComponent: () => import('./Pages/settings-page/sub-pages/assistant-settings-page/assistant-settings-page').then((m) => m.AssistantSettingsPage) },
 					{ path: 'conta', loadComponent: () => import('./Pages/settings-page/sub-pages/account-page/account-page').then((m) => m.AccountPage) },
 					{ path: 'ajuda', loadComponent: () => import('./Pages/settings-page/sub-pages/help-page/help-page').then((m) => m.HelpPage) },
+					{ path: 'novidades', loadComponent: () => import('./Pages/settings-page/sub-pages/changelog-page/changelog-page').then((m) => m.ChangelogPage) },
 				],
 			},
 			// Rotas antigas, para links salvos continuarem funcionando

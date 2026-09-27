@@ -5,6 +5,7 @@ import { AmountModeSwitch } from '../../../../Components/amount-mode-switch/amou
 import { Icon } from '../../../../Components/icon/icon';
 import { PulseOnDirective } from '../../../../Directives/pulse-on.directive';
 import { FinanceStoreService } from '../../../../Services/finance-store.service';
+import { elementWidth, fitChart, labelStep } from '../../../../Utils/chart-size';
 import { CreditProjection, parseLocalDate, projectInvoices } from '../../../../Utils/credit.utils';
 import { AmountMode, installmentFromTotal, todayLocalIso, totalFromInstallment } from '../../../../Utils/finance.utils';
 
@@ -29,6 +30,7 @@ export class CreditSimulationPage {
   readonly salaryConfigured = signal(false);
 
   private readonly chartCanvas = viewChild<ElementRef<SVGSVGElement>>('chart');
+  private readonly chartWidth = elementWidth(this.chartCanvas);
 
   readonly installmentCount = computed(() => Math.max(1, Math.round(this.installments() || 1)));
 
@@ -62,6 +64,7 @@ export class CreditSimulationPage {
   readonly chartEffect = effect(() => {
     const canvas = this.chartCanvas();
     const projection = this.projection();
+    this.chartWidth();
     if (canvas) {
       this.drawChart(canvas.nativeElement, projection);
     }
@@ -93,8 +96,7 @@ export class CreditSimulationPage {
   }
 
   private drawChart(canvas: SVGSVGElement, projection: CreditProjection): void {
-    const width = 760;
-    const height = 220;
+    const { width, height } = fitChart(canvas, { width: 760, height: 220 });
     const padding = { top: 16, right: 14, bottom: 30, left: 60 };
     const innerWidth = width - padding.left - padding.right;
     const innerHeight = height - padding.top - padding.bottom;
@@ -104,6 +106,8 @@ export class CreditSimulationPage {
     const maxValue = Math.max(1, ...rows.map((row) => row.total)) * 1.08;
     const slot = innerWidth / Math.max(rows.length, 1);
     const barWidth = Math.min(56, slot * 0.55);
+    // Muitas faturas numa tela estreita: rótulo só em algumas barras
+    const step = labelStep(rows.length, innerWidth, 46);
 
     const toY = (value: number) => padding.top + innerHeight - (value / maxValue) * innerHeight;
     const compact = new Intl.NumberFormat('pt-BR', { notation: 'compact', maximumFractionDigits: 1 });
@@ -114,7 +118,7 @@ export class CreditSimulationPage {
       const y = toY(value);
       return `
         <line x1="${padding.left}" y1="${y}" x2="${width - padding.right}" y2="${y}" style="stroke: var(--border)" stroke-width="1" />
-        <text x="${padding.left - 10}" y="${y + 3.5}" text-anchor="end" style="fill: var(--text-muted)" font-size="10">R$ ${compact.format(value)}</text>
+        <text x="${padding.left - 10}" y="${y + 3.5}" text-anchor="end" style="fill: var(--text-muted)" font-size="11">R$ ${compact.format(value)}</text>
       `;
     }).join('');
 
@@ -134,10 +138,14 @@ export class CreditSimulationPage {
           </rect>
           ${
             isPeak
-              ? `<text x="${x + barWidth / 2}" y="${totalTop - 5}" text-anchor="middle" style="fill: var(--text)" font-size="10" font-weight="700">${full.format(row.total)}</text>`
+              ? `<text x="${x + barWidth / 2}" y="${totalTop - 5}" text-anchor="middle" style="fill: var(--text)" font-size="11" font-weight="700">${full.format(row.total)}</text>`
               : ''
           }
-          <text x="${x + barWidth / 2}" y="${height - 10}" text-anchor="middle" style="fill: var(--text-muted)" font-size="10">${row.label}</text>
+          ${
+            index % step === 0
+              ? `<text x="${x + barWidth / 2}" y="${height - 10}" text-anchor="middle" style="fill: var(--text-muted)" font-size="11">${row.label}</text>`
+              : ''
+          }
         `;
       })
       .join('');

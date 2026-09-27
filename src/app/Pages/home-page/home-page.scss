@@ -244,13 +244,68 @@
 }
 
 @media (max-width: 720px) {
+  /* Capa mais baixa: no celular o saldo precisa aparecer sem rolar */
+  .cover {
+    height: 150px;
+  }
+
   .cover-content {
     padding: var(--space-4);
   }
 
-  .toolbar,
-  .toolbar-actions,
+  .greeting {
+    font-size: 0.8rem;
+  }
+
+  .cover-content h1 {
+    font-size: 1.35rem;
+  }
+
+  .date {
+    font-size: 0.76rem;
+  }
+
+  .toolbar {
+    padding: var(--space-2) 0;
+  }
+
+  .toolbar .link-action {
+    min-height: 36px;
+  }
+
+  /* As abas embaixo já levam a Lançamentos */
+  .see-all {
+    display: none;
+  }
+
+  .balance {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-3);
+  }
+
+  .balance-main strong {
+    font-size: 2.1rem;
+  }
+
   .balance-side {
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+    align-items: start;
+    gap: 0;
+    padding: var(--space-3) 0 0;
+    border-top: 1px solid var(--border);
+  }
+
+  .balance-figure {
+    text-align: left;
+  }
+
+  .balance-figure .eyebrow {
+    justify-content: flex-start;
+  }
+
+  .credit-figure {
+    padding-left: var(--space-4);
   }
 }

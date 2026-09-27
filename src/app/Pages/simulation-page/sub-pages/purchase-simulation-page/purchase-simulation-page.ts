@@ -6,6 +6,7 @@ import { AmountModeSwitch } from '../../../../Components/amount-mode-switch/amou
 import { Icon } from '../../../../Components/icon/icon';
 import { PulseOnDirective } from '../../../../Directives/pulse-on.directive';
 import { FinanceStoreService } from '../../../../Services/finance-store.service';
+import { elementWidth, fitChart, labelStep } from '../../../../Utils/chart-size';
 import { AmountMode, categoryIcon, installmentFromTotal, totalFromInstallment } from '../../../../Utils/finance.utils';
 import {
   goalImpacts,
@@ -40,6 +41,7 @@ export class PurchaseSimulationPage {
   readonly salaryConfigured = signal(false);
 
   private readonly chartCanvas = viewChild<ElementRef<SVGSVGElement>>('chart');
+  private readonly chartWidth = elementWidth(this.chartCanvas);
 
   readonly buckets = computed(() => this.financeStore.settings().buckets);
 
@@ -102,6 +104,7 @@ export class PurchaseSimulationPage {
   readonly chartEffect = effect(() => {
     const canvas = this.chartCanvas();
     const result = this.result();
+    this.chartWidth();
     if (canvas && result) {
       this.drawChart(canvas.nativeElement, result);
     }
@@ -175,8 +178,7 @@ export class PurchaseSimulationPage {
   }
 
   private drawChart(canvas: SVGSVGElement, result: SimulationResult): void {
-    const width = 760;
-    const height = 240;
+    const { width, height } = fitChart(canvas, { width: 760, height: 240 });
     const padding = { top: 16, right: 14, bottom: 30, left: 60 };
     const innerWidth = width - padding.left - padding.right;
     const innerHeight = height - padding.top - padding.bottom;
@@ -208,12 +210,13 @@ export class PurchaseSimulationPage {
       const y = toY(value);
       return `
         <line x1="${padding.left}" y1="${y}" x2="${width - padding.right}" y2="${y}" style="stroke: var(--border)" stroke-width="1" />
-        <text x="${padding.left - 10}" y="${y + 3.5}" text-anchor="end" style="fill: var(--text-muted)" font-size="10">R$ ${compact.format(value)}</text>
+        <text x="${padding.left - 10}" y="${y + 3.5}" text-anchor="end" style="fill: var(--text-muted)" font-size="11">R$ ${compact.format(value)}</text>
       `;
     }).join('');
 
+    const step = labelStep(result.months.length, innerWidth, 46);
     const xLabels = result.months
-      .map((month, index) => `<text x="${toX(index)}" y="${height - 10}" text-anchor="middle" style="fill: var(--text-muted)" font-size="10">${month.label}</text>`)
+      .map((month, index) => (index % step !== 0 ? '' : `<text x="${toX(index)}" y="${height - 10}" text-anchor="middle" style="fill: var(--text-muted)" font-size="11">${month.label}</text>`))
       .join('');
 
     const dots = (key: 'without' | 'with', variable: string) =>

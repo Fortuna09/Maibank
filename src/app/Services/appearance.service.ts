@@ -97,6 +97,8 @@ export class AppearanceService {
   private applyTheme(nextTheme: Theme): void {
     document.body.setAttribute('data-theme', nextTheme);
     localStorage.setItem('maibank-theme', nextTheme);
+    // Barra do navegador/sistema no celular acompanha o fundo do app (--bg de cada tema).
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', nextTheme === 'light' ? '#ffffff' : '#313338');
   }
 
   private applyAccentColor(color: string): void {
