@@ -965,7 +965,12 @@ p {
 
   body {
     min-height: 100dvh;
-    touch-action: manipulation;
+  }
+
+  /* Só rolar: sem pinça e sem toque duplo para dar zoom */
+  html,
+  body {
+    touch-action: pan-x pan-y;
   }
 
   .app-shell {

@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <title>Maibank</title>
   <base href="/">
-  <!-- viewport-fit=cover: o app ocupa a tela toda do iPhone (entalhe e barra de gestos) -->
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <!-- viewport-fit=cover: o app vai até a barra de gestos do iPhone. Sem zoom: é um app, não uma página. -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="description" content="Suas finanças divididas do seu jeito: lançamentos, crédito, metas e simulações.">
   <meta name="color-scheme" content="dark light">
   <meta name="theme-color" content="#313338">
@@ -14,7 +14,9 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Maibank">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <!-- "default" = barra de status sólida, na cor do theme-color. Com "black-translucent" o iOS 26+
+       põe um desfoque (Liquid Glass) sobre o topo do app. O iPhone só lê isto ao instalar. -->
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="format-detection" content="telephone=no">
 
   <link rel="icon" type="image/x-icon" href="favicon.ico">
@@ -22,13 +24,19 @@
   <link rel="manifest" href="manifest.webmanifest">
 
   <script>
-    // Tema claro: barra de status do iPhone com texto escuro e cor da barra do navegador clara.
+    // A barra de status (e a do navegador) usa a cor de fundo do tema salvo.
     try {
       if (localStorage.getItem('maibank-theme') === 'light') {
         document.querySelector('meta[name="theme-color"]').content = '#ffffff';
-        document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"]').content = 'default';
       }
     } catch (e) {}
+
+    // O Safari ignora "user-scalable=no" por acessibilidade; em tela de toque, bloqueia a pinça aqui.
+    if (window.matchMedia && window.matchMedia('(pointer: coarse)').matches) {
+      ['gesturestart', 'gesturechange', 'gestureend'].forEach(function (type) {
+        document.addEventListener(type, function (event) { event.preventDefault(); }, { passive: false });
+      });
+    }
   </script>
 </head>
 <body>

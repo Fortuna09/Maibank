@@ -18,6 +18,22 @@ export interface Release {
  */
 export const CHANGELOG: Release[] = [
   {
+    version: '1.1.1',
+    date: '2026-09-27',
+    title: 'Ajustes no celular',
+    changes: [
+      {
+        kind: 'melhoria',
+        text: 'Configurações no celular agora é uma lista com todas as opções à vista — toque numa delas e use o ‹ lá em cima para voltar.',
+      },
+      { kind: 'melhoria', text: 'O app instalado não dá mais zoom com dois dedos nem com toque duplo.' },
+      {
+        kind: 'correcao',
+        text: 'No iPhone, o topo do app não fica mais desfocado sob a barra de status. Para valer, remova o Maibank da Tela de Início e adicione de novo.',
+      },
+    ],
+  },
+  {
     version: '1.1.0',
     date: '2026-09-27',
     title: 'Celular, recorrentes e novidades',

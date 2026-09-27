@@ -6,3 +6,10 @@
 .section-shell {
   padding-top: 0;
 }
+
+/* No celular as abas dão lugar ao menu em lista (e ao "‹ voltar" da barra superior) */
+@media (max-width: 720px) {
+  .subnav-wrap {
+    display: none;
+  }
+}

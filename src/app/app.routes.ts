@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { isPhoneLayout } from './Utils/settings-sections';
 import { authGuard, guestGuard } from './Guards/auth.guards';
 
 // Cada tela é baixada só quando é aberta: a tela de login abre rápido mesmo no celular.
@@ -45,6 +46,13 @@ export const routes: Routes = [
 				path: 'configuracoes',
 				loadComponent: () => import('./Pages/settings-page/settings-page').then((m) => m.SettingsPage),
 				children: [
+					// Celular: menu em lista. Computador: direto na primeira aba.
+					{
+						path: '',
+						pathMatch: 'full',
+						canMatch: [isPhoneLayout],
+						loadComponent: () => import('./Pages/settings-page/sub-pages/settings-menu-page/settings-menu-page').then((m) => m.SettingsMenuPage),
+					},
 					{ path: '', pathMatch: 'full', redirectTo: 'aparencia' },
 					{ path: 'aparencia', loadComponent: () => import('./Pages/settings-page/sub-pages/appearance-page/appearance-page').then((m) => m.AppearancePage) },
 					{ path: 'distribuicao', loadComponent: () => import('./Pages/settings-page/sub-pages/distribution-page/distribution-page').then((m) => m.DistributionPage) },

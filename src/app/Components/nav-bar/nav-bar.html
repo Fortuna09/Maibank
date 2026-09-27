@@ -75,7 +75,14 @@
 
 <!-- Celular: barra superior com o nome da seção e os atalhos -->
 <header class="mobile-topbar">
-  <h1 class="mobile-title" [class.is-brand]="sectionTitle() === 'Maibank'">{{ sectionTitle() }}</h1>
+  <div class="mobile-heading">
+    @if (topbar().back; as back) {
+      <a class="topbar-back" [routerLink]="back" aria-label="Voltar para Configurações">
+        <app-icon name="chevron-left" [size]="22" />
+      </a>
+    }
+    <h1 class="mobile-title">{{ topbar().title }}</h1>
+  </div>
 
   <div class="mobile-actions">
     <button type="button" class="topbar-btn" data-tour="nav-help" (click)="tour.start()" aria-label="Abrir o tour guiado">

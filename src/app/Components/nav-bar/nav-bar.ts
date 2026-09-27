@@ -6,8 +6,15 @@ import { AppearanceService } from '../../Services/appearance.service';
 import { AssistantService } from '../../Services/assistant.service';
 import { TourService } from '../../Services/tour.service';
 import { APP_VERSION } from '../../Utils/changelog';
+import { settingsSection } from '../../Utils/settings-sections';
 import { Icon } from '../icon/icon';
 import { MaiMark } from '../mai-mark/mai-mark';
+
+interface TopbarState {
+  title: string;
+  /** Para onde o "‹" leva; sem ele, é uma tela de primeiro nível. */
+  back: string | null;
+}
 
 /** Título da barra superior no celular, pela primeira parte da rota. */
 const SECTION_TITLES: Record<string, string> = {
@@ -37,12 +44,12 @@ export class NavBar implements OnInit {
   readonly version = APP_VERSION;
   isMenuOpen = true;
 
-  readonly sectionTitle = toSignal(
+  readonly topbar = toSignal(
     this.router.events.pipe(
       filter((event) => event instanceof NavigationEnd),
-      map(() => this.titleFor(this.router.url)),
+      map(() => this.topbarFor(this.router.url)),
     ),
-    { initialValue: this.titleFor(this.router.url) },
+    { initialValue: this.topbarFor(this.router.url) },
   );
 
   ngOnInit(): void {
@@ -55,8 +62,14 @@ export class NavBar implements OnInit {
     localStorage.setItem('maibank-menu-open', String(this.isMenuOpen));
   }
 
-  private titleFor(url: string): string {
-    const section = url.split(/[/?#]/)[1] ?? '';
-    return SECTION_TITLES[section] ?? 'Maibank';
+  private topbarFor(url: string): TopbarState {
+    const [, section = '', child = ''] = url.split(/[?#]/)[0].split('/');
+
+    // Dentro de Configurações, cada seção é uma "página" com volta para o menu
+    const settings = section === 'configuracoes' ? settingsSection(child) : undefined;
+    if (settings) {
+      return { title: settings.label, back: '/configuracoes' };
+    }
+    return { title: SECTION_TITLES[section] ?? 'Maibank', back: null };
   }
 }
