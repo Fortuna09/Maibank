@@ -40,11 +40,7 @@ export class WhatsNewDialog {
   readonly whatsNew = inject(WhatsNewService);
   private readonly router = inject(Router);
 
-  readonly subtitle = computed(() =>
-    this.whatsNew.pending().length > 1
-      ? 'Veja o que mudou desde a última vez que você entrou.'
-      : 'Veja o que tem de novo nesta versão.',
-  );
+  readonly subtitle = computed(() => 'Veja o que tem de novo nesta versão.');
 
   @HostListener('document:keydown.escape')
   onEscape(): void {

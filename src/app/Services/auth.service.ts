@@ -7,6 +7,8 @@ export interface AuthUser {
   id: string;
   email: string;
   name: string;
+  /** Pode usar Configurações > Administração (definido no servidor por ADMIN_EMAILS). */
+  isAdmin?: boolean;
 }
 
 export type AuthStatus = 'unknown' | 'authenticated' | 'anonymous';
@@ -56,6 +58,7 @@ export class AuthService {
   private readonly logoutHandlers: Array<() => void> = [];
 
   readonly user = this.userSignal.asReadonly();
+  readonly isAdmin = computed(() => this.userSignal()?.isAdmin === true);
   readonly status = this.statusSignal.asReadonly();
   readonly isAuthenticated = computed(() => this.statusSignal() === 'authenticated');
   readonly firstName = computed(() => this.userSignal()?.name.trim().split(/\s+/)[0] ?? '');

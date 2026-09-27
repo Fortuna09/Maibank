@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
 import { isPhoneLayout } from './Utils/settings-sections';
-import { authGuard, guestGuard } from './Guards/auth.guards';
+import { adminGuard, authGuard, guestGuard } from './Guards/auth.guards';
 
 // Cada tela é baixada só quando é aberta: a tela de login abre rápido mesmo no celular.
 
@@ -62,6 +62,11 @@ export const routes: Routes = [
 					{ path: 'conta', loadComponent: () => import('./Pages/settings-page/sub-pages/account-page/account-page').then((m) => m.AccountPage) },
 					{ path: 'ajuda', loadComponent: () => import('./Pages/settings-page/sub-pages/help-page/help-page').then((m) => m.HelpPage) },
 					{ path: 'novidades', loadComponent: () => import('./Pages/settings-page/sub-pages/changelog-page/changelog-page').then((m) => m.ChangelogPage) },
+					{
+						path: 'admin',
+						canActivate: [adminGuard],
+						loadComponent: () => import('./Pages/settings-page/sub-pages/admin-page/admin-page').then((m) => m.AdminPage),
+					},
 				],
 			},
 			// Rotas antigas, para links salvos continuarem funcionando

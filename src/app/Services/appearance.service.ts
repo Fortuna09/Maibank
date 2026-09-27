@@ -9,15 +9,23 @@ const THEME_COLORS: Record<Theme, string> = {
   chrome: '#eceef0',
 };
 
+/** Tema padrão do app (desde a 2.0): o cromado da logo. */
+const DEFAULT_THEME: Theme = 'chrome';
+/**
+ * Na 2.0 todo mundo passa para o cromado uma vez; depois disso, vale o que a pessoa escolher.
+ * (Antes o tema era salvo sempre, então não dá para saber quem escolheu o escuro de propósito.)
+ */
+const THEME_MIGRATION_KEY = 'maibank-theme-v2';
+
 function parseTheme(value: string | null): Theme {
-  return value === 'light' || value === 'chrome' ? value : 'dark';
+  return value === 'dark' || value === 'light' || value === 'chrome' ? value : DEFAULT_THEME;
 }
 
 const DEFAULT_ACCENT = '#3b82f6';
 
 @Injectable({ providedIn: 'root' })
 export class AppearanceService {
-  theme: Theme = 'dark';
+  theme: Theme = DEFAULT_THEME;
   accentColor = DEFAULT_ACCENT;
 
   readonly userName = signal('');
@@ -27,6 +35,10 @@ export class AppearanceService {
   readonly coverZoom = signal(100);
 
   initialize(): void {
+    if (localStorage.getItem(THEME_MIGRATION_KEY) !== '1') {
+      localStorage.setItem('maibank-theme', DEFAULT_THEME);
+      localStorage.setItem(THEME_MIGRATION_KEY, '1');
+    }
     this.theme = parseTheme(localStorage.getItem('maibank-theme'));
     this.applyTheme(this.theme);
 

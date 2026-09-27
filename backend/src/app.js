@@ -1,6 +1,7 @@
 import express from 'express';
 import { testDatabaseConnection } from './db.js';
 import { createAuthenticate } from './http/authenticate.js';
+import { requireAdmin } from './http/requireAdmin.js';
 import { errorHandler } from './http/errorHandler.js';
 import { Mailer } from './mail/Mailer.js';
 import { AuthController } from './modules/auth/AuthController.js';
@@ -13,6 +14,9 @@ import { CreditService } from './modules/credit/CreditService.js';
 import { GoalsController } from './modules/goals/GoalsController.js';
 import { GoalsRepository } from './modules/goals/GoalsRepository.js';
 import { GoalsService } from './modules/goals/GoalsService.js';
+import { AdminController, MessagesController } from './modules/messages/MessagesController.js';
+import { MessagesRepository } from './modules/messages/MessagesRepository.js';
+import { MessagesService } from './modules/messages/MessagesService.js';
 import { RecurringController } from './modules/recurring/RecurringController.js';
 import { RecurringRepository } from './modules/recurring/RecurringRepository.js';
 import { RecurringService } from './modules/recurring/RecurringService.js';
@@ -49,6 +53,9 @@ export function createApp() {
   const goals = new GoalsController(new GoalsService(new GoalsRepository()));
   const salary = new SalaryController(new SalaryService(new SalaryRepository(), settingsRepository, transactionsRepository));
   const credit = new CreditController(new CreditService(new CreditRepository()));
+  const messagesService = new MessagesService(new MessagesRepository());
+  const messages = new MessagesController(messagesService);
+  const admin = new AdminController(messagesService);
 
   const app = express();
   app.disable('x-powered-by');
@@ -72,6 +79,8 @@ export function createApp() {
   app.use('/api/goals', authenticate, goals.router);
   app.use('/api/salary-config', authenticate, salary.router);
   app.use('/api/credit-config', authenticate, credit.router);
+  app.use('/api/messages', authenticate, messages.router);
+  app.use('/api/admin', authenticate, requireAdmin, admin.router);
 
   app.use('/api', (_req, res) => res.status(404).json({ message: 'Rota não encontrada.' }));
   app.use(errorHandler);

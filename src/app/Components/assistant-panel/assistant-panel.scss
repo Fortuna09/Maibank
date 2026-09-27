@@ -573,8 +573,8 @@
   }
 
   .panel-head {
-    min-height: calc(52px + env(safe-area-inset-top));
-    padding-top: env(safe-area-inset-top);
+    min-height: calc(52px + env(safe-area-inset-top) + var(--mobile-topbar-gap));
+    padding-top: calc(env(safe-area-inset-top) + var(--mobile-topbar-gap));
   }
 
   .panel-foot {

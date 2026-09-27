@@ -2,7 +2,7 @@
   <div class="subnav-wrap">
     <div class="page-inner">
       <nav class="subnav" aria-label="Seções de configurações" appScrollActiveTab>
-        @for (section of sections; track section.path) {
+        @for (section of sections(); track section.path) {
           <a [routerLink]="section.path" routerLinkActive="active-tab">{{ section.label }}</a>
         }
       </nav>

@@ -3,6 +3,7 @@ import { createHash, randomBytes } from 'crypto';
 import { config } from '../../config.js';
 import { withTransaction } from '../../db.js';
 import { HttpError } from '../../http/HttpError.js';
+import { isAdmin } from '../../http/requireAdmin.js';
 import { resetPasswordMessage, verifyEmailMessage } from '../../mail/templates.js';
 
 const HOUR_MS = 60 * 60 * 1000;
@@ -20,7 +21,7 @@ function hashToken(token) {
 }
 
 function publicUser(row) {
-  return { id: row.id, email: row.email, name: row.name };
+  return { id: row.id, email: row.email, name: row.name, isAdmin: isAdmin(row) };
 }
 
 export class AuthService {

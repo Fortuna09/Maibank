@@ -86,4 +86,9 @@ export const config = {
     bcryptRounds: 11,
   },
   mail: resolveMail(),
+  /** Contas com acesso à Administração (mensagens para quem usa o app). */
+  adminEmails: (process.env.ADMIN_EMAILS || '')
+    .split(',')
+    .map((email) => email.trim().toLowerCase())
+    .filter(Boolean),
 };

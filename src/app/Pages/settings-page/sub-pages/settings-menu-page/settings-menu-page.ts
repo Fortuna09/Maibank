@@ -4,7 +4,7 @@ import { Icon } from '../../../../Components/icon/icon';
 import { MaiMark } from '../../../../Components/mai-mark/mai-mark';
 import { AuthService } from '../../../../Services/auth.service';
 import { APP_VERSION } from '../../../../Utils/changelog';
-import { SETTINGS_GROUPS, SETTINGS_SECTIONS, SettingsSection } from '../../../../Utils/settings-sections';
+import { SETTINGS_GROUPS, SettingsSection, visibleSettingsSections } from '../../../../Utils/settings-sections';
 
 /**
  * Configurações no celular: todas as seções à vista, em lista (como os Ajustes do iPhone).
@@ -101,7 +101,7 @@ export class SettingsMenuPage {
   readonly version = APP_VERSION;
 
   sectionsIn(group: string): SettingsSection[] {
-    return SETTINGS_SECTIONS.filter((section) => section.group === group);
+    return visibleSettingsSections(this.auth.isAdmin()).filter((section) => section.group === group);
   }
 
   /** Na Conta, mostra o e-mail de quem está logado — ajuda a saber em qual conta se está. */

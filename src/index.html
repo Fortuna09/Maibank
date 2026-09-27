@@ -8,7 +8,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="description" content="Suas finanças divididas do seu jeito: lançamentos, crédito, metas e simulações.">
   <meta name="color-scheme" content="dark light">
-  <meta name="theme-color" content="#313338">
+  <meta name="theme-color" content="#eceef0">
 
   <!-- Instalado na tela de início, abre como aplicativo (sem a barra do navegador) -->
   <meta name="mobile-web-app-capable" content="yes">
@@ -25,13 +25,16 @@
 
   <script>
     // A barra de status (e a do navegador) usa a cor de fundo do tema salvo.
+    // Tema salvo (o cromado é o padrão desde a 2.0 — ver AppearanceService).
+    var maibankTheme = 'chrome';
     try {
-      var savedTheme = localStorage.getItem('maibank-theme');
-      var themeColors = { light: '#ffffff', chrome: '#eceef0' };
-      if (themeColors[savedTheme]) {
-        document.querySelector('meta[name="theme-color"]').content = themeColors[savedTheme];
+      if (localStorage.getItem('maibank-theme-v2') === '1') {
+        var savedTheme = localStorage.getItem('maibank-theme');
+        maibankTheme = savedTheme === 'dark' || savedTheme === 'light' ? savedTheme : 'chrome';
       }
     } catch (e) {}
+    document.querySelector('meta[name="theme-color"]').content =
+      { dark: '#313338', light: '#ffffff', chrome: '#eceef0' }[maibankTheme];
 
     // O Safari ignora "user-scalable=no" por acessibilidade; em tela de toque, bloqueia a pinça aqui.
     if (window.matchMedia && window.matchMedia('(pointer: coarse)').matches) {
@@ -44,12 +47,7 @@
 <body>
   <script>
     // Aplica o tema antes do app carregar: sem o "flash" branco ao abrir.
-    try {
-      var theme = localStorage.getItem('maibank-theme');
-      document.body.setAttribute('data-theme', theme === 'light' || theme === 'chrome' ? theme : 'dark');
-    } catch (e) {
-      document.body.setAttribute('data-theme', 'dark');
-    }
+    document.body.setAttribute('data-theme', maibankTheme);
   </script>
   <app-root></app-root>
   <noscript>Ative o JavaScript para usar o Maibank.</noscript>

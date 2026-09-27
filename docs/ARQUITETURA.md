@@ -122,6 +122,20 @@ comprimidos, e a tela de login abre rápido no celular.
 | `EMAIL_FROM` | — | `Maibank <nao-responda@seudominio>` depois de verificar o domínio |
 | `APP_URL` | `http://localhost:4200` | opcional; sem ela usa o domínio de produção da Vercel |
 | `APP_TIMEZONE` | `America/Sao_Paulo` | idem |
+| `ADMIN_EMAILS` | opcional | e-mails com acesso à Administração, separados por vírgula |
+
+## Administração e mensagens
+
+Contas cujo e-mail está em `ADMIN_EMAILS` veem **Configurações > Administração**: buscam
+pessoas por nome ou e-mail, escolhem uma ou várias (ou "Todos") e mandam uma mensagem.
+Quem recebe vê um pop-up na próxima vez que abrir o app (depois do tour e das novidades),
+uma vez só; o administrador acompanha quem leu em "Enviadas".
+
+- Tabela `user_messages` (migration 003): uma linha por destinatário, agrupadas por `batch_id`.
+- Rotas: `GET /api/messages` e `POST /api/messages/:id/read` para quem recebe;
+  `/api/admin/users|messages` protegidas por `requireAdmin` (403 para os outros).
+- O front só mostra a seção quando a sessão vem com `isAdmin: true` — a proteção de
+  verdade é no servidor.
 
 ## Desenvolvimento local
 

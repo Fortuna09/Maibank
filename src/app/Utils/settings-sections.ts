@@ -11,6 +11,8 @@ export interface SettingsSection {
   /** Nome de ícone do <app-icon>, ou 'mai' para a marca da assistente. */
   icon: string;
   group: SettingsGroup;
+  /** Só aparece para quem é administrador (ADMIN_EMAILS no servidor). */
+  adminOnly?: boolean;
 }
 
 /** Na ordem das abas do computador. */
@@ -23,7 +25,13 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
   { path: 'conta', label: 'Conta', description: 'Nome, e-mail e sair', icon: 'user', group: 'conta' },
   { path: 'ajuda', label: 'Ajuda', description: 'Tour guiado e perguntas frequentes', icon: 'help', group: 'conta' },
   { path: 'novidades', label: 'Novidades', description: 'O que mudou em cada versão', icon: 'bell', group: 'conta' },
+  { path: 'admin', label: 'Administração', description: 'Mandar mensagens para quem usa o app', icon: 'send', group: 'conta', adminOnly: true },
 ];
+
+/** Seções que esta pessoa pode ver. */
+export function visibleSettingsSections(isAdmin: boolean): SettingsSection[] {
+  return SETTINGS_SECTIONS.filter((section) => !section.adminOnly || isAdmin);
+}
 
 /** Grupos do menu do celular, na ordem em que aparecem. */
 export const SETTINGS_GROUPS: Array<{ id: SettingsGroup; label: string }> = [

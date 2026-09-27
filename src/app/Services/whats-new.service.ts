@@ -1,11 +1,9 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
-import { CHANGELOG, compareVersions, CURRENT_RELEASE, Release } from '../Utils/changelog';
+import { compareVersions, CURRENT_RELEASE, Release } from '../Utils/changelog';
 import { AuthService } from './auth.service';
 import { TourService } from './tour.service';
 
 const SEEN_KEY = 'maibank-seen-version:';
-/** Quem ficou muito tempo fora vê no máximo as últimas versões, não o histórico inteiro. */
-const MAX_RELEASES_IN_DIALOG = 4;
 
 /** Mostra "o que mudou" uma vez por versão, para cada conta neste navegador. */
 @Injectable({
@@ -42,8 +40,11 @@ export class WhatsNewService {
       return;
     }
 
-    const unseen = CHANGELOG.filter((release) => compareVersions(release.version, seen) > 0);
-    this.pending.set(unseen.slice(0, MAX_RELEASES_IN_DIALOG));
+    // Mesmo que várias versões tenham passado, mostra só a mais nova (um pop-up só);
+    // ao fechar, a pessoa fica em dia com todas. As antigas estão em Configurações > Novidades.
+    if (compareVersions(CURRENT_RELEASE.version, seen) > 0) {
+      this.pending.set([CURRENT_RELEASE]);
+    }
   }
 
   dismiss(): void {

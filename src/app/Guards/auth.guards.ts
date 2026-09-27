@@ -23,3 +23,12 @@ export const guestGuard: CanActivateFn = async () => {
   await auth.ensureSession();
   return auth.isAuthenticated() ? router.createUrlTree(['/']) : true;
 };
+
+/** Administração: quem não é administrador volta para Configurações. */
+export const adminGuard: CanActivateFn = async () => {
+  const auth = inject(AuthService);
+  const router = inject(Router);
+
+  await auth.ensureSession();
+  return auth.isAdmin() ? true : router.createUrlTree(['/configuracoes']);
+};

@@ -40,9 +40,22 @@
   --radius: 3px;
   --content-max: 1180px;
 
-  /* Celular: altura das barras fixas, já contando o entalhe e a barra de gestos do iPhone */
-  --mobile-topbar-h: calc(52px + env(safe-area-inset-top));
-  --mobile-tabbar-h: calc(58px + env(safe-area-inset-bottom));
+  /* Celular: altura das barras fixas, já contando o entalhe e a barra de gestos do iPhone.
+     --mobile-topbar-gap: folga extra no topo do app instalado (ver display-mode abaixo).
+     --mobile-tabbar-pad: a barra de gestos pede ~34px; usamos só o necessário para não
+     sobrar faixa vazia embaixo das abas. */
+  --mobile-topbar-gap: 0px;
+  --mobile-topbar-h: calc(52px + env(safe-area-inset-top) + var(--mobile-topbar-gap));
+  --mobile-tabbar-pad: max(env(safe-area-inset-bottom) - 14px, 4px);
+  --mobile-tabbar-h: calc(52px + var(--mobile-tabbar-pad));
+}
+
+/* Instalado no iPhone, o iOS 26+ desfoca uma faixa logo abaixo do relógio: a barra de cima
+   desce um pouco para o título e os botões ficarem fora dela. */
+@media (display-mode: standalone) {
+  :root {
+    --mobile-topbar-gap: 14px;
+  }
 }
 
 body[data-theme='dark'] {

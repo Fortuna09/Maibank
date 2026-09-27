@@ -1,0 +1,133 @@
+<section class="section">
+  <div class="section-head">
+    <h2>Enviar mensagem</h2>
+    <span class="tag">só você vê esta tela</span>
+  </div>
+  <p class="intro">Quem receber vê um pop-up na próxima vez que abrir o Maibank, uma vez só. Aqui embaixo você acompanha quem já leu.</p>
+
+  <div class="compose">
+    <div class="field">
+      <span>Para</span>
+      <div class="audience-switch" role="radiogroup" aria-label="Para quem">
+        <button type="button" role="radio" [attr.aria-checked]="audience() === 'people'" [class.active]="audience() === 'people'" (click)="audience.set('people')">
+          Pessoas escolhidas
+        </button>
+        <button type="button" role="radio" [attr.aria-checked]="audience() === 'all'" [class.active]="audience() === 'all'" (click)="audience.set('all')">
+          Todos
+        </button>
+      </div>
+    </div>
+
+    @if (audience() === 'people') {
+      @if (selected().length) {
+        <div class="chips" aria-label="Pessoas escolhidas">
+          @for (user of selected(); track user.id) {
+            <span class="chip">
+              {{ user.name }}
+              <button type="button" (click)="remove(user)" [attr.aria-label]="'Tirar ' + user.name">
+                <app-icon name="close" [size]="12" />
+              </button>
+            </span>
+          }
+        </div>
+      }
+
+      <label class="field">
+        <span>Buscar pessoa</span>
+        <span class="input-with-icon">
+          <app-icon name="search" [size]="15" />
+          <input type="search" placeholder="Nome ou e-mail" autocomplete="off" [(ngModel)]="query" (ngModelChange)="onQueryChange()" name="adminQuery" />
+        </span>
+      </label>
+
+      <div class="people" [class.is-searching]="searching()" aria-live="polite">
+        @for (user of results(); track user.id) {
+          <button type="button" class="person" [class.is-selected]="isSelected(user)" (click)="toggle(user)" [attr.aria-pressed]="isSelected(user)">
+            <span class="row-icon"><app-icon name="user" [size]="15" /></span>
+            <span class="row-body">
+              <span class="row-title">{{ user.name }}</span>
+              <small class="row-sub">{{ user.email }}</small>
+            </span>
+            <span class="person-check"><app-icon [name]="isSelected(user) ? 'check' : 'plus'" [size]="15" /></span>
+          </button>
+        } @empty {
+          @if (!searching()) {
+            <p class="people-empty">Ninguém encontrado com "{{ query }}".</p>
+          }
+        }
+      </div>
+    } @else {
+      <p class="all-note">
+        <app-icon name="user" [size]="14" />
+        Vai para todas as contas confirmadas, inclusive a sua.
+      </p>
+    }
+
+    <label class="field">
+      <span class="field-head">Título <small>{{ title.length }}/{{ titleMax }}</small></span>
+      <input type="text" placeholder="Ex.: Novidade no app" [maxlength]="titleMax" [(ngModel)]="title" (ngModelChange)="error.set(null)" name="adminTitle" />
+    </label>
+
+    <label class="field">
+      <span class="field-head">Mensagem <small>{{ body.length }}/{{ bodyMax }}</small></span>
+      <textarea rows="5" placeholder="Escreva aqui o que a pessoa vai ler." [maxlength]="bodyMax" [(ngModel)]="body" (ngModelChange)="error.set(null)" name="adminBody"></textarea>
+    </label>
+
+    @if (error()) {
+      <p class="form-error" role="alert">
+        <app-icon name="alert" [size]="15" />
+        <span>{{ error() }}</span>
+      </p>
+    }
+
+    <div class="compose-actions">
+      <button type="button" class="btn ghost" (click)="showPreview()">Ver como fica</button>
+      <button type="button" class="btn primary" [class.is-loading]="sending()" [disabled]="sending()" (click)="send()">
+        <app-icon name="send" [size]="14" />
+        <span>Enviar</span>
+      </button>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="section-head">
+    <h2>Enviadas</h2>
+  </div>
+
+  @if (history().length) {
+    <div class="sent-list">
+      @for (batch of history(); track batch.batchId) {
+        <details class="sent">
+          <summary>
+            <span class="row-body">
+              <span class="row-title">{{ batch.title }}</span>
+              <small class="row-sub">para {{ audienceLabel(batch) }} · {{ batch.createdAt | date: "d 'de' MMM, HH:mm" }}</small>
+            </span>
+            <span class="tag" [class.income-tag]="batch.readCount === batch.recipients">
+              lida {{ batch.readCount }}/{{ batch.recipients }}
+            </span>
+          </summary>
+          <div class="sent-detail">
+            <p class="sent-body">{{ batch.body }}</p>
+            <ul class="sent-people">
+              @for (person of batch.people; track person.email) {
+                <li [class.is-read]="person.read">
+                  <app-icon [name]="person.read ? 'check' : 'minus'" [size]="13" />
+                  {{ person.name }} <small>{{ person.email }}</small>
+                </li>
+              }
+            </ul>
+          </div>
+        </details>
+      }
+    </div>
+  } @else if (historyLoaded()) {
+    <div class="empty-state">
+      <span class="empty-icon"><app-icon name="send" [size]="20" /></span>
+      <p>Nada enviado ainda.</p>
+    </div>
+  }
+</section>
+
+<app-message-dialog [preview]="previewDraft()" [closePreview]="closePreview" />

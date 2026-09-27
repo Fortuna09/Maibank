@@ -1,7 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { ScrollActiveTabDirective } from '../../Directives/scroll-active-tab.directive';
-import { SETTINGS_SECTIONS } from '../../Utils/settings-sections';
+import { AuthService } from '../../Services/auth.service';
+import { visibleSettingsSections } from '../../Utils/settings-sections';
 
 @Component({
   selector: 'app-settings-page',
@@ -10,5 +11,6 @@ import { SETTINGS_SECTIONS } from '../../Utils/settings-sections';
   styleUrl: './settings-page.scss',
 })
 export class SettingsPage {
-  readonly sections = SETTINGS_SECTIONS;
+  private readonly auth = inject(AuthService);
+  readonly sections = computed(() => visibleSettingsSections(this.auth.isAdmin()));
 }

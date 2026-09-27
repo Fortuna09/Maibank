@@ -18,6 +18,34 @@ export interface Release {
  */
 export const CHANGELOG: Release[] = [
   {
+    version: '2.0.0',
+    date: '2026-09-27',
+    title: 'Maibank Cromado',
+    changes: [
+      {
+        kind: 'novo',
+        text: 'Visual novo: o Maibank agora é cromado, com a cara da nova logo — metal escovado, detalhes polidos e um brilho holográfico. Prefere o escuro ou o claro? Estão em Configurações > Aparência.',
+      },
+      {
+        kind: 'novo',
+        text: 'Ícone novo do app. No iPhone, para ele aparecer, remova o Maibank da Tela de Início e adicione de novo.',
+      },
+      { kind: 'novo', text: 'Entrar e Criar conta também ganharam o visual cromado.' },
+      {
+        kind: 'novo',
+        text: 'O Maibank agora pode te mandar recados: quando tiver uma mensagem para você, ela aparece ao abrir o app.',
+      },
+      {
+        kind: 'melhoria',
+        text: 'No celular, a barra de cima desceu um pouco (sai do desfoque do iPhone) e a de baixo ficou mais baixa, sem faixa vazia.',
+      },
+      {
+        kind: 'melhoria',
+        text: 'Ficou muito tempo sem abrir? As novidades mostram só a versão mais nova; as anteriores estão em Configurações > Novidades.',
+      },
+    ],
+  },
+  {
     version: '1.3.0',
     date: '2026-09-27',
     title: 'Tema Cromado (em teste)',
