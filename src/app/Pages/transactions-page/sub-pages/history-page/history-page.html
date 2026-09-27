@@ -35,10 +35,59 @@
 <section class="section">
   <div class="section-head">
     <h2>Histórico completo</h2>
-    <button type="button" class="link-action" (click)="clearFilters()">Limpar filtros</button>
+    <button type="button" class="link-action desktop-only" (click)="clearFilters()">Limpar filtros</button>
+    <button type="button" class="btn small filter-button phone-only" [class.is-filtered]="activeFilterCount() > 0" (click)="filtersOpen.set(true)">
+      <app-icon name="sliders" [size]="14" />
+      Filtrar
+      @if (activeFilterCount() > 0) {
+        <span class="filter-count">{{ activeFilterCount() }}</span>
+      }
+    </button>
   </div>
 
-  <div class="history-filters">
+  @if (activeFilterCount() > 0) {
+    <p class="filter-summary phone-only">
+      {{ filteredTransactions().length }} {{ filteredTransactions().length === 1 ? 'lançamento' : 'lançamentos' }} com filtro ·
+      <button type="button" class="inline-action" (click)="clearFilters()">Limpar</button>
+    </p>
+  }
+
+  <app-popup title="Filtrar histórico" [(open)]="filtersOpen">
+    <div class="filter-form">
+      <label class="field">
+        <span>Buscar</span>
+        <span class="input-with-icon">
+          <app-icon name="search" [size]="15" />
+          <input type="text" [(ngModel)]="searchTerm" (ngModelChange)="onSearchChange()" placeholder="Descrição ou categoria" name="popupSearchTerm" />
+        </span>
+      </label>
+
+      <div class="field">
+        <span>Tipo</span>
+        <div class="filter-chips" role="radiogroup" aria-label="Tipo de lançamento">
+          @for (option of typeOptions; track option.value) {
+            <button type="button" role="radio" [attr.aria-checked]="typeFilter === option.value" [class.active]="typeFilter === option.value" (click)="setTypeFilter(option.value)">
+              {{ option.label }}
+            </button>
+          }
+        </div>
+      </div>
+
+      <label class="field">
+        <span>Data</span>
+        <input type="date" [(ngModel)]="selectedDate" (ngModelChange)="onSearchChange()" name="popupSelectedDate" />
+      </label>
+
+      <div class="filter-actions">
+        <button type="button" class="btn ghost" (click)="clearFilters()">Limpar filtros</button>
+        <button type="button" class="btn primary" (click)="filtersOpen.set(false)">
+          Ver {{ filteredTransactions().length }} {{ filteredTransactions().length === 1 ? 'resultado' : 'resultados' }}
+        </button>
+      </div>
+    </div>
+  </app-popup>
+
+  <div class="history-filters desktop-only">
     <label class="field search-field">
       <span>Buscar</span>
       <span class="input-with-icon">

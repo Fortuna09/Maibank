@@ -68,6 +68,47 @@
   font-weight: 600;
 }
 
+/* Linha do celular que abre os saldos por tipo */
+.buckets-toggle {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  min-height: 58px;
+  margin: calc(-1 * var(--space-2)) 0 var(--space-5);
+  padding: 8px 0;
+  border: 0;
+  border-bottom: 1px solid var(--border);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.buckets-toggle:active {
+  background: var(--hover);
+}
+
+.buckets-toggle .row-title {
+  display: block;
+}
+
+.buckets-toggle .row-sub {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.buckets-toggle .chevron {
+  display: inline-flex;
+  color: var(--text-muted);
+}
+
+.popup-action {
+  margin-top: var(--space-4);
+}
+
 @media (max-width: 860px) {
   .stat-strip {
     grid-template-columns: 1fr 1fr;

@@ -1,14 +1,15 @@
-import { CurrencyPipe, DatePipe, NgFor, NgIf } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { CurrencyPipe, DatePipe, NgFor, NgIf, NgTemplateOutlet } from '@angular/common';
+import { Component, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { Icon } from '../../../../Components/icon/icon';
+import { Popup } from '../../../../Components/popup/popup';
 import { FinanceStoreService, FinanceTransaction } from '../../../../Services/finance-store.service';
 import { TransactionModalService } from '../../../../Services/transaction-modal.service';
 import { categoryIcon, transactionIcon } from '../../../../Utils/finance.utils';
 
 @Component({
   selector: 'app-overview-page',
-  imports: [CurrencyPipe, DatePipe, NgFor, NgIf, Icon, RouterLink],
+  imports: [CurrencyPipe, DatePipe, NgFor, NgIf, NgTemplateOutlet, Icon, Popup, RouterLink],
   templateUrl: './overview-page.html',
   styleUrl: './overview-page.scss',
 })
@@ -16,6 +17,16 @@ export class OverviewPage {
   readonly financeStore = inject(FinanceStoreService);
   readonly modal = inject(TransactionModalService);
   private readonly bucketColors = ['#8ca8c9', '#d7b98f', '#9fc5b8', '#d7b0c5'];
+
+  /** Pop-up de saldos por tipo (só no celular). */
+  readonly bucketsOpen = signal(false);
+
+  bucketNames(): string {
+    return this.financeStore
+      .settings()
+      .buckets.map((bucket) => bucket.label)
+      .join(', ');
+  }
 
   bucketColor(index: number): string {
     return this.bucketColors[index % this.bucketColors.length];

@@ -2,14 +2,16 @@ import { CurrencyPipe, DatePipe, NgFor, NgIf } from '@angular/common';
 import { Component, ElementRef, effect, inject, signal, viewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Icon } from '../../../../Components/icon/icon';
+import { Popup } from '../../../../Components/popup/popup';
 import { FeedbackService } from '../../../../Services/feedback.service';
 import { FinanceStoreService, FinanceTransaction } from '../../../../Services/finance-store.service';
+import { TransactionType } from '../../../../Models/finance.model';
 import { elementWidth, fitChart, labelStep } from '../../../../Utils/chart-size';
 import { categoryIcon, transactionIcon, transactionLabel } from '../../../../Utils/finance.utils';
 
 @Component({
   selector: 'app-history-page',
-  imports: [FormsModule, NgFor, NgIf, CurrencyPipe, DatePipe, Icon],
+  imports: [FormsModule, NgFor, NgIf, CurrencyPipe, DatePipe, Icon, Popup],
   templateUrl: './history-page.html',
   styleUrl: './history-page.scss',
 })
@@ -29,6 +31,16 @@ export class HistoryPage {
 
   searchTerm = '';
   selectedDate = '';
+  typeFilter: TransactionType | 'todos' = 'todos';
+
+  /** No celular os filtros ficam num pop-up, aberto pelo botão "Filtrar". */
+  readonly filtersOpen = signal(false);
+  readonly typeOptions: Array<{ value: TransactionType | 'todos'; label: string }> = [
+    { value: 'todos', label: 'Todos' },
+    { value: 'entrada', label: 'Entradas' },
+    { value: 'saida', label: 'Saídas' },
+    { value: 'credito', label: 'Crédito' },
+  ];
   currentPage = 1;
   readonly pageSize = 8;
   chartRangeDays = 30;
@@ -67,10 +79,20 @@ export class HistoryPage {
     this.currentPage = 1;
   }
 
+  setTypeFilter(value: TransactionType | 'todos'): void {
+    this.typeFilter = value;
+    this.currentPage = 1;
+  }
+
   clearFilters(): void {
     this.searchTerm = '';
     this.selectedDate = '';
+    this.typeFilter = 'todos';
     this.currentPage = 1;
+  }
+
+  activeFilterCount(): number {
+    return [this.searchTerm.trim(), this.selectedDate, this.typeFilter !== 'todos'].filter(Boolean).length;
   }
 
   filteredTransactions(): FinanceTransaction[] {
@@ -83,8 +105,9 @@ export class HistoryPage {
           transaction.description.toLowerCase().includes(query) ||
           transaction.category.toLowerCase().includes(query);
         const matchesDate = !this.selectedDate || transaction.date === this.selectedDate;
+        const matchesType = this.typeFilter === 'todos' || transaction.type === this.typeFilter;
 
-        return matchesSearch && matchesDate;
+        return matchesSearch && matchesDate && matchesType;
       })
       .sort((left, right) => new Date(right.date).getTime() - new Date(left.date).getTime());
   }

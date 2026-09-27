@@ -18,6 +18,27 @@ export interface Release {
  */
 export const CHANGELOG: Release[] = [
   {
+    version: '1.2.0',
+    date: '2026-09-27',
+    title: 'Celular mais arrumado',
+    changes: [
+      {
+        kind: 'novo',
+        text: 'No celular, o Histórico ganhou o botão Filtrar: busca, data e agora também o tipo (entradas, saídas ou crédito), num pop-up com "Limpar filtros".',
+      },
+      {
+        kind: 'melhoria',
+        text: 'No celular, o botão + de novo lançamento foi para a linha das abas e não cobre mais a lista.',
+      },
+      {
+        kind: 'melhoria',
+        text: 'No celular, o Início ficou mais enxuto: uso diário e saldo total lado a lado, a fatura numa linha só e as metas logo abaixo.',
+      },
+      { kind: 'melhoria', text: 'No celular, "Saldos por tipo" em Lançamentos abre num pop-up, só quando você quiser ver.' },
+      { kind: 'melhoria', text: 'O ícone de Configurações agora é uma engrenagem.' },
+    ],
+  },
+  {
     version: '1.1.1',
     date: '2026-09-27',
     title: 'Ajustes no celular',

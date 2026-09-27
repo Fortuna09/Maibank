@@ -278,34 +278,68 @@
     display: none;
   }
 
+  /* Uso diário em destaque e o saldo total, menor, ao lado; a fatura numa linha embaixo.
+     .balance-side "some" (display: contents) para os filhos entrarem direto na grade. */
   .balance {
-    flex-direction: column;
-    align-items: stretch;
-    gap: var(--space-3);
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: start;
+    column-gap: var(--space-4);
+    row-gap: var(--space-3);
   }
 
   .balance-main strong {
-    font-size: 2.1rem;
+    font-size: clamp(1.7rem, 8.4vw, 2.1rem);
   }
 
   .balance-side {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
-    align-items: start;
-    gap: 0;
-    padding: var(--space-3) 0 0;
-    border-top: 1px solid var(--border);
+    display: contents;
   }
 
-  .balance-figure {
-    text-align: left;
-  }
-
-  .balance-figure .eyebrow {
-    justify-content: flex-start;
+  .balance-figure span {
+    font-size: 0.98rem;
   }
 
   .credit-figure {
-    padding-left: var(--space-4);
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 48px;
+    padding: var(--space-2) 0 0;
+    border-left: 0;
+    border-top: 1px solid var(--border);
+    text-align: left;
+  }
+
+  .credit-figure .eyebrow {
+    order: 1;
+  }
+
+  .credit-figure small {
+    order: 2;
+    margin: 0;
+    white-space: nowrap;
+  }
+
+  .credit-figure small::before {
+    content: '· ';
+  }
+
+  .credit-figure span {
+    order: 3;
+    margin: 0 0 0 auto;
+    font-size: 1rem;
+  }
+
+  .credit-chevron {
+    order: 4;
+    display: inline-flex;
+    color: var(--text-muted);
+  }
+
+  /* Metas como uma seção própria, logo abaixo: aparece na ponta da tela e convida a rolar */
+  .goals-panel {
+    margin-top: var(--space-6);
   }
 }

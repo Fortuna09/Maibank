@@ -75,6 +75,7 @@
               </p>
               <span>{{ isPrivacyMode() ? '••••••' : (invoice.total | currency: 'BRL') }}</span>
               <small>vence {{ invoice.dueDate | date: "d 'de' MMM" }}</small>
+              <app-icon class="credit-chevron phone-only" name="chevron-right" [size]="15" />
             </a>
           </div>
         </section>

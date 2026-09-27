@@ -122,6 +122,78 @@
   padding-left: 30px;
 }
 
+/* Filtros no pop-up (celular) */
+
+.filter-button {
+  position: relative;
+}
+
+.filter-button.is-filtered {
+  border-color: var(--user-tint);
+}
+
+.filter-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 17px;
+  height: 17px;
+  padding: 0 4px;
+  border-radius: var(--radius);
+  background: var(--user-tint);
+  color: #fff;
+  font-size: 0.66rem;
+  font-weight: 700;
+}
+
+.filter-summary {
+  margin: 0 0 var(--space-2);
+  color: var(--text-muted);
+  font-size: 0.78rem;
+}
+
+.filter-form {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.filter-chips {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 2px;
+  padding: 2px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.filter-chips button {
+  min-height: 36px;
+  padding: 0 4px;
+  border: 0;
+  border-radius: 2px;
+  background: transparent;
+  color: var(--text-muted);
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.14s ease, color 0.14s ease;
+}
+
+.filter-chips button.active {
+  background: var(--bg);
+  color: var(--text);
+  box-shadow: inset 0 -2px 0 var(--user-tint);
+}
+
+.filter-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-2);
+  margin-top: var(--space-1);
+}
+
 .row-delete {
   opacity: 0;
   transition: opacity 0.14s ease;
@@ -171,11 +243,6 @@
 
   .chart-canvas-wrap {
     height: 190px;
-  }
-
-  .history-filters {
-    grid-template-columns: 1fr;
-    gap: var(--space-2);
   }
 
   /* O ícone e a cor do valor já dizem o tipo: a etiqueta sai para caber a descrição */
