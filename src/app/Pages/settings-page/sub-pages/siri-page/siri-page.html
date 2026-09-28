@@ -4,8 +4,8 @@
     <span class="tag">iPhone</span>
   </div>
   <p class="intro">
-    Diga <strong>“E aí Siri, Mai”</strong> e fale o gasto — por exemplo <strong>“2 reais de bala”</strong>. Ele entra na hora
-    como saída do Uso diário, sem abrir o app, e a Siri responde quanto sobrou.
+    Diga <strong>“E aí Siri, Anotar gasto”</strong> e fale o gasto — por exemplo <strong>“6 vírgula 67 de bala”</strong>. Ele
+    entra na hora como saída do Uso diário, sem abrir o app, e a Siri responde quanto sobrou.
   </p>
 </section>
 
@@ -72,10 +72,14 @@
 
   <ol class="steps">
     <li>Abra o app <strong>Atalhos</strong> e toque em <strong>+</strong>.</li>
-    <li>Toque no nome lá em cima e chame o atalho de <strong>Mai</strong> — é o que você vai falar para a Siri.</li>
+    <li>
+      Toque no nome lá em cima e chame o atalho de <strong>Anotar gasto</strong> — é o que você vai falar para a Siri.
+      <small class="step-note">Evite nomes curtos que parecem outra palavra: “Mai”, por exemplo, a Siri entende como “mãe” e liga para ela.</small>
+    </li>
     <li>
       Adicione a ação <strong>Pedir Entrada</strong>: tipo <strong>Texto</strong>, pergunta <strong>“Qual foi o gasto?”</strong>.
       <small class="step-note">Pela Siri, ela faz a pergunta em voz alta e escuta a resposta. Evite “Ditar Texto”: dentro do app funciona, mas pela Siri costuma dar erro de ajustes ou região.</small>
+      <small class="step-note">Centavos: fale <strong>“vírgula”</strong> — “seis vírgula sessenta e sete de bala”. “Seis e sessenta e sete” também costuma funcionar.</small>
     </li>
     <li>
       Adicione <strong>Obter Conteúdo do URL</strong> e preencha:
@@ -110,8 +114,21 @@
   </ol>
   <p class="done">
     <app-icon name="mic" [size]="14" />
-    Pronto: “E aí Siri, Mai” → você fala “35 reais no mercado” → a Siri responde “Anotado…”.
+    Pronto: “E aí Siri, Anotar gasto” → você fala “35 reais no mercado” → a Siri responde “Anotado…”.
   </p>
+
+  <details class="precise">
+    <summary>Os centavos saem errados? Use duas perguntas</summary>
+    <p>A Siri às vezes arredonda o valor falado. Separando em duas perguntas, o valor vem de um campo de número e não tem erro:</p>
+    <ol class="steps">
+      <li>Troque a pergunta por <strong>Pedir Entrada</strong> tipo <strong>Número</strong>: <strong>“Quanto?”</strong> (marque “Permitir decimais”).</li>
+      <li>Logo abaixo, outro <strong>Pedir Entrada</strong> tipo <strong>Texto</strong>: <strong>“Com o quê?”</strong>.</li>
+      <li>
+        No corpo JSON, deixe dois campos: <code>valor</code> = a primeira <strong>Entrada Fornecida</strong> e
+        <code>texto</code> = a segunda.
+      </li>
+    </ol>
+  </details>
 </section>
 
 <section class="section">
@@ -121,7 +138,7 @@
   <p class="intro">Veja como o Maibank entende o que você falaria. Aqui nada é lançado.</p>
 
   <form class="test-row" (ngSubmit)="test()">
-    <input class="input" type="text" name="phrase" [(ngModel)]="phrase" placeholder="Ex.: 12 reais no uber" maxlength="300" />
+    <input class="input" type="text" name="phrase" [(ngModel)]="phrase" placeholder="Ex.: 6 e 67 de bala" maxlength="300" />
     <button type="submit" class="btn" [class.is-loading]="testing()" [disabled]="testing()"><span>Testar</span></button>
   </form>
 

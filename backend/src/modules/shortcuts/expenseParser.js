@@ -101,6 +101,23 @@ function spelledAmount(normalized) {
     return reais.value < 100 ? reais.value / 100 : reais.value;
   }
 
+  // Fala de preço: "seis e sessenta e sete" = 6,67 — o "e" antes de um número de dois dígitos
+  // separa os centavos. "vinte e cinco" (dezena + unidade) e "cento e vinte" continuam um número só.
+  const run = words.slice(start, reais.end);
+  if (!run.includes('mil')) {
+    for (let index = run.length - 1; index > 0; index--) {
+      if (run[index] !== 'e') {
+        continue;
+      }
+      const left = readSpelled(run.slice(0, index), 0);
+      const right = readSpelled(run.slice(index + 1), 0);
+      const whole = left?.end === index && right?.end === run.length - index - 1;
+      if (whole && left.value < 100 && right.value >= 10 && right.value < 100) {
+        return left.value + right.value / 100;
+      }
+    }
+  }
+
   let cursor = reais.end;
   const saidReais = /^reais?$/.test(words[cursor] ?? '');
   if (saidReais) {
@@ -119,9 +136,16 @@ function spelledAmount(normalized) {
 export function parseAmount(text) {
   const normalized = normalize(text);
 
-  const withCents = normalized.match(/(\d+)\s*reais?\s*e\s*(\d{1,2})\s*centavos?/);
+  // "6 e 67", "6 reais e 67", "6 e 67 centavos" → 6,67 (é assim que a Siri escreve "seis e sessenta e sete")
+  const withCents = normalized.match(/(\d+)\s*(?:reais?\s*)?e\s*(\d{1,2})\b(?!\s*(?:mil\b|x\b|vezes|parcelas?))/);
   if (withCents) {
     return Number(withCents[1]) + Number(withCents[2]) / 100;
+  }
+
+  // "67 centavos" sozinho
+  const onlyCents = normalized.match(/(?:^|\s)(\d{1,2})\s*centavos?\b/);
+  if (onlyCents) {
+    return Number(onlyCents[1]) / 100;
   }
 
   const thousands = normalized.match(/(\d+(?:[.,]\d+)?)\s*mil\b/);

@@ -2,6 +2,9 @@ import express, { Router } from 'express';
 import { asyncHandler } from '../../http/asyncHandler.js';
 import { HttpError } from '../../http/HttpError.js';
 
+/** Nome do campo com o valor à parte (pergunta do tipo Número no atalho). */
+const AMOUNT_KEY = /^(valor|value|quantia)$/i;
+
 /**
  * A frase vem no campo `texto` do corpo — mas o app Atalhos às vezes grava o nome como
  * "Texto" (ou a pessoa digita "text"), e o corpo pode chegar como JSON, formulário ou texto
@@ -19,8 +22,19 @@ function readPhrase(body) {
       return value;
     }
   }
-  const strings = Object.values(body).filter((value) => typeof value === 'string');
+  const strings = Object.entries(body)
+    .filter(([key, value]) => typeof value === 'string' && !AMOUNT_KEY.test(key.trim()))
+    .map(([, value]) => value);
   return strings.length === 1 ? strings[0] : null;
+}
+
+/** Valor mandado à parte (pergunta do tipo Número no atalho), em qualquer grafia do nome. */
+function readAmount(body) {
+  if (!body || typeof body !== 'object') {
+    return null;
+  }
+  const entry = Object.entries(body).find(([key]) => AMOUNT_KEY.test(key.trim()));
+  return entry ? entry[1] : null;
 }
 
 /**
@@ -54,15 +68,16 @@ export class ShortcutsController {
     }
 
     const phrase = readPhrase(req.body);
-    if (phrase === null) {
+    const amount = readAmount(req.body);
+    if (phrase === null && amount === null) {
       return res.status(400).json({
         ok: false,
-        mensagem: 'O atalho não mandou a frase. No Obter Conteúdo do URL, o corpo precisa ser JSON com o campo texto igual a Texto Ditado.',
+        mensagem: 'O atalho não mandou a frase. No Obter Conteúdo do URL, o corpo precisa ser JSON com o campo texto igual a Entrada Fornecida.',
       });
     }
 
     try {
-      const result = await this.service.addExpense(user.id, phrase);
+      const result = await this.service.addExpense(user.id, phrase ?? '', amount);
       return res.status(201).json({ ok: true, ...result });
     } catch (error) {
       if (error instanceof HttpError && error.status < 500) {

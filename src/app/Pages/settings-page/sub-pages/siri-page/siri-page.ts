@@ -27,7 +27,7 @@ export class SiriPage implements OnInit {
   readonly busy = signal(false);
   readonly confirmRevoke = signal(false);
 
-  phrase = '2 reais de bala';
+  phrase = '6 e 67 de bala';
   readonly testing = signal(false);
   readonly preview = signal<ShortcutExpensePreview | null>(null);
   readonly previewError = signal<string | null>(null);

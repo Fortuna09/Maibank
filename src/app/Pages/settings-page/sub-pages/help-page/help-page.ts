@@ -78,8 +78,8 @@ const TOPICS: HelpTopic[] = [
   {
     question: 'Dá para lançar gasto falando com a Siri?',
     answer: [
-      'Dá, no iPhone. Em Configurações > Siri e atalhos você gera uma chave e monta um atalho chamado "Mai" no app Atalhos (o passo a passo está lá).',
-      'Depois é só dizer "E aí Siri, Mai" e falar o gasto, como "35 reais no mercado". Ele entra como saída do Uso diário e a Siri responde quanto sobrou.',
+      'Dá, no iPhone. Em Configurações > Siri e atalhos você gera uma chave e monta um atalho chamado "Anotar gasto" no app Atalhos (o passo a passo está lá).',
+      'Depois é só dizer "E aí Siri, Anotar gasto" e falar o gasto, como "35 reais no mercado". Para centavos, fale "vírgula": "6 vírgula 67 de bala". Ele entra como saída do Uso diário e a Siri responde quanto sobrou.',
     ],
   },
   {

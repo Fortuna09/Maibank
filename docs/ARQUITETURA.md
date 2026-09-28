@@ -150,8 +150,12 @@ Authorization: Bearer mb_…
 → 201 { "ok": true, "mensagem": "Anotado: R$ 2,00 em Bala. Sobram … no Uso diário." }
 ```
 
+Opcionalmente o atalho manda `valor` à parte (pergunta do tipo Número — a Siri arredonda
+centavos falados) e `texto` só com a descrição. O nome recomendado do atalho é "Anotar gasto"
+("Mai" a Siri confunde com "mãe").
+
 A frase é lida por `modules/shortcuts/expenseParser.js` (valor em número ou por extenso,
-descrição, categoria) e vira uma saída do Uso diário (ou da primeira divisão) com a data de
+"6 e 67" / "seis e sessenta e sete" = 6,67, descrição, categoria) e vira uma saída do Uso diário (ou da primeira divisão) com a data de
 hoje. Erros também vêm em `mensagem` (401 chave inválida, 400 sem valor), para a Siri falar.
 `POST /api/atalho/testar` (com login) mostra como uma frase seria lida, sem gravar.
 

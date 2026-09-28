@@ -169,6 +169,26 @@ code {
   color: var(--user-tint);
 }
 
+.precise {
+  margin-top: var(--space-4);
+  border-top: 1px solid var(--border);
+}
+
+.precise summary {
+  padding: var(--space-3) 0;
+  color: var(--text);
+  font-size: 0.84rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.precise p {
+  margin: 0 0 var(--space-3);
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
 /* Teste */
 
 .test-row {

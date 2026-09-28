@@ -1,7 +1,7 @@
 import { createHash, randomBytes } from 'crypto';
 import { HttpError } from '../../http/HttpError.js';
 import { todayIso } from '../../utils/monthDay.js';
-import { parseExpense } from './expenseParser.js';
+import { inferCategory, parseAmount, parseDescription, parseExpense } from './expenseParser.js';
 
 const KEY_PREFIX = 'mb_';
 const DAILY_BUCKET = 'uso-diario';
@@ -57,19 +57,38 @@ export class ShortcutsService {
 
   // ----- gasto -----
 
-  /** Entende a frase sem gravar nada (botão "Testar" na tela de configurações). */
-  async preview(userId, rawText) {
-    const text = this.readText(rawText);
-    const expense = parseExpense(text);
-    if (!expense) {
-      throw HttpError.badRequest('Não entendi o valor. Diga, por exemplo: 12 reais no mercado.');
+  /**
+   * Entende o gasto sem gravar nada (também é o botão "Testar" da tela de configurações).
+   * `rawAmount`: valor mandado à parte (pergunta do tipo Número no atalho) — aí a frase só
+   * precisa dizer com o quê, e a Siri não tem como errar os centavos.
+   */
+  async preview(userId, rawText, rawAmount = null) {
+    const text = String(rawText ?? '').trim().slice(0, TEXT_MAX);
+    let expense;
+
+    if (rawAmount !== null && rawAmount !== undefined && String(rawAmount).trim() !== '') {
+      const amount = typeof rawAmount === 'number' ? rawAmount : parseAmount(String(rawAmount));
+      if (!(amount > 0) || amount > 1_000_000) {
+        throw HttpError.badRequest('Não entendi o valor. Tente de novo falando só o número, como 6 vírgula 67.');
+      }
+      const description = parseDescription(text) ?? 'Gasto pela Siri';
+      expense = { amount: Math.round(amount * 100) / 100, description, category: inferCategory(description) };
+    } else {
+      if (!text) {
+        throw HttpError.badRequest('Não ouvi nada. Tente de novo dizendo o valor e com o quê.');
+      }
+      expense = parseExpense(text);
+      if (!expense) {
+        throw HttpError.badRequest('Não entendi o valor. Diga, por exemplo: 6 vírgula 67 no mercado.');
+      }
     }
+
     const bucket = await this.resolveBucket(userId);
     return { ...expense, bucket };
   }
 
-  async addExpense(userId, rawText) {
-    const { amount, description, category, bucket } = await this.preview(userId, rawText);
+  async addExpense(userId, rawText, rawAmount = null) {
+    const { amount, description, category, bucket } = await this.preview(userId, rawText, rawAmount);
 
     await this.transactionsService.create(userId, {
       description,
@@ -86,14 +105,6 @@ export class ShortcutsService {
       mensagem: `Anotado: ${currency.format(amount)} em ${description}. Sobram ${currency.format(balance)} no ${bucket.label}.`,
       lancamento: { valor: amount, descricao: description, categoria: category, divisao: bucket.label },
     };
-  }
-
-  readText(rawText) {
-    const text = String(rawText ?? '').trim();
-    if (!text) {
-      throw HttpError.badRequest('Não ouvi nada. Tente de novo dizendo o valor e com o quê.');
-    }
-    return text.slice(0, TEXT_MAX);
   }
 
   /** Gastos pela Siri saem do Uso diário; se a pessoa renomeou/apagou, da primeira divisão. */

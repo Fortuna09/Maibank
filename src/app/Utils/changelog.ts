@@ -18,6 +18,21 @@ export interface Release {
  */
 export const CHANGELOG: Release[] = [
   {
+    version: '2.2.1',
+    date: '2026-09-28',
+    title: 'Siri mais esperta com centavos',
+    changes: [
+      {
+        kind: 'correcao',
+        text: 'Gastos pela Siri: "seis e sessenta e sete", "6 e 67" e "67 centavos" agora viram o valor certo, com centavos.',
+      },
+      {
+        kind: 'melhoria',
+        text: 'Siri e atalhos: o atalho agora se chama "Anotar gasto" (a Siri confundia "Mai" com "mãe"), e há um jeito de perguntar o valor à parte para os centavos nunca errarem.',
+      },
+    ],
+  },
+  {
     version: '2.2.0',
     date: '2026-09-28',
     title: 'Cromado escuro',
