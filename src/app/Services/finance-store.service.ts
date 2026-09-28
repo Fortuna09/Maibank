@@ -122,6 +122,17 @@ export class FinanceStoreService {
       const user = this.auth.user();
       untracked(() => (user ? void this.loadInitialData() : this.reset()));
     });
+
+    // Voltando para o app (ex.: depois de lançar um gasto pela Siri), busca os lançamentos de novo:
+    // instalado no celular, o app fica suspenso em segundo plano e não recarrega sozinho.
+    let lastRefresh = 0;
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState !== 'visible' || !this.auth.user() || Date.now() - lastRefresh < 15_000) {
+        return;
+      }
+      lastRefresh = Date.now();
+      void this.refreshTransactions();
+    });
   }
 
   private reset(): void {

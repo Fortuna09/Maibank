@@ -73,7 +73,10 @@
   <ol class="steps">
     <li>Abra o app <strong>Atalhos</strong> e toque em <strong>+</strong>.</li>
     <li>Toque no nome lá em cima e chame o atalho de <strong>Mai</strong> — é o que você vai falar para a Siri.</li>
-    <li>Adicione a ação <strong>Ditar Texto</strong> (idioma: Português do Brasil).</li>
+    <li>
+      Adicione a ação <strong>Pedir Entrada</strong>: tipo <strong>Texto</strong>, pergunta <strong>“Qual foi o gasto?”</strong>.
+      <small class="step-note">Pela Siri, ela faz a pergunta em voz alta e escuta a resposta. Evite “Ditar Texto”: dentro do app funciona, mas pela Siri costuma dar erro de ajustes ou região.</small>
+    </li>
     <li>
       Adicione <strong>Obter Conteúdo do URL</strong> e preencha:
       <dl class="fields">
@@ -92,8 +95,15 @@
           <small>(a palavra Bearer, um espaço e a chave, tudo junto)</small>
         </dd>
         <dt>Corpo</dt>
-        <dd><strong>JSON</strong>, com o campo <code>texto</code> = <strong>Texto Ditado</strong></dd>
+        <dd><strong>JSON</strong>, com o campo <code>texto</code> = <strong>Entrada Fornecida</strong></dd>
       </dl>
+      <p class="warning">
+        <app-icon name="alert" [size]="14" />
+        <span>
+          O Atalhos costuma colocar a <strong>Entrada Fornecida</strong> sozinha no lugar do URL. Se "Obter conteúdo de" mostrar
+          Entrada Fornecida, toque nela, apague e cole o endereço acima. A Entrada Fornecida vai só no corpo.
+        </span>
+      </p>
     </li>
     <li>Adicione <strong>Obter Valor do Dicionário</strong> com a chave <code>mensagem</code>.</li>
     <li>Adicione <strong>Falar Texto</strong> com o <strong>Valor do Dicionário</strong>.</li>

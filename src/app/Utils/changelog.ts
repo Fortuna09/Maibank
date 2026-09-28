@@ -18,6 +18,25 @@ export interface Release {
  */
 export const CHANGELOG: Release[] = [
   {
+    version: '2.1.1',
+    date: '2026-09-27',
+    title: 'Ajuste no atalho da Siri',
+    changes: [
+      {
+        kind: 'correcao',
+        text: 'O atalho da Siri agora aceita o campo do corpo escrito como "Texto" ou "texto", do jeito que o app Atalhos gravar — antes a Siri respondia "não ouvi nada".',
+      },
+      {
+        kind: 'melhoria',
+        text: 'O passo a passo em Siri e atalhos agora usa "Pedir Entrada" em vez de "Ditar Texto" (que pela Siri dava erro de ajustes ou região) e avisa sobre o erro mais comum ao montar.',
+      },
+      {
+        kind: 'melhoria',
+        text: 'Voltando para o app depois de lançar pela Siri, os lançamentos se atualizam sozinhos.',
+      },
+    ],
+  },
+  {
     version: '2.1.0',
     date: '2026-09-27',
     title: 'Gastos pela Siri',

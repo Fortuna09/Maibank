@@ -1,6 +1,27 @@
-import { Router } from 'express';
+import express, { Router } from 'express';
 import { asyncHandler } from '../../http/asyncHandler.js';
 import { HttpError } from '../../http/HttpError.js';
+
+/**
+ * A frase vem no campo `texto` do corpo — mas o app Atalhos às vezes grava o nome como
+ * "Texto" (ou a pessoa digita "text"), e o corpo pode chegar como JSON, formulário ou texto
+ * puro. Aceita tudo isso. `null` = o atalho não mandou frase nenhuma (erro de montagem).
+ */
+function readPhrase(body) {
+  if (typeof body === 'string') {
+    return body;
+  }
+  if (!body || typeof body !== 'object') {
+    return null;
+  }
+  for (const [key, value] of Object.entries(body)) {
+    if (/^(texto|text|frase)$/i.test(key.trim()) && typeof value === 'string') {
+      return value;
+    }
+  }
+  const strings = Object.values(body).filter((value) => typeof value === 'string');
+  return strings.length === 1 ? strings[0] : null;
+}
 
 /**
  * /api/atalho
@@ -11,7 +32,9 @@ export class ShortcutsController {
   constructor(service, authenticate) {
     this.service = service;
     this.router = Router();
-    this.router.post('/gasto', asyncHandler(this.expense));
+    // JSON já vem do app.js; aqui entram também formulário e texto puro (outras opções do Atalhos)
+    const lenientBody = [express.urlencoded({ extended: false, limit: '10kb' }), express.text({ type: 'text/*', limit: '10kb' })];
+    this.router.post('/gasto', ...lenientBody, asyncHandler(this.expense));
     this.router.get('/chave', authenticate, asyncHandler(this.keyInfo));
     this.router.post('/chave', authenticate, asyncHandler(this.createKey));
     this.router.delete('/chave', authenticate, asyncHandler(this.revokeKey));
@@ -30,8 +53,16 @@ export class ShortcutsController {
       });
     }
 
+    const phrase = readPhrase(req.body);
+    if (phrase === null) {
+      return res.status(400).json({
+        ok: false,
+        mensagem: 'O atalho não mandou a frase. No Obter Conteúdo do URL, o corpo precisa ser JSON com o campo texto igual a Texto Ditado.',
+      });
+    }
+
     try {
-      const result = await this.service.addExpense(user.id, req.body?.texto ?? req.body?.text);
+      const result = await this.service.addExpense(user.id, phrase);
       return res.status(201).json({ ok: true, ...result });
     } catch (error) {
       if (error instanceof HttpError && error.status < 500) {
