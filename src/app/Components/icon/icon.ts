@@ -91,6 +91,15 @@ import { Component, input } from '@angular/core';
           <path d="M4.5 12 20 4.5 16.5 20l-4.5-6.5z" />
           <path d="M12 13.5 20 4.5" />
         }
+        @case ('mic') {
+          <rect x="9" y="3.2" width="6" height="11" rx="3" />
+          <path d="M5.8 11.2a6.2 6.2 0 0 0 12.4 0" />
+          <path d="M12 17.4v3.4M9 20.8h6" />
+        }
+        @case ('copy') {
+          <rect x="8.5" y="8.5" width="11" height="11" rx="1.5" />
+          <path d="M15.5 8.5V6a1.5 1.5 0 0 0-1.5-1.5H6A1.5 1.5 0 0 0 4.5 6v8A1.5 1.5 0 0 0 6 15.5h2.5" />
+        }
         @case ('minus') {
           <path d="M5.6 12h12.8" />
         }

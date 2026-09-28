@@ -24,6 +24,9 @@ import { SalaryController } from './modules/salary/SalaryController.js';
 import { SalaryRepository } from './modules/salary/SalaryRepository.js';
 import { SalaryService } from './modules/salary/SalaryService.js';
 import { SettingsController } from './modules/settings/SettingsController.js';
+import { ShortcutsController } from './modules/shortcuts/ShortcutsController.js';
+import { ShortcutsRepository } from './modules/shortcuts/ShortcutsRepository.js';
+import { ShortcutsService } from './modules/shortcuts/ShortcutsService.js';
 import { SettingsRepository } from './modules/settings/SettingsRepository.js';
 import { SettingsService } from './modules/settings/SettingsService.js';
 import { TransactionsController } from './modules/transactions/TransactionsController.js';
@@ -48,7 +51,8 @@ export function createApp() {
 
   const auth = new AuthController(authService, sessions, authenticate);
   const settings = new SettingsController(new SettingsService(settingsRepository));
-  const transactions = new TransactionsController(new TransactionsService(transactionsRepository, recurringRepository));
+  const transactionsService = new TransactionsService(transactionsRepository, recurringRepository);
+  const transactions = new TransactionsController(transactionsService);
   const recurring = new RecurringController(new RecurringService(recurringRepository, settingsRepository, transactionsRepository));
   const goals = new GoalsController(new GoalsService(new GoalsRepository()));
   const salary = new SalaryController(new SalaryService(new SalaryRepository(), settingsRepository, transactionsRepository));
@@ -56,6 +60,10 @@ export function createApp() {
   const messagesService = new MessagesService(new MessagesRepository());
   const messages = new MessagesController(messagesService);
   const admin = new AdminController(messagesService);
+  const shortcuts = new ShortcutsController(
+    new ShortcutsService(new ShortcutsRepository(), settingsRepository, transactionsService),
+    authenticate
+  );
 
   const app = express();
   app.disable('x-powered-by');
@@ -71,6 +79,8 @@ export function createApp() {
   });
 
   app.use('/api/auth', auth.router);
+  // Siri/Atalhos: /gasto se autentica pela chave pessoal; o resto da rota exige login (ver o controller).
+  app.use('/api/atalho', shortcuts.router);
 
   // Daqui para baixo tudo exige login, e cada consulta é filtrada pelo usuário da sessão.
   app.use('/api/settings', authenticate, settings.router);

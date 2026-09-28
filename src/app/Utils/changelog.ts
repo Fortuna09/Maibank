@@ -18,6 +18,17 @@ export interface Release {
  */
 export const CHANGELOG: Release[] = [
   {
+    version: '2.1.0',
+    date: '2026-09-27',
+    title: 'Gastos pela Siri',
+    changes: [
+      {
+        kind: 'novo',
+        text: 'No iPhone, lance gastos falando com a Siri: "E aí Siri, Mai" e depois "2 reais de bala". Entra na hora como saída do Uso diário, sem abrir o app. Para ativar: Configurações > Siri e atalhos.',
+      },
+    ],
+  },
+  {
     version: '2.0.0',
     date: '2026-09-27',
     title: 'Maibank Cromado',

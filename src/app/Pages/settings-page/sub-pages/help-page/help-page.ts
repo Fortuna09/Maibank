@@ -76,6 +76,13 @@ const TOPICS: HelpTopic[] = [
     ],
   },
   {
+    question: 'Dá para lançar gasto falando com a Siri?',
+    answer: [
+      'Dá, no iPhone. Em Configurações > Siri e atalhos você gera uma chave e monta um atalho chamado "Mai" no app Atalhos (o passo a passo está lá).',
+      'Depois é só dizer "E aí Siri, Mai" e falar o gasto, como "35 reais no mercado". Ele entra como saída do Uso diário e a Siri responde quanto sobrou.',
+    ],
+  },
+  {
     question: 'Dá para instalar no celular?',
     answer: [
       'Dá, e ele abre como um aplicativo, sem a barra do navegador. No iPhone: abra no Safari, toque em Compartilhar e depois em "Adicionar à Tela de Início".',

@@ -137,6 +137,24 @@ uma vez só; o administrador acompanha quem leu em "Enviadas".
 - O front só mostra a seção quando a sessão vem com `isAdmin: true` — a proteção de
   verdade é no servidor.
 
+## Gastos pela Siri (app Atalhos)
+
+Cada pessoa gera uma chave pessoal em **Configurações > Siri e atalhos** (tabela
+`shortcut_keys`, migration 004 — só o hash é guardado; gerar outra derruba a anterior).
+O atalho "Mai" do iPhone dita a frase e chama:
+
+```
+POST /api/atalho/gasto
+Authorization: Bearer mb_…
+{ "texto": "2 reais de bala" }
+→ 201 { "ok": true, "mensagem": "Anotado: R$ 2,00 em Bala. Sobram … no Uso diário." }
+```
+
+A frase é lida por `modules/shortcuts/expenseParser.js` (valor em número ou por extenso,
+descrição, categoria) e vira uma saída do Uso diário (ou da primeira divisão) com a data de
+hoje. Erros também vêm em `mensagem` (401 chave inválida, 400 sem valor), para a Siri falar.
+`POST /api/atalho/testar` (com login) mostra como uma frase seria lida, sem gravar.
+
 ## Desenvolvimento local
 
 ```bash

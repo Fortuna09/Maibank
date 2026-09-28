@@ -59,6 +59,7 @@ export const routes: Routes = [
 					{ path: 'salario', loadComponent: () => import('./Pages/settings-page/sub-pages/salary-page/salary-page').then((m) => m.SalaryPage) },
 					{ path: 'credito', loadComponent: () => import('./Pages/settings-page/sub-pages/credit-settings-page/credit-settings-page').then((m) => m.CreditSettingsPage) },
 					{ path: 'assistente', loadComponent: () => import('./Pages/settings-page/sub-pages/assistant-settings-page/assistant-settings-page').then((m) => m.AssistantSettingsPage) },
+					{ path: 'siri', loadComponent: () => import('./Pages/settings-page/sub-pages/siri-page/siri-page').then((m) => m.SiriPage) },
 					{ path: 'conta', loadComponent: () => import('./Pages/settings-page/sub-pages/account-page/account-page').then((m) => m.AccountPage) },
 					{ path: 'ajuda', loadComponent: () => import('./Pages/settings-page/sub-pages/help-page/help-page').then((m) => m.HelpPage) },
 					{ path: 'novidades', loadComponent: () => import('./Pages/settings-page/sub-pages/changelog-page/changelog-page').then((m) => m.ChangelogPage) },
