@@ -38,6 +38,35 @@ export class ShortcutsRepository {
     return rows[0] ?? null;
   }
 
+  /** Registra um pedido da Siri e mantém só os `keep` mais recentes da pessoa. */
+  async insertLog(userId, entry, keep = 15) {
+    await this.db.query(
+      `INSERT INTO shortcut_log (user_id, heard, amount, description, ok, message) VALUES ($1, $2, $3, $4, $5, $6)`,
+      [userId, entry.heard, entry.amount, entry.description, entry.ok, entry.message]
+    );
+    await this.db.query(
+      `DELETE FROM shortcut_log WHERE user_id = $1 AND id NOT IN (
+         SELECT id FROM shortcut_log WHERE user_id = $1 ORDER BY created_at DESC, id DESC LIMIT $2)`,
+      [userId, keep]
+    );
+  }
+
+  async findLog(userId, limit = 15) {
+    const { rows } = await this.db.query(
+      `SELECT heard, amount, description, ok, message, created_at FROM shortcut_log
+        WHERE user_id = $1 ORDER BY created_at DESC, id DESC LIMIT $2`,
+      [userId, limit]
+    );
+    return rows.map((row) => ({
+      heard: row.heard,
+      amount: row.amount === null ? null : Number(row.amount),
+      description: row.description,
+      ok: row.ok,
+      message: row.message,
+      createdAt: row.created_at,
+    }));
+  }
+
   /** Saldo de uma divisão: soma das alocações (entradas positivas, saídas negativas). */
   async bucketBalance(userId, bucketId) {
     const { rows } = await this.db.query(

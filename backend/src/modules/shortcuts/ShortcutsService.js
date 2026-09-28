@@ -107,6 +107,21 @@ export class ShortcutsService {
     };
   }
 
+  // ----- histórico "o que a Siri mandou" -----
+
+  /** Guarda o pedido; se falhar, só avisa no log — a resposta para a Siri não pode depender disso. */
+  async log(userId, entry) {
+    try {
+      await this.repository.insertLog(userId, entry);
+    } catch (error) {
+      console.error('Não foi possível guardar o pedido da Siri:', error.message);
+    }
+  }
+
+  history(userId) {
+    return this.repository.findLog(userId);
+  }
+
   /** Gastos pela Siri saem do Uso diário; se a pessoa renomeou/apagou, da primeira divisão. */
   async resolveBucket(userId) {
     const buckets = await this.settingsRepository.findBuckets(userId);

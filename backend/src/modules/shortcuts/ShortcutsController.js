@@ -53,6 +53,7 @@ export class ShortcutsController {
     this.router.post('/chave', authenticate, asyncHandler(this.createKey));
     this.router.delete('/chave', authenticate, asyncHandler(this.revokeKey));
     this.router.post('/testar', authenticate, asyncHandler(this.preview));
+    this.router.get('/historico', authenticate, asyncHandler(this.history));
   }
 
   /** Sempre responde `{ ok, mensagem }`: o atalho fala a mensagem, dê certo ou não. */
@@ -69,18 +70,23 @@ export class ShortcutsController {
 
     const phrase = readPhrase(req.body);
     const amount = readAmount(req.body);
+    // O que chegou exatamente, para a pessoa ver em "Siri e atalhos" quando a Siri transcrever errado
+    const heard = [amount !== null ? `valor ${amount}` : null, phrase].filter((part) => part !== null && part !== '').join(' · ') || '(vazio)';
+
     if (phrase === null && amount === null) {
-      return res.status(400).json({
-        ok: false,
-        mensagem: 'O atalho não mandou a frase. No Obter Conteúdo do URL, o corpo precisa ser JSON com o campo texto igual a Entrada Fornecida.',
-      });
+      const mensagem = 'O atalho não mandou a frase. No Obter Conteúdo do URL, o corpo precisa ser JSON com o campo texto igual a Entrada Fornecida.';
+      await this.service.log(user.id, { heard, amount: null, description: null, ok: false, message: mensagem });
+      return res.status(400).json({ ok: false, mensagem });
     }
 
     try {
       const result = await this.service.addExpense(user.id, phrase ?? '', amount);
+      const { valor, descricao } = result.lancamento;
+      await this.service.log(user.id, { heard, amount: valor, description: descricao, ok: true, message: result.mensagem });
       return res.status(201).json({ ok: true, ...result });
     } catch (error) {
       if (error instanceof HttpError && error.status < 500) {
+        await this.service.log(user.id, { heard, amount: null, description: null, ok: false, message: error.message });
         return res.status(error.status).json({ ok: false, mensagem: error.message });
       }
       throw error;
@@ -98,6 +104,10 @@ export class ShortcutsController {
   revokeKey = async (req, res) => {
     await this.service.revokeKey(req.user.id);
     res.status(204).send();
+  };
+
+  history = async (req, res) => {
+    res.json(await this.service.history(req.user.id));
   };
 
   preview = async (req, res) => {

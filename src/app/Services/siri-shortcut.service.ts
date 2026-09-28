@@ -9,6 +9,16 @@ export interface ShortcutKeyInfo {
   lastUsedAt?: string | null;
 }
 
+/** Um pedido recebido pela Siri: a frase exata que chegou e o resultado. */
+export interface ShortcutLogEntry {
+  heard: string;
+  amount: number | null;
+  description: string | null;
+  ok: boolean;
+  message: string;
+  createdAt: string;
+}
+
 export interface ShortcutExpensePreview {
   amount: number;
   description: string;
@@ -37,6 +47,10 @@ export class SiriShortcutService {
 
   revokeKey(): Promise<unknown> {
     return firstValueFrom(this.http.delete('/api/atalho/chave'));
+  }
+
+  history(): Promise<ShortcutLogEntry[]> {
+    return firstValueFrom(this.http.get<ShortcutLogEntry[]>('/api/atalho/historico'));
   }
 
   preview(texto: string): Promise<ShortcutExpensePreview> {

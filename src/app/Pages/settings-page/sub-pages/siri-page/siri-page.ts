@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Icon } from '../../../../Components/icon/icon';
 import { apiErrorMessage } from '../../../../Services/auth.service';
 import { FeedbackService } from '../../../../Services/feedback.service';
-import { ShortcutExpensePreview, ShortcutKeyInfo, SiriShortcutService } from '../../../../Services/siri-shortcut.service';
+import { ShortcutExpensePreview, ShortcutKeyInfo, ShortcutLogEntry, SiriShortcutService } from '../../../../Services/siri-shortcut.service';
 
 /**
  * Siri e atalhos: a pessoa gera uma chave pessoal, monta o atalho "Mai" no app Atalhos do
@@ -27,6 +27,10 @@ export class SiriPage implements OnInit {
   readonly busy = signal(false);
   readonly confirmRevoke = signal(false);
 
+  /** Últimos pedidos pela Siri: mostra o que ela escreveu, para achar erro de transcrição. */
+  readonly history = signal<ShortcutLogEntry[] | null>(null);
+  readonly loadingHistory = signal(false);
+
   phrase = '6 e 67 de bala';
   readonly testing = signal(false);
   readonly preview = signal<ShortcutExpensePreview | null>(null);
@@ -34,6 +38,18 @@ export class SiriPage implements OnInit {
 
   ngOnInit(): void {
     void this.loadInfo();
+    void this.loadHistory();
+  }
+
+  async loadHistory(): Promise<void> {
+    this.loadingHistory.set(true);
+    try {
+      this.history.set(await this.shortcuts.history());
+    } catch {
+      this.history.set([]);
+    } finally {
+      this.loadingHistory.set(false);
+    }
   }
 
   async generate(): Promise<void> {

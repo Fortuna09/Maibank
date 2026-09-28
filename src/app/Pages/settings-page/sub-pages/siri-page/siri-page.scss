@@ -189,6 +189,30 @@ code {
   line-height: 1.5;
 }
 
+/* O que a Siri mandou */
+
+.heard-row .row-title {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.row-icon.is-failed {
+  background: var(--warning-soft);
+  color: var(--warning);
+}
+
+.row-sub.failed {
+  color: var(--warning);
+}
+
+.heard-time {
+  flex-shrink: 0;
+  align-self: flex-start;
+  margin-top: 2px;
+  color: var(--text-muted);
+  font-size: 0.72rem;
+}
+
 /* Teste */
 
 .test-row {

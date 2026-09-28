@@ -18,7 +18,7 @@ const CATEGORY_RULES = [
 ];
 
 const NUMBER_WORDS = {
-  um: 1, uma: 1, dois: 2, duas: 2, tres: 3, quatro: 4, cinco: 5, seis: 6, sete: 7, oito: 8, nove: 9,
+  zero: 0, um: 1, uma: 1, dois: 2, duas: 2, tres: 3, quatro: 4, cinco: 5, seis: 6, sete: 7, oito: 8, nove: 9,
   dez: 10, onze: 11, doze: 12, treze: 13, quatorze: 14, catorze: 14, quinze: 15, dezesseis: 16,
   dezessete: 17, dezoito: 18, dezenove: 19, vinte: 20, trinta: 30, quarenta: 40, cinquenta: 50,
   sessenta: 60, setenta: 70, oitenta: 80, noventa: 90, cem: 100, cento: 100, duzentos: 200,
@@ -30,7 +30,7 @@ const NUMBER_WORDS = {
 const NOISE = new Set([
   'ei', 'ai', 'siri', 'fala', 'diz', 'avisa', 'mai', 'maibank', 'que', 'eu', 'gastei', 'paguei', 'comprei',
   'torrei', 'foi', 'lanca', 'registra', 'anota', 'coloca', 'reais', 'real', 'conto', 'contos', 'pila',
-  'centavo', 'centavos', 'hoje', 'agora', 'so',
+  'centavo', 'centavos', 'virgula', 'hoje', 'agora', 'so',
 ]);
 
 /** Preposições e artigos: ficam no meio ("conta de luz"), saem das pontas. */
@@ -133,8 +133,60 @@ function spelledAmount(normalized) {
   return reais.value;
 }
 
+/**
+ * A Siri às vezes escreve a vírgula por extenso: "5 vírgula 80", "cinco vírgula oitenta",
+ * "5 ponto 8". Junta a parte inteira (número ou por extenso) com a decimal.
+ */
+function decimalWordAmount(normalized) {
+  const words = normalized.split(' ');
+  const marker = words.findIndex((word, index) => index > 0 && (word === 'virgula' || word === 'ponto'));
+  if (marker < 0) {
+    return null;
+  }
+
+  // Parte inteira: o número logo antes do marcador
+  let integer = null;
+  const previous = words[marker - 1];
+  if (/^\d+$/.test(previous)) {
+    integer = Number(previous);
+  } else if (isNumberWord(previous)) {
+    let start = marker - 1;
+    while (start > 0 && (isNumberWord(words[start - 1]) || (words[start - 1] === 'e' && isNumberWord(words[start - 2] ?? '')))) {
+      start -= 1;
+    }
+    const read = readSpelled(words.slice(start, marker), 0);
+    integer = read && read.end === marker - start ? read.value : null;
+  }
+  if (integer === null) {
+    return null;
+  }
+
+  // Parte decimal: "8" = ,8 / "80" = ,80 / "zero cinco" = ,05
+  const next = words[marker + 1] ?? '';
+  if (/^\d{1,2}$/.test(next)) {
+    return integer + Number(next) / (next.length === 1 ? 10 : 100);
+  }
+  if (next === 'zero') {
+    const after = words[marker + 2] ?? '';
+    const digit = /^\d$/.test(after) ? Number(after) : NUMBER_WORDS[after];
+    return digit !== undefined && digit < 10 ? integer + digit / 100 : integer;
+  }
+  if (isNumberWord(next)) {
+    const read = readSpelled(words, marker + 1);
+    if (read && read.value < 100) {
+      return integer + read.value / (read.value < 10 ? 10 : 100);
+    }
+  }
+  return integer;
+}
+
 export function parseAmount(text) {
   const normalized = normalize(text);
+
+  const withDecimalWord = decimalWordAmount(normalized);
+  if (withDecimalWord !== null && withDecimalWord > 0) {
+    return withDecimalWord;
+  }
 
   // "6 e 67", "6 reais e 67", "6 e 67 centavos" → 6,67 (é assim que a Siri escreve "seis e sessenta e sete")
   const withCents = normalized.match(/(\d+)\s*(?:reais?\s*)?e\s*(\d{1,2})\b(?!\s*(?:mil\b|x\b|vezes|parcelas?))/);
@@ -146,6 +198,12 @@ export function parseAmount(text) {
   const onlyCents = normalized.match(/(?:^|\s)(\d{1,2})\s*centavos?\b/);
   if (onlyCents) {
     return Number(onlyCents[1]) / 100;
+  }
+
+  // "5 80" (a Siri às vezes some com a vírgula e deixa só o espaço): 5,80
+  const spaced = normalized.match(/(?:^|\s)(\d{1,3})\s+(\d{2})(?=\s|$)(?!\s*(?:mil\b|x\b|vezes|parcelas?))/);
+  if (spaced) {
+    return Number(spaced[1]) + Number(spaced[2]) / 100;
   }
 
   const thousands = normalized.match(/(\d+(?:[.,]\d+)?)\s*mil\b/);
@@ -177,9 +235,13 @@ export function parseDescription(text) {
 
   const kept = [];
   let gap = false;
+  let previousWasAmount = false;
   for (const token of tokens) {
     const isAmount = /^\d/.test(token.norm) || isNumberWord(token.norm);
-    if (isAmount || NOISE.has(token.norm)) {
+    // "ponto" entre números é a vírgula falada ("5 ponto 80"); fora disso é palavra normal
+    const isDecimalPoint = token.norm === 'ponto' && previousWasAmount;
+    previousWasAmount = isAmount;
+    if (isAmount || isDecimalPoint || NOISE.has(token.norm)) {
       gap = true;
       continue;
     }

@@ -133,6 +133,40 @@
 
 <section class="section">
   <div class="section-head">
+    <h2>O que a Siri mandou</h2>
+    <button type="button" class="link-action" [disabled]="loadingHistory()" (click)="loadHistory()">
+      <app-icon name="refresh" [size]="14" />
+      Atualizar
+    </button>
+  </div>
+  <p class="intro">Os últimos pedidos, com a frase exatamente como a Siri escreveu. Se um valor sair errado, veja aqui se ela entendeu mal.</p>
+
+  @if (history(); as entries) {
+    @if (entries.length) {
+      <div class="rows">
+        @for (entry of entries; track $index) {
+          <div class="data-row heard-row">
+            <span class="row-icon" [class.is-expense]="entry.ok" [class.is-failed]="!entry.ok">
+              <app-icon [name]="entry.ok ? 'mic' : 'alert'" [size]="15" />
+            </span>
+            <span class="row-body">
+              <span class="row-title">“{{ entry.heard }}”</span>
+              <small class="row-sub" [class.failed]="!entry.ok">
+                {{ entry.ok ? (entry.amount | currency: 'BRL') + ' · ' + entry.description : entry.message }}
+              </small>
+            </span>
+            <time class="heard-time">{{ entry.createdAt | date: "d/MM HH:mm" }}</time>
+          </div>
+        }
+      </div>
+    } @else {
+      <p class="field-hint">Nenhum pedido ainda. Quando você usar o atalho, eles aparecem aqui.</p>
+    }
+  }
+</section>
+
+<section class="section">
+  <div class="section-head">
     <h2>Testar uma frase</h2>
   </div>
   <p class="intro">Veja como o Maibank entende o que você falaria. Aqui nada é lançado.</p>

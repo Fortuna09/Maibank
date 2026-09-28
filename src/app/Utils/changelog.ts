@@ -18,6 +18,21 @@ export interface Release {
  */
 export const CHANGELOG: Release[] = [
   {
+    version: '2.2.2',
+    date: '2026-09-28',
+    title: 'Siri entende a vírgula',
+    changes: [
+      {
+        kind: 'correcao',
+        text: 'Gastos pela Siri: quando ela escreve a vírgula por extenso ("5 vírgula 80", "cinco vírgula oitenta") ou só com espaço ("5 80"), o valor agora sai com os centavos certos.',
+      },
+      {
+        kind: 'melhoria',
+        text: 'Em Siri e atalhos, a nova lista "O que a Siri mandou" mostra a frase exata de cada pedido e o que ela virou — dá para ver na hora quando a Siri entendeu errado.',
+      },
+    ],
+  },
+  {
     version: '2.2.1',
     date: '2026-09-28',
     title: 'Siri mais esperta com centavos',
