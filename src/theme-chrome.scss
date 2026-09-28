@@ -1,13 +1,15 @@
 /* ============================================
-   TEMA CROMADO (em teste)
-   Inspirado na logo: alumínio escovado claro, peças de metal polido e um brilho
-   holográfico bem discreto. Tudo aqui só vale com body[data-theme='chrome'];
-   os temas escuro e claro não mudam.
+   TEMAS DO MAIBANK — cromado claro (padrão) e cromado escuro
+   Inspirados na logo: metal escovado, peças de metal polido e um brilho holográfico
+   bem discreto. Os dois temas usam os mesmos efeitos; só as variáveis mudam.
    ============================================ */
 
-body[data-theme='chrome'] {
+/* ---------- Claro: alumínio escovado ---------- */
+
+:root,
+body[data-theme='light'] {
   color-scheme: light;
-  /* No cromado o destaque é aço, não a cor escolhida pela pessoa */
+  /* Destaque em aço (não há mais cor escolhida pela pessoa) */
   --user-tint: #5f666f;
   --bg: #e7e8ea;
   --bg-elevated: #f3f4f5;
@@ -30,6 +32,7 @@ body[data-theme='chrome'] {
   --danger-soft: rgba(173, 49, 44, 0.11);
   --credit: #5246bf;
   --credit-soft: rgba(82, 70, 191, 0.11);
+  /* Identidade da Mai (assistente): cor própria */
   --mai: #0c8676;
   --mai-soft: rgba(12, 134, 118, 0.12);
   --mai-panel: #eceef0;
@@ -38,148 +41,207 @@ body[data-theme='chrome'] {
   --shadow: rgba(30, 33, 38, 0.2);
   --hover: rgba(23, 24, 27, 0.045);
 
-  /* Metal: polido (claro), escuro (letras e detalhes) e uma chapa para barras */
-  --chrome: linear-gradient(
-    135deg,
-    #fdfdfd 0%,
-    #c6c9cd 16%,
-    #f4f5f6 31%,
-    #9ba0a7 49%,
-    #e9ebed 63%,
-    #b1b5bb 81%,
-    #f7f8f8 100%
-  );
-  --chrome-dark: linear-gradient(180deg, #3a3e44 0%, #8a9098 40%, #25282c 54%, #5d626a 80%, #2a2d31 100%);
+  /* Metal */
+  --chrome: linear-gradient(135deg, #fdfdfd 0%, #c6c9cd 16%, #f4f5f6 31%, #9ba0a7 49%, #e9ebed 63%, #b1b5bb 81%, #f7f8f8 100%);
+  /* "Tinta" de metal para números grandes, títulos e traços ativos (escura no claro, prata no escuro) */
+  --chrome-ink: linear-gradient(180deg, #3a3e44 0%, #8a9098 40%, #25282c 54%, #5d626a 80%, #2a2d31 100%);
   --metal-plate: linear-gradient(180deg, #f2f3f5 0%, #e1e3e6 100%);
   /* Holográfico: reflexos frios e quentes, sempre em baixa opacidade */
-  --holo: linear-gradient(
-    115deg,
-    rgba(168, 194, 255, 0.24) 0%,
-    rgba(255, 198, 226, 0.16) 34%,
-    rgba(186, 255, 228, 0.16) 64%,
-    rgba(255, 234, 186, 0.2) 100%
-  );
-
-  background: #e3e4e6;
+  --holo: linear-gradient(115deg, rgba(168, 194, 255, 0.24) 0%, rgba(255, 198, 226, 0.16) 34%, rgba(186, 255, 228, 0.16) 64%, rgba(255, 234, 186, 0.2) 100%);
+  --metal-ink: #17181b;
+  --metal-ink-soft: #3c4148;
+  --metal-edge: #8b9097;
+  --metal-edge-strong: #666c74;
+  --metal-light: rgba(255, 255, 255, 0.95);
+  --metal-light-soft: rgba(255, 255, 255, 0.6);
+  --metal-shade: rgba(0, 0, 0, 0.1);
+  --metal-active: rgba(255, 255, 255, 0.55);
+  --emboss: 0 1px 0 rgba(255, 255, 255, 0.85);
+  --lift-shadow: rgba(20, 22, 26, 0.18);
+  --overlay: rgba(40, 43, 48, 0.42);
+  /* Capa: véu atrás do texto, para ler sobre o metal */
+  --veil: linear-gradient(90deg, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0) 62%);
+  /* O M da logo: no claro, fundido ao metal; no escuro, invertido para brilhar em prata */
+  --mark-blend: multiply;
+  --mark-filter: none;
+  --brushed:
+    radial-gradient(120% 70% at 50% 0%, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0) 62%),
+    repeating-radial-gradient(circle at 50% 18%, rgba(255, 255, 255, 0.22) 0 1px, rgba(110, 116, 124, 0.03) 1px 3px),
+    linear-gradient(180deg, #eceef0 0%, #d8dadd 100%);
+  --page: #e3e4e6;
 }
 
-/* Fundo de alumínio escovado, como o da logo (parado; não anima) */
-body[data-theme='chrome']::before {
+/* ---------- Escuro: grafite escovado ---------- */
+
+body[data-theme='dark'] {
+  color-scheme: dark;
+  --user-tint: #a7afb9;
+  --bg: #1b1c1f;
+  --bg-elevated: #232428;
+  --surface: #26272b;
+  --surface-alt: #121315;
+  --card: #232428;
+  --card-soft: #1b1c1f;
+  --text: #eef0f2;
+  --text-muted: #9aa0a8;
+  --border: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.17);
+  --accent: #e6e8eb;
+  --accent-strong: #f2f3f5;
+  --accent-soft: rgba(255, 255, 255, 0.07);
+  --success: #4fbf7f;
+  --success-soft: rgba(79, 191, 127, 0.14);
+  --warning: #e4b56e;
+  --warning-soft: rgba(228, 181, 110, 0.14);
+  --danger: #f06a6a;
+  --danger-soft: rgba(240, 106, 106, 0.14);
+  --credit: #a394ff;
+  --credit-soft: rgba(163, 148, 255, 0.16);
+  --mai: #2dd4bf;
+  --mai-soft: rgba(45, 212, 191, 0.14);
+  --mai-panel: #151618;
+  --mai-grid: rgba(255, 255, 255, 0.06);
+  --focus: #ffffff;
+  --shadow: rgba(0, 0, 0, 0.55);
+  --hover: rgba(255, 255, 255, 0.045);
+
+  --chrome: linear-gradient(135deg, #5c6168 0%, #2a2c30 16%, #6f747c 31%, #1c1e21 49%, #565b62 63%, #2c2f33 81%, #767b83 100%);
+  --chrome-ink: linear-gradient(180deg, #ffffff 0%, #b9bec5 40%, #f3f4f6 54%, #8e949c 80%, #dfe2e6 100%);
+  --metal-plate: linear-gradient(180deg, #2b2c30 0%, #1e1f22 100%);
+  --holo: linear-gradient(115deg, rgba(150, 180, 255, 0.16) 0%, rgba(255, 170, 215, 0.1) 34%, rgba(160, 255, 220, 0.1) 64%, rgba(255, 225, 160, 0.12) 100%);
+  --metal-ink: #f4f5f7;
+  --metal-ink-soft: #c3c8cf;
+  --metal-edge: #5c6168;
+  --metal-edge-strong: #8b9199;
+  --metal-light: rgba(255, 255, 255, 0.16);
+  --metal-light-soft: rgba(255, 255, 255, 0.06);
+  --metal-shade: rgba(0, 0, 0, 0.5);
+  --metal-active: rgba(255, 255, 255, 0.07);
+  --emboss: 0 -1px 0 rgba(0, 0, 0, 0.6);
+  --lift-shadow: rgba(0, 0, 0, 0.5);
+  --overlay: rgba(0, 0, 0, 0.6);
+  --veil: linear-gradient(90deg, rgba(10, 11, 13, 0.55) 0%, rgba(10, 11, 13, 0) 62%);
+  --mark-blend: screen;
+  --mark-filter: invert(1) contrast(1.1) brightness(1.05);
+  --brushed:
+    radial-gradient(120% 70% at 50% 0%, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0) 62%),
+    repeating-radial-gradient(circle at 50% 18%, rgba(255, 255, 255, 0.028) 0 1px, rgba(0, 0, 0, 0.18) 1px 3px),
+    linear-gradient(180deg, #1f2023 0%, #121315 100%);
+  --page: #16171a;
+}
+
+body {
+  background: var(--page);
+}
+
+/* Fundo de metal escovado, como o da logo (parado; não anima) */
+body::before {
   content: '';
   position: fixed;
   inset: 0;
   z-index: -1;
   pointer-events: none;
-  background:
-    radial-gradient(120% 70% at 50% 0%, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0) 62%),
-    repeating-radial-gradient(circle at 50% 18%, rgba(255, 255, 255, 0.22) 0 1px, rgba(110, 116, 124, 0.03) 1px 3px),
-    linear-gradient(180deg, #eceef0 0%, #d8dadd 100%);
+  background: var(--brushed);
 }
 
 /* ---------- Botões: metal polido com um reflexo que corre ao passar/tocar ---------- */
 
-body[data-theme='chrome'] .btn {
+body .btn {
   background-image: var(--metal-plate) !important;
-  border-color: rgba(23, 24, 27, 0.18);
+  border-color: var(--border-strong);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.95),
-    0 1px 2px rgba(20, 22, 26, 0.12);
+    inset 0 1px 0 var(--metal-light),
+    0 1px 2px var(--lift-shadow);
 }
 
-body[data-theme='chrome'] .btn.ghost {
+body .btn.ghost,
+body .btn.danger {
   background-image: none !important;
   background: transparent;
   box-shadow: none;
 }
 
-body[data-theme='chrome'] .btn.danger {
-  background-image: none !important;
-  background: transparent;
-  box-shadow: none;
-}
-
-body[data-theme='chrome'] .btn.primary {
+body .btn.primary {
   background-image: var(--holo), var(--chrome) !important;
   background-size: 100% 100%, 240% 100%;
   background-position: 0 0, 0% 0;
-  border-color: #8b9097;
-  color: #17181b;
-  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.75);
+  border-color: var(--metal-edge);
+  color: var(--metal-ink);
+  text-shadow: var(--emboss);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.95),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.1),
-    0 2px 6px rgba(20, 22, 26, 0.18);
+    inset 0 1px 0 var(--metal-light),
+    inset 0 -1px 0 var(--metal-shade),
+    0 2px 6px var(--lift-shadow);
   transition: background-position 0.6s ease, border-color 0.14s ease, box-shadow 0.14s ease;
 }
 
-body[data-theme='chrome'] .btn.primary:hover:not(:disabled),
-body[data-theme='chrome'] .btn.primary:focus-visible,
-body[data-theme='chrome'] .btn.primary:active {
+body .btn.primary:hover:not(:disabled),
+body .btn.primary:focus-visible,
+body .btn.primary:active {
   background-position: 0 0, 100% 0;
-  border-color: #666c74;
+  border-color: var(--metal-edge-strong);
 }
 
-body[data-theme='chrome'] .btn.primary.is-loading {
-  --btn-spinner: #17181b;
+body .btn.primary.is-loading {
+  --btn-spinner: var(--metal-ink);
 }
 
 /* ---------- Campos: gravados na chapa ---------- */
 
-body[data-theme='chrome'] .input,
-body[data-theme='chrome'] .field input,
-body[data-theme='chrome'] .field select {
-  box-shadow: inset 0 1px 2px rgba(20, 22, 26, 0.1);
+body .input,
+body .field input,
+body .field select {
+  box-shadow: inset 0 1px 2px var(--metal-shade);
 }
 
 /* ---------- Títulos de seção e ícones: relevo de metal ---------- */
 
-body[data-theme='chrome'] .section-head h2,
-body[data-theme='chrome'] .section-head h3,
-body[data-theme='chrome'] .eyebrow {
-  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.85);
+body .section-head h2,
+body .section-head h3,
+body .eyebrow {
+  text-shadow: var(--emboss);
 }
 
-body[data-theme='chrome'] .row-icon:not(.is-income):not(.is-expense):not(.is-credit):not(.is-mai) {
+body .row-icon:not(.is-income):not(.is-expense):not(.is-credit):not(.is-mai) {
   background-image: var(--metal-plate);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.95),
-    0 1px 1px rgba(20, 22, 26, 0.14);
-  color: #3f444b;
+    inset 0 1px 0 var(--metal-light),
+    0 1px 1px var(--lift-shadow);
+  color: var(--metal-ink-soft);
 }
 
-/* Números grandes com letra de metal escuro, como o M da logo */
-body[data-theme='chrome'] .chrome-number {
-  background: var(--chrome-dark);
+/* Números grandes com letra de metal, como o M da logo */
+body .chrome-number {
+  background: var(--chrome-ink);
   -webkit-background-clip: text;
   background-clip: text;
-  /* fill (e não color): a cor do componente continua valendo nos outros temas */
   -webkit-text-fill-color: transparent;
 }
 
-body[data-theme='chrome'] .progress-fill {
-  background: var(--chrome-dark);
+body .progress-fill {
+  background: var(--chrome-ink);
 }
 
 /* ---------- Abas das telas ---------- */
 
-body[data-theme='chrome'] .subnav-wrap {
+body .subnav-wrap {
   background: var(--metal-plate);
-  box-shadow: inset 0 -1px 0 rgba(255, 255, 255, 0.6);
+  box-shadow: inset 0 -1px 0 var(--metal-light-soft);
 }
 
-body[data-theme='chrome'] .subnav a.active-tab {
-  border-bottom-color: #2a2d31;
+body .subnav a.active-tab {
+  border-bottom-color: var(--metal-ink);
 }
 
-/* ---------- Modais, folhas e pop-ups: chapa clara com fio de luz em cima ---------- */
+/* ---------- Modais, folhas e pop-ups: chapa com fio de luz em cima ---------- */
 
-body[data-theme='chrome'] .modal-card {
+body .modal-card {
   background: var(--bg-elevated);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.9),
-    0 18px 50px rgba(20, 22, 26, 0.28);
+    inset 0 1px 0 var(--metal-light),
+    0 18px 50px var(--lift-shadow);
 }
 
-body[data-theme='chrome'] .modal-overlay {
-  background: rgba(40, 43, 48, 0.42);
+body .modal-overlay {
+  background: var(--overlay);
 }

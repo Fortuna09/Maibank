@@ -4,7 +4,7 @@
           <span class="row-icon"><app-icon [name]="appearance.theme === 'dark' ? 'eye-off' : 'eye'" [size]="16" /></span>
           <div class="row-body">
             <h2>Tema</h2>
-            <p>O cromado é o visual do Maibank; escuro e claro continuam aqui se preferir.</p>
+            <p>O visual cromado do Maibank, em versão clara ou escura.</p>
           </div>
           <div class="theme-switch" role="radiogroup" aria-label="Tema">
             @for (option of themeOptions; track option.value) {
@@ -19,33 +19,6 @@
               </button>
             }
           </div>
-        </article>
-
-        <!-- No cromado o destaque é sempre aço: a cor não teria efeito -->
-        <article class="setting-row" *ngIf="appearance.theme !== 'chrome'">
-          <span class="row-icon"><app-icon name="sliders" [size]="16" /></span>
-          <div class="row-body">
-            <h2>Cor de destaque</h2>
-            <p>Personaliza botões, bordas e detalhes do app com essa cor.</p>
-            <div class="accent-presets">
-              <button
-                *ngFor="let preset of accentPresets"
-                type="button"
-                class="accent-swatch"
-                [style.background]="preset"
-                [class.active]="appearance.accentColor === preset"
-                [attr.aria-label]="'Usar cor ' + preset"
-                (click)="appearance.setAccentColor(preset)"
-              ></button>
-            </div>
-          </div>
-          <input
-            class="color-input"
-            type="color"
-            [value]="appearance.accentColor"
-            (input)="onAccentColorChange($event)"
-            aria-label="Escolher cor personalizada"
-          />
         </article>
 
         <article class="setting-row">

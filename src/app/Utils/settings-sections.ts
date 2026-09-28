@@ -17,7 +17,7 @@ export interface SettingsSection {
 
 /** Na ordem das abas do computador. */
 export const SETTINGS_SECTIONS: SettingsSection[] = [
-  { path: 'aparencia', label: 'Aparência', description: 'Tema, cor de destaque, seu nome e a capa', icon: 'image', group: 'app' },
+  { path: 'aparencia', label: 'Aparência', description: 'Tema claro ou escuro, seu nome e a capa', icon: 'image', group: 'app' },
   { path: 'distribuicao', label: 'Distribuição', description: 'Como suas entradas são divididas', icon: 'sliders', group: 'dinheiro' },
   { path: 'salario', label: 'Salário', description: 'Valor e dia do salário automático', icon: 'arrow-in', group: 'dinheiro' },
   { path: 'credito', label: 'Crédito', description: 'Fechamento e vencimento da fatura', icon: 'card', group: 'dinheiro' },

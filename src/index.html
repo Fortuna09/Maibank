@@ -24,17 +24,15 @@
   <link rel="manifest" href="manifest.webmanifest">
 
   <script>
-    // A barra de status (e a do navegador) usa a cor de fundo do tema salvo.
-    // Tema salvo (o cromado é o padrão desde a 2.0 — ver AppearanceService).
-    var maibankTheme = 'chrome';
+    // Tema salvo: cromado claro (padrão) ou cromado escuro — ver AppearanceService.
+    // A barra de status (e a do navegador) usa a cor do topo do tema.
+    var maibankTheme = 'light';
     try {
-      if (localStorage.getItem('maibank-theme-v2') === '1') {
-        var savedTheme = localStorage.getItem('maibank-theme');
-        maibankTheme = savedTheme === 'dark' || savedTheme === 'light' ? savedTheme : 'chrome';
+      if (localStorage.getItem('maibank-theme-v2') === '1' && localStorage.getItem('maibank-theme') === 'dark') {
+        maibankTheme = 'dark';
       }
     } catch (e) {}
-    document.querySelector('meta[name="theme-color"]').content =
-      { dark: '#313338', light: '#ffffff', chrome: '#eceef0' }[maibankTheme];
+    document.querySelector('meta[name="theme-color"]').content = { light: '#eceef0', dark: '#2b2c30' }[maibankTheme];
 
     // O Safari ignora "user-scalable=no" por acessibilidade; em tela de toque, bloqueia a pinça aqui.
     if (window.matchMedia && window.matchMedia('(pointer: coarse)').matches) {

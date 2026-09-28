@@ -15,11 +15,9 @@ export class AppearancePage implements OnInit {
   private readonly feedback = inject(FeedbackService);
   private readonly preview = viewChild<ElementRef<HTMLDivElement>>('coverPreview');
 
-  readonly accentPresets = ['#2dd4ee', '#3b82f6', '#8b5cf6', '#d946ef', '#f43f5e', '#eab308'];
   readonly themeOptions: Array<{ value: Theme; label: string }> = [
-    { value: 'dark', label: 'Escuro' },
     { value: 'light', label: 'Claro' },
-    { value: 'chrome', label: 'Cromado' },
+    { value: 'dark', label: 'Escuro' },
   ];
   readonly saving = signal(false);
 
@@ -36,10 +34,6 @@ export class AppearancePage implements OnInit {
     this.appearance.initialize();
   }
 
-  onAccentColorChange(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    this.appearance.setAccentColor(input.value);
-  }
 
   onNameChange(event: Event): void {
     const input = event.target as HTMLInputElement;

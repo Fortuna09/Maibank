@@ -18,6 +18,21 @@ export interface Release {
  */
 export const CHANGELOG: Release[] = [
   {
+    version: '2.2.0',
+    date: '2026-09-28',
+    title: 'Cromado escuro',
+    changes: [
+      {
+        kind: 'novo',
+        text: 'Modo escuro novo, no mesmo estilo cromado: grafite escovado, metal escuro polido e o M em prata. Escolha em Configurações > Aparência > Tema.',
+      },
+      {
+        kind: 'melhoria',
+        text: 'Os temas agora são Claro (o cromado de sempre, padrão) e Escuro. O cinza e o branco antigos saíram — quem usava o escuro antigo já abre no escuro cromado.',
+      },
+    ],
+  },
+  {
     version: '2.1.1',
     date: '2026-09-27',
     title: 'Ajuste no atalho da Siri',

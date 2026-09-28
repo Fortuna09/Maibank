@@ -161,128 +161,126 @@
   }
 }
 
-/* A logo e o subtítulo só aparecem no tema cromado (o padrão); no escuro/claro fica como era */
+/* A logo e o subtítulo aparecem só nos lugares certos (ver acabamento metálico abaixo) */
 .auth-mark,
 .mobile-brand-text small {
   display: none;
 }
 
 /* ============================================
-   TEMA CROMADO: painel de metal polido com o M da logo
+   ACABAMENTO METÁLICO: painel de metal polido com o M da logo (cores em theme-chrome.scss)
    ============================================ */
 
-:host-context(body[data-theme='chrome']) {
-  .auth-brand {
+.auth-brand {
+  overflow: hidden;
+  background-image: var(--holo), var(--chrome);
+  border-right: 1px solid var(--border-strong);
+  box-shadow: inset -1px 0 0 var(--metal-light-soft);
+}
+
+.auth-brand::before {
+  height: 3px;
+  background: var(--chrome-ink);
+}
+
+/* O M grande, fundido ao metal, na parte de baixo do painel (longe do título) */
+.auth-brand .auth-mark {
+  position: absolute;
+  right: -8%;
+  bottom: 2%;
+  display: block;
+  width: 44%;
+  max-width: 420px;
+  aspect-ratio: 1;
+  object-fit: contain;
+  transform: rotate(-10deg);
+  filter: var(--mark-filter);
+  mix-blend-mode: var(--mark-blend);
+  opacity: 0.85;
+  -webkit-mask-image: radial-gradient(closest-side, #000 58%, transparent 100%);
+  mask-image: radial-gradient(closest-side, #000 58%, transparent 100%);
+  pointer-events: none;
+}
+
+.brand-name,
+.brand-pitch,
+.brand-note {
+  position: relative;
+  z-index: 1;
+}
+
+.brand-pitch h1 {
+  background: var(--chrome-ink);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.feature-icon {
+  border-color: var(--border-strong);
+  background-image: var(--metal-plate);
+  box-shadow:
+    inset 0 1px 0 var(--metal-light),
+    0 1px 2px var(--lift-shadow);
+}
+
+@media (max-width: 860px) {
+  /* Topo do celular: placa cromada com o nome, o subtítulo e o M à direita */
+  .auth-mobile-brand {
+    position: relative;
+    display: flex;
+    align-items: center;
+    min-height: 124px;
+    padding: var(--space-4) var(--space-5);
     overflow: hidden;
+    border: 0;
+    border-radius: 3px 30px 3px 30px;
     background-image: var(--holo), var(--chrome);
-    border-right: 1px solid rgba(23, 24, 27, 0.14);
-    box-shadow: inset -1px 0 0 rgba(255, 255, 255, 0.8);
+    box-shadow:
+      inset 0 1px 0 var(--metal-light),
+      inset 0 -1px 0 var(--metal-shade),
+      0 12px 32px var(--lift-shadow);
   }
 
-  .auth-brand::before {
-    height: 3px;
-    background: var(--chrome-dark);
-  }
-
-  /* O M grande, fundido ao metal, na parte de baixo do painel (longe do título) */
-  .auth-brand .auth-mark {
-    position: absolute;
-    right: -8%;
-    bottom: 2%;
-    display: block;
-    width: 44%;
-    max-width: 420px;
-    aspect-ratio: 1;
-    object-fit: contain;
-    transform: rotate(-10deg);
-    mix-blend-mode: multiply;
-    opacity: 0.85;
-    -webkit-mask-image: radial-gradient(closest-side, #000 58%, transparent 100%);
-    mask-image: radial-gradient(closest-side, #000 58%, transparent 100%);
-    pointer-events: none;
-  }
-
-  .brand-name,
-  .brand-pitch,
-  .brand-note {
+  .mobile-brand-text {
     position: relative;
     z-index: 1;
+    max-width: 60%;
   }
 
-  .brand-pitch h1 {
-    background: var(--chrome-dark);
+  .mobile-brand-text strong {
+    display: block;
+    font-size: 1.55rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    background: var(--chrome-ink);
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
   }
 
-  .feature-icon {
-    border-color: rgba(23, 24, 27, 0.16);
-    background-image: var(--metal-plate);
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.95),
-      0 1px 2px rgba(20, 22, 26, 0.14);
+  .mobile-brand-text small {
+    display: block;
+    margin-top: 2px;
+    color: var(--metal-ink-soft);
+    font-size: 0.82rem;
+    font-weight: 500;
+    line-height: 1.35;
   }
-}
 
-@media (max-width: 860px) {
-  :host-context(body[data-theme='chrome']) {
-    /* Topo do celular: placa cromada com o nome, o subtítulo e o M à direita */
-    .auth-mobile-brand {
-      position: relative;
-      display: flex;
-      align-items: center;
-      min-height: 124px;
-      padding: var(--space-4) var(--space-5);
-      overflow: hidden;
-      border: 0;
-      border-radius: 3px 30px 3px 30px;
-      background-image: var(--holo), var(--chrome);
-      box-shadow:
-        inset 0 1px 0 rgba(255, 255, 255, 0.95),
-        inset 0 -1px 0 rgba(0, 0, 0, 0.1),
-        0 12px 32px rgba(20, 22, 26, 0.18);
-    }
-
-    .mobile-brand-text {
-      position: relative;
-      z-index: 1;
-      max-width: 60%;
-    }
-
-    .mobile-brand-text strong {
-      display: block;
-      font-size: 1.55rem;
-      font-weight: 800;
-      letter-spacing: -0.02em;
-      background: var(--chrome-dark);
-      -webkit-background-clip: text;
-      background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-
-    .mobile-brand-text small {
-      display: block;
-      margin-top: 2px;
-      color: #3c4148;
-      font-size: 0.82rem;
-      font-weight: 500;
-      line-height: 1.35;
-    }
-
-    .auth-mobile-brand .auth-mark {
-      position: absolute;
-      top: 50%;
-      right: -4%;
-      display: block;
-      height: 150%;
-      aspect-ratio: 1;
-      object-fit: contain;
-      transform: translateY(-50%) rotate(-8deg);
-      mix-blend-mode: multiply;
-      -webkit-mask-image: radial-gradient(closest-side, #000 60%, transparent 100%);
-      mask-image: radial-gradient(closest-side, #000 60%, transparent 100%);
-      pointer-events: none;
-    }
+  .auth-mobile-brand .auth-mark {
+    position: absolute;
+    top: 50%;
+    right: -4%;
+    display: block;
+    height: 150%;
+    aspect-ratio: 1;
+    object-fit: contain;
+    transform: translateY(-50%) rotate(-8deg);
+    filter: var(--mark-filter);
+    mix-blend-mode: var(--mark-blend);
+    -webkit-mask-image: radial-gradient(closest-side, #000 60%, transparent 100%);
+    mask-image: radial-gradient(closest-side, #000 60%, transparent 100%);
+    pointer-events: none;
   }
 }

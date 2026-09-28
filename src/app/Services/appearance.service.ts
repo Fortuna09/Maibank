@@ -1,32 +1,29 @@
 import { Injectable, signal } from '@angular/core';
 
-export type Theme = 'dark' | 'light' | 'chrome';
+/** Os dois temas são cromados (src/theme-chrome.scss): claro (padrão) e escuro. */
+export type Theme = 'light' | 'dark';
 
-/** Cor da barra do sistema/navegador no celular: o fundo da barra superior de cada tema. */
+/** Cor da barra do sistema/navegador no celular: o topo da barra superior de cada tema. */
 const THEME_COLORS: Record<Theme, string> = {
-  dark: '#313338',
-  light: '#ffffff',
-  chrome: '#eceef0',
+  light: '#eceef0',
+  dark: '#2b2c30',
 };
 
-/** Tema padrão do app (desde a 2.0): o cromado da logo. */
-const DEFAULT_THEME: Theme = 'chrome';
+const DEFAULT_THEME: Theme = 'light';
 /**
- * Na 2.0 todo mundo passa para o cromado uma vez; depois disso, vale o que a pessoa escolher.
+ * Na 2.0 todo mundo passou para o cromado uma vez; depois disso, vale o que a pessoa escolher.
  * (Antes o tema era salvo sempre, então não dá para saber quem escolheu o escuro de propósito.)
  */
 const THEME_MIGRATION_KEY = 'maibank-theme-v2';
 
+/** "chrome" (nome antigo do cromado claro) e qualquer valor desconhecido viram o claro. */
 function parseTheme(value: string | null): Theme {
-  return value === 'dark' || value === 'light' || value === 'chrome' ? value : DEFAULT_THEME;
+  return value === 'dark' ? 'dark' : DEFAULT_THEME;
 }
-
-const DEFAULT_ACCENT = '#3b82f6';
 
 @Injectable({ providedIn: 'root' })
 export class AppearanceService {
   theme: Theme = DEFAULT_THEME;
-  accentColor = DEFAULT_ACCENT;
 
   readonly userName = signal('');
   readonly coverImage = signal<string | null>(null);
@@ -42,9 +39,6 @@ export class AppearanceService {
     this.theme = parseTheme(localStorage.getItem('maibank-theme'));
     this.applyTheme(this.theme);
 
-    this.accentColor = localStorage.getItem('maibank-accent-color') || DEFAULT_ACCENT;
-    this.applyAccentColor(this.accentColor);
-
     this.userName.set(localStorage.getItem('maibank-user-name') || '');
     this.coverImage.set(localStorage.getItem('maibank-cover-image'));
     this.coverPositionX.set(Number(localStorage.getItem('maibank-cover-x')) || 50);
@@ -55,12 +49,6 @@ export class AppearanceService {
   setTheme(theme: Theme): void {
     this.theme = theme;
     this.applyTheme(theme);
-  }
-
-  setAccentColor(color: string): void {
-    this.accentColor = color;
-    localStorage.setItem('maibank-accent-color', color);
-    this.applyAccentColor(color);
   }
 
   setUserName(name: string): void {
@@ -123,7 +111,4 @@ export class AppearanceService {
     document.querySelector('meta[name="theme-color"]')?.setAttribute('content', THEME_COLORS[nextTheme]);
   }
 
-  private applyAccentColor(color: string): void {
-    document.documentElement.style.setProperty('--user-tint', color);
-  }
 }
