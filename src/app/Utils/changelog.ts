@@ -18,6 +18,17 @@ export interface Release {
  */
 export const CHANGELOG: Release[] = [
   {
+    version: '2.2.3',
+    date: '2026-09-28',
+    title: 'Siri em duas perguntas',
+    changes: [
+      {
+        kind: 'melhoria',
+        text: 'O passo a passo de Siri e atalhos agora monta o atalho com duas perguntas — primeiro "Quanto?", depois "Com o quê?". O valor vem de um campo de número, então a Siri não erra mais os centavos.',
+      },
+    ],
+  },
+  {
     version: '2.2.2',
     date: '2026-09-28',
     title: 'Siri entende a vírgula',

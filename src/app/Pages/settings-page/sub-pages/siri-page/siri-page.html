@@ -4,8 +4,8 @@
     <span class="tag">iPhone</span>
   </div>
   <p class="intro">
-    Diga <strong>“E aí Siri, Anotar gasto”</strong> e fale o gasto — por exemplo <strong>“6 vírgula 67 de bala”</strong>. Ele
-    entra na hora como saída do Uso diário, sem abrir o app, e a Siri responde quanto sobrou.
+    Diga <strong>“E aí Siri, Anotar gasto”</strong>. Ela pergunta <strong>quanto</strong> e depois <strong>com o quê</strong> —
+    o gasto entra na hora como saída do Uso diário, sem abrir o app, e ela responde quanto sobrou.
   </p>
 </section>
 
@@ -77,12 +77,15 @@
       <small class="step-note">Evite nomes curtos que parecem outra palavra: “Mai”, por exemplo, a Siri entende como “mãe” e liga para ela.</small>
     </li>
     <li>
-      Adicione a ação <strong>Pedir Entrada</strong>: tipo <strong>Texto</strong>, pergunta <strong>“Qual foi o gasto?”</strong>.
-      <small class="step-note">Pela Siri, ela faz a pergunta em voz alta e escuta a resposta. Evite “Ditar Texto”: dentro do app funciona, mas pela Siri costuma dar erro de ajustes ou região.</small>
-      <small class="step-note">Centavos: fale <strong>“vírgula”</strong> — “seis vírgula sessenta e sete de bala”. “Seis e sessenta e sete” também costuma funcionar.</small>
+      <strong>Pedir Entrada</strong>: tipo <strong>Número</strong>, pergunta <strong>“Quanto?”</strong>. Toque na setinha
+      <strong>›</strong> e ligue <strong>Permitir Decimais</strong>.
+      <small class="step-note">Como é um campo de número, a Siri não tem como perder a vírgula: fale “cinco vírgula oitenta”.</small>
     </li>
+    <li><strong>Definir Variável</strong> com o nome <code>valor</code> (ela pega a resposta de cima sozinha).</li>
+    <li><strong>Pedir Entrada</strong>: tipo <strong>Texto</strong>, pergunta <strong>“Com o quê?”</strong>.</li>
+    <li><strong>Definir Variável</strong> com o nome <code>descricao</code>.</li>
     <li>
-      Adicione <strong>Obter Conteúdo do URL</strong> e preencha:
+      <strong>Obter Conteúdo do URL</strong>, preenchido assim:
       <dl class="fields">
         <dt>URL</dt>
         <dd class="copy-row">
@@ -92,42 +95,42 @@
           </button>
         </dd>
         <dt>Método</dt>
-        <dd><code>POST</code></dd>
+        <dd><code>POST</code> (toque na setinha <strong>›</strong> para ver)</dd>
         <dt>Cabeçalho</dt>
         <dd>
           <code>Authorization</code> com o valor <code>Bearer </code> + a sua chave
           <small>(a palavra Bearer, um espaço e a chave, tudo junto)</small>
         </dd>
         <dt>Corpo</dt>
-        <dd><strong>JSON</strong>, com o campo <code>texto</code> = <strong>Entrada Fornecida</strong></dd>
+        <dd>
+          <strong>JSON</strong> com dois campos: <code>valor</code> = variável <strong>valor</strong> e
+          <code>texto</code> = variável <strong>descricao</strong>
+          <small>(as duas precisam aparecer azuis; vermelho quer dizer variável quebrada)</small>
+        </dd>
       </dl>
       <p class="warning">
         <app-icon name="alert" [size]="14" />
         <span>
-          O Atalhos costuma colocar a <strong>Entrada Fornecida</strong> sozinha no lugar do URL. Se "Obter conteúdo de" mostrar
-          Entrada Fornecida, toque nela, apague e cole o endereço acima. A Entrada Fornecida vai só no corpo.
+          O Atalhos costuma colocar sozinho uma variável no lugar do URL. Se "Obter conteúdo de" não mostrar o endereço,
+          toque ali, apague e cole o endereço acima.
         </span>
       </p>
     </li>
-    <li>Adicione <strong>Obter Valor do Dicionário</strong> com a chave <code>mensagem</code>.</li>
-    <li>Adicione <strong>Falar Texto</strong> com o <strong>Valor do Dicionário</strong>.</li>
+    <li><strong>Obter Valor do Dicionário</strong> com a chave <code>mensagem</code>.</li>
+    <li><strong>Falar Texto</strong> com o <strong>Valor do Dicionário</strong>.</li>
   </ol>
   <p class="done">
     <app-icon name="mic" [size]="14" />
-    Pronto: “E aí Siri, Anotar gasto” → você fala “35 reais no mercado” → a Siri responde “Anotado…”.
+    Pronto: “E aí Siri, Anotar gasto” → “Quanto?” “cinco vírgula oitenta” → “Com o quê?” “bala” → “Anotado: R$ 5,80 em Bala…”.
+    Rode uma vez pelo ▶ do app Atalhos antes de testar com a Siri.
   </p>
 
   <details class="precise">
-    <summary>Os centavos saem errados? Use duas perguntas</summary>
-    <p>A Siri às vezes arredonda o valor falado. Separando em duas perguntas, o valor vem de um campo de número e não tem erro:</p>
-    <ol class="steps">
-      <li>Troque a pergunta por <strong>Pedir Entrada</strong> tipo <strong>Número</strong>: <strong>“Quanto?”</strong> (marque “Permitir decimais”).</li>
-      <li>Logo abaixo, outro <strong>Pedir Entrada</strong> tipo <strong>Texto</strong>: <strong>“Com o quê?”</strong>.</li>
-      <li>
-        No corpo JSON, deixe dois campos: <code>valor</code> = a primeira <strong>Entrada Fornecida</strong> e
-        <code>texto</code> = a segunda.
-      </li>
-    </ol>
+    <summary>Prefere falar tudo de uma vez?</summary>
+    <p>
+      Dá para usar uma pergunta só (“Qual foi o gasto?”, tipo Texto) e mandar no corpo apenas <code>texto</code>. É mais rápido,
+      mas a Siri às vezes arredonda os centavos. Se usar assim, fale “vírgula”: “cinco vírgula oitenta de bala”.
+    </p>
   </details>
 </section>
 
