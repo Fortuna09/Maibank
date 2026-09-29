@@ -214,12 +214,3 @@ Depois do deploy:
 O "já vi" fica no `localStorage` (`maibank-seen-version:<id da conta>`), então em outro
 navegador a pessoa vê as novidades de novo, uma vez. Deploy sem entrada nova no changelog
 (ajuste interno) mostra só o aviso de atualizar, sem modal.
-
-## Próximos passos conhecidos
-
-- **Limite de tentativas de login** (hoje só o custo do bcrypt freia força bruta). Em
-  serverless precisa de armazenamento compartilhado: uma tabela ou um KV.
-- **Excluir minha conta** e **exportar meus dados** (bom tom com dados de amigos — LGPD).
-- **Trocar senha estando logado** (hoje é pelo "esqueci minha senha").
-- **Mai com modelo de verdade:** a chave hoje fica no navegador de cada um; se for para o
-  servidor, o custo de todos passa a ser de quem hospeda.
