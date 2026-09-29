@@ -55,20 +55,34 @@ export class GoalsService {
     });
   }
 
+  /**
+   * Obrigatórios: nome e valor da meta (> 0). "Já guardado" e "quanto guardar por vez"
+   * são opcionais — em branco viram zero; nenhum valor pode ser negativo.
+   */
   normalize(payload) {
-    const { title, targetAmount, currentAmount, dueDate, saveAmount, saveFrequency, createdAt } = payload;
+    const { title, targetAmount, dueDate, saveFrequency, createdAt } = payload;
+    const name = String(title ?? '').trim();
+    const target = Number(targetAmount);
+    const current = Number(payload.currentAmount ?? 0);
+    const save = Number(payload.saveAmount ?? 0);
 
-    if (!title || targetAmount == null || currentAmount == null || saveAmount == null || !FREQUENCIES.has(saveFrequency)) {
-      throw HttpError.badRequest('Dados da meta invalidos.');
+    if (!name) {
+      throw HttpError.badRequest('Dê um nome para a meta.');
+    }
+    if (!Number.isFinite(target) || target <= 0) {
+      throw HttpError.badRequest('Informe o valor da meta (maior que zero).');
+    }
+    if (!Number.isFinite(current) || !Number.isFinite(save) || current < 0 || save < 0) {
+      throw HttpError.badRequest('Os valores da meta não podem ser negativos.');
     }
 
     return {
-      title: String(title).slice(0, 120),
-      targetAmount: Number(targetAmount),
-      currentAmount: Number(currentAmount ?? 0),
+      title: name.slice(0, 120),
+      targetAmount: target,
+      currentAmount: current,
       dueDate: DATE_PATTERN.test(String(dueDate ?? '')) ? dueDate : null,
-      saveAmount: Number(saveAmount),
-      saveFrequency,
+      saveAmount: save,
+      saveFrequency: FREQUENCIES.has(saveFrequency) ? saveFrequency : 'mensal',
       createdAt: DATE_PATTERN.test(String(createdAt ?? '').slice(0, 10)) ? String(createdAt).slice(0, 10) : todayIso(),
     };
   }

@@ -2,6 +2,7 @@ import { randomUUID } from 'crypto';
 import { withTransaction } from '../../db.js';
 import { HttpError } from '../../http/HttpError.js';
 import { clampMonthDay, monthKeyOf } from '../../utils/monthDay.js';
+import { inferCategory } from '../shortcuts/expenseParser.js';
 
 const TYPES = new Set(['entrada', 'saida', 'credito']);
 const brl = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
@@ -26,13 +27,25 @@ export class TransactionsService {
    * que se repete todo mês a partir do mês seguinte.
    */
   async create(userId, payload) {
-    const { description, type, amount, category, date, allocationMode, allocations, installments, paidInvoice } = payload;
+    const { type, amount, date, allocationMode, allocations, installments, paidInvoice } = payload;
 
     const isCredit = type === 'credito';
     const allocationList = isCredit ? [] : Array.isArray(allocations) ? allocations : [];
     const numericAmount = Number(amount);
+    const description = String(payload.description ?? '').trim();
+    // Categoria é opcional: em branco, sai do nome ("mercado" → alimentação), como na Siri
+    const category = String(payload.category ?? '').trim() || inferCategory(description);
 
-    if (!description || !TYPES.has(type) || !(numericAmount > 0) || !category || !DATE_PATTERN.test(String(date)) || !allocationMode) {
+    if (!description) {
+      throw HttpError.badRequest('Dê um nome para o lançamento.');
+    }
+    if (!(numericAmount > 0)) {
+      throw HttpError.badRequest('Informe um valor maior que zero.');
+    }
+    if (!DATE_PATTERN.test(String(date))) {
+      throw HttpError.badRequest('Escolha a data do lançamento.');
+    }
+    if (!TYPES.has(type) || !allocationMode) {
       throw HttpError.badRequest('Dados de transacao invalidos.');
     }
     if (!isCredit && allocationList.length === 0) {
@@ -46,10 +59,10 @@ export class TransactionsService {
 
     const transaction = {
       id: randomUUID(),
-      description: String(description).slice(0, 200),
+      description: description.slice(0, 200),
       type,
       amount: numericAmount,
-      category: String(category).slice(0, 120),
+      category: category.slice(0, 120),
       date,
       allocationMode,
       installments: isCredit ? Math.min(60, Math.max(1, Math.round(Number(installments) || 1))) : 1,

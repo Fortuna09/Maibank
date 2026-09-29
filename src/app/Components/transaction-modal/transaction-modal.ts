@@ -209,8 +209,15 @@ export class TransactionModal {
 
   submit(): void {
     const total = this.total();
-    if (!this.description.trim() || !this.category.trim() || total <= 0) {
-      this.saveError.set('Preencha descrição, categoria e um valor maior que zero.');
+    const missing = !this.description.trim()
+      ? 'Dê um nome para o lançamento.'
+      : !(total > 0)
+        ? 'Informe um valor maior que zero.'
+        : !this.date
+          ? 'Escolha a data do lançamento.'
+          : null;
+    if (missing) {
+      this.saveError.set(missing);
       return;
     }
 

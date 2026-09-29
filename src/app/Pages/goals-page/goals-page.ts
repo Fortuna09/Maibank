@@ -3,6 +3,7 @@ import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Icon } from '../../Components/icon/icon';
 import { GoalSaveFrequency } from '../../Models/finance.model';
+import { apiErrorMessage } from '../../Services/auth.service';
 import { FeedbackService } from '../../Services/feedback.service';
 import { FinanceGoal, FinanceStoreService } from '../../Services/finance-store.service';
 import { categoryIcon, todayLocalIso } from '../../Utils/finance.utils';
@@ -25,9 +26,10 @@ export class GoalsPage {
   }
 
   title = '';
-  currentAmount = 0;
-  targetAmount = 0;
-  saveAmount = 0;
+  // null = campo em branco (mostra o "0,00" do placeholder)
+  currentAmount: number | null = null;
+  targetAmount: number | null = null;
+  saveAmount: number | null = null;
   saveFrequency: GoalSaveFrequency = 'mensal';
   dueDate: string | null = '';
   progressInputByGoalId: Record<string, number> = {};
@@ -47,9 +49,28 @@ export class GoalsPage {
     this.saveError.set(null);
   }
 
+  /**
+   * Só nome e valor da meta são obrigatórios. "Já guardado" e "quanto guardar por vez" podem
+   * ficar em branco (viram zero) — tem quem guarde sem valor fixo, ou a cada trimestre.
+   */
+  private goalError(title: string, target: number | null, current: number | null, save: number | null): string | null {
+    if (!title) {
+      return 'Dê um nome para a meta.';
+    }
+    if (target == null || !(Number(target) > 0)) {
+      return 'Informe o valor da meta (maior que zero).';
+    }
+    if (Number(current ?? 0) < 0 || Number(save ?? 0) < 0) {
+      return 'Os valores não podem ser negativos.';
+    }
+    return null;
+  }
+
   addGoal(): void {
     const title = this.title.trim();
-    if (!title || this.targetAmount <= 0 || this.currentAmount < 0 || this.saveAmount <= 0) {
+    const invalid = this.goalError(title, this.targetAmount, this.currentAmount, this.saveAmount);
+    if (invalid) {
+      this.saveError.set(invalid);
       return;
     }
 
@@ -63,9 +84,9 @@ export class GoalsPage {
           this.financeStore.addGoal({
             title,
             targetAmount: Number(this.targetAmount),
-            currentAmount: Number(this.currentAmount),
+            currentAmount: Number(this.currentAmount ?? 0),
             dueDate: this.dueDate || null,
-            saveAmount: this.saveAmount,
+            saveAmount: Number(this.saveAmount ?? 0),
             saveFrequency: this.saveFrequency,
             createdAt: todayLocalIso(),
           }),
@@ -73,15 +94,15 @@ export class GoalsPage {
       )
       .then(() => {
         this.title = '';
-        this.currentAmount = 0;
-        this.targetAmount = 0;
-        this.saveAmount = 0;
+        this.currentAmount = null;
+        this.targetAmount = null;
+        this.saveAmount = null;
         this.saveFrequency = 'mensal';
         this.dueDate = '';
         this.showEditors = false;
       })
-      .catch(() => {
-        this.saveError.set('Não foi possível salvar a meta. Verifique se o servidor está rodando e tente novamente.');
+      .catch((error) => {
+        this.saveError.set(apiErrorMessage(error, 'Não foi possível salvar a meta. Tente de novo.'));
       })
       .finally(() => {
         this.saving.set(false);
@@ -167,7 +188,7 @@ export class GoalsPage {
     this.ensureGoalEditState(goal);
     const goalData = this.editGoalById[goal.id];
 
-    if (!goalData.title || goalData.targetAmount <= 0 || goalData.currentAmount < 0 || goalData.saveAmount <= 0) {
+    if (this.goalError(goalData.title.trim(), goalData.targetAmount, goalData.currentAmount, goalData.saveAmount)) {
       return;
     }
 

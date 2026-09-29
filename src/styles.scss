@@ -451,6 +451,25 @@ p {
   font-weight: 600;
 }
 
+/*
+ * Obrigatório x opcional, igual no app inteiro: campo que precisa ser preenchido leva
+ * <b class="req">*</b>; campo que pode ficar em branco leva <small class="opt">opcional</small>.
+ * Listas e campos que já vêm preenchidos não levam marca.
+ */
+.field .req {
+  margin-left: 2px;
+  color: var(--danger);
+  font-weight: 700;
+}
+
+.field .opt {
+  margin-left: 4px;
+  color: var(--text-muted);
+  font-size: 0.66rem;
+  font-weight: 500;
+  opacity: 0.85;
+}
+
 /* Cabeçalho do campo com um controle ao lado do rótulo (ex.: total | parcela) */
 .field > .field-head {
   display: flex;
@@ -498,6 +517,39 @@ p {
 .input::placeholder,
 .field input::placeholder {
   color: var(--text-muted);
+}
+
+/* Mesma altura para texto, número, data e lista — senão a linha do formulário fica torta */
+input.input,
+.field input:not([type='checkbox']):not([type='radio']):not([type='range']),
+.field select {
+  height: 36px;
+}
+
+/* Data: o Chrome soma um respiro interno e o Safari do iPhone centraliza o texto */
+.field input[type='date'] {
+  -webkit-appearance: none;
+  appearance: none;
+  display: block;
+  line-height: normal;
+  text-align: left;
+}
+
+.field input[type='date']::-webkit-date-and-time-value {
+  margin: 0;
+  text-align: left;
+}
+
+.field input[type='date']::-webkit-datetime-edit,
+.field input[type='date']::-webkit-datetime-edit-fields-wrapper {
+  padding: 0;
+}
+
+.field input[type='date']::-webkit-calendar-picker-indicator {
+  margin: 0 0 0 6px;
+  padding: 0;
+  opacity: 0.6;
+  cursor: pointer;
 }
 
 /* ============================================
@@ -972,6 +1024,12 @@ p {
   textarea {
     min-height: 44px;
     font-size: 16px;
+  }
+
+  input.input,
+  .field input:not([type='checkbox']):not([type='radio']):not([type='range']),
+  .field select {
+    height: 44px;
   }
 
   .field > span {

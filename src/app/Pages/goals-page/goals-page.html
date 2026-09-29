@@ -12,27 +12,27 @@
 <div class="goal-form" *ngIf="showEditors">
   <div class="goal-form-grid">
     <label class="field">
-      <span>Nome da meta</span>
-      <input type="text" placeholder="Ex.: viagem, reserva, carro" [(ngModel)]="title" name="goalTitle" />
+      <span>Nome da meta <b class="req" aria-hidden="true">*</b></span>
+      <input type="text" placeholder="Ex.: viagem, reserva, carro" [(ngModel)]="title" (ngModelChange)="saveError.set(null)" name="goalTitle" required />
     </label>
 
     <label class="field">
-      <span>Valor da meta</span>
-      <input type="number" placeholder="0,00" [(ngModel)]="targetAmount" name="goalTargetAmount" min="0" step="0.01" />
+      <span>Valor da meta <b class="req" aria-hidden="true">*</b></span>
+      <input type="number" inputmode="decimal" placeholder="0,00" [(ngModel)]="targetAmount" (ngModelChange)="saveError.set(null)" name="goalTargetAmount" min="0" step="0.01" required />
     </label>
 
     <label class="field">
-      <span>Já guardado</span>
-      <input type="number" placeholder="0,00" [(ngModel)]="currentAmount" name="goalCurrentAmount" min="0" step="0.01" />
+      <span>Já guardado <small class="opt">opcional</small></span>
+      <input type="number" inputmode="decimal" placeholder="0,00" [(ngModel)]="currentAmount" (ngModelChange)="saveError.set(null)" name="goalCurrentAmount" min="0" step="0.01" />
     </label>
 
     <label class="field">
-      <span>Valor por mês/semana</span>
-      <input type="number" placeholder="0,00" [(ngModel)]="saveAmount" name="goalSaveAmount" min="0" step="0.01" />
+      <span>Quanto guardar por vez <small class="opt">opcional</small></span>
+      <input type="number" inputmode="decimal" placeholder="0,00" [(ngModel)]="saveAmount" (ngModelChange)="saveError.set(null)" name="goalSaveAmount" min="0" step="0.01" />
     </label>
 
     <label class="field">
-      <span>Frequência</span>
+      <span>Com que frequência <small class="opt">opcional</small></span>
       <select [(ngModel)]="saveFrequency" name="goalSaveFrequency">
         <option value="mensal">Por mês</option>
         <option value="semanal">Por semana</option>
@@ -40,7 +40,7 @@
     </label>
 
     <label class="field">
-      <span>Meta até (opcional)</span>
+      <span>Meta até <small class="opt">opcional</small></span>
       <input type="date" [(ngModel)]="dueDate" name="goalDueDate" />
     </label>
   </div>
@@ -66,7 +66,11 @@
       <div class="row-body">
         <p class="row-title">{{ goal.title }}</p>
         <small class="row-sub">
-          {{ goal.saveAmount | currency: 'BRL' }} por {{ goal.saveFrequency === 'mensal' ? 'mês' : 'semana' }}
+          @if (goal.saveAmount > 0) {
+            {{ goal.saveAmount | currency: 'BRL' }} por {{ goal.saveFrequency === 'mensal' ? 'mês' : 'semana' }}
+          } @else {
+            Sem valor fixo — guarde quando puder
+          }
         </small>
       </div>
 

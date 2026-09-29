@@ -15,6 +15,7 @@ const CATEGORY_RULES = [
   [/roupa|tenis|calca|camisa|sapato/, 'roupas'],
   [/curso|livro|faculdade|escola/, 'educação'],
   [/cinema|show|\bbar\b|balada|jogo|viagem/, 'lazer'],
+  [/salario|freela|renda|bonus|decimo terceiro|reembolso/, 'renda'],
 ];
 
 const NUMBER_WORDS = {

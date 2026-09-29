@@ -10,13 +10,13 @@
 
   <div class="sim-form">
     <label class="field field-wide">
-      <span>O que você quer comprar</span>
+      <span>O que você quer comprar <small class="opt">opcional</small></span>
       <input type="text" placeholder="Ex.: notebook, curso, viagem" [ngModel]="description()" (ngModelChange)="description.set($event)" />
     </label>
 
     <div class="field">
       <span class="field-head">
-        {{ purchaseMode() === 'recorrente' ? 'Valor por mês' : 'Valor' }}
+        <span>{{ purchaseMode() === 'recorrente' ? 'Valor por mês' : 'Valor' }} <b class="req" aria-hidden="true">*</b></span>
         @if (purchaseMode() === 'parcelado') {
           <app-amount-mode-switch [mode]="amountMode()" (modeChange)="setAmountMode($event)" />
         }

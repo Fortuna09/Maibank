@@ -64,12 +64,12 @@
     }
 
     <label class="field">
-      <span class="field-head">Título <small>{{ title.length }}/{{ titleMax }}</small></span>
+      <span class="field-head"><span>Título <b class="req" aria-hidden="true">*</b></span> <small>{{ title.length }}/{{ titleMax }}</small></span>
       <input type="text" placeholder="Ex.: Novidade no app" [maxlength]="titleMax" [(ngModel)]="title" (ngModelChange)="error.set(null)" name="adminTitle" />
     </label>
 
     <label class="field">
-      <span class="field-head">Mensagem <small>{{ body.length }}/{{ bodyMax }}</small></span>
+      <span class="field-head"><span>Mensagem <b class="req" aria-hidden="true">*</b></span> <small>{{ body.length }}/{{ bodyMax }}</small></span>
       <textarea rows="5" placeholder="Escreva aqui o que a pessoa vai ler." [maxlength]="bodyMax" [(ngModel)]="body" (ngModelChange)="error.set(null)" name="adminBody"></textarea>
     </label>
 

@@ -22,19 +22,19 @@
       </div>
 
       <label class="field">
-        <span>Descrição</span>
-        <input type="text" placeholder="Ex.: mercado, salário" [(ngModel)]="description" name="description" />
+        <span>Nome <b class="req" aria-hidden="true">*</b></span>
+        <input type="text" placeholder="Ex.: mercado, salário" [(ngModel)]="description" name="description" required />
       </label>
 
       <label class="field">
-        <span>Categoria</span>
-        <input type="text" placeholder="Ex.: alimentação" [(ngModel)]="category" name="category" />
+        <span>Categoria <small class="opt">opcional</small></span>
+        <input type="text" placeholder="Em branco, a gente escolhe pelo nome" [(ngModel)]="category" name="category" />
       </label>
 
       <div class="field-pair">
         <div class="field">
           <span class="field-head">
-            Valor
+            <span>Valor <b class="req" aria-hidden="true">*</b></span>
             <app-amount-mode-switch *ngIf="type === 'credito'" [mode]="amountMode" (modeChange)="setAmountMode($event)" />
           </span>
           <input
@@ -54,8 +54,8 @@
         </div>
 
         <label class="field">
-          <span>Data</span>
-          <input type="date" [(ngModel)]="date" (ngModelChange)="touch()" name="date" />
+          <span>Data <b class="req" aria-hidden="true">*</b></span>
+          <input type="date" [(ngModel)]="date" (ngModelChange)="touch()" name="date" required />
         </label>
       </div>
 

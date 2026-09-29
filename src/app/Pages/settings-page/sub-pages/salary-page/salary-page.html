@@ -20,7 +20,7 @@
 
     <div class="salary-fields" *ngIf="draft.isEnabled">
       <label class="field">
-        <span>Valor do salário</span>
+        <span>Valor do salário <b class="req" aria-hidden="true">*</b></span>
         <input type="number" min="0" step="0.01" placeholder="0,00" [(ngModel)]="draft.amount" name="amount" />
       </label>
 
@@ -30,8 +30,8 @@
       </label>
 
       <label class="field field-wide">
-        <span>Descrição do lançamento</span>
-        <input type="text" placeholder="Ex.: Salário" [(ngModel)]="draft.description" name="description" />
+        <span>Nome do lançamento <small class="opt">opcional</small></span>
+        <input type="text" placeholder="Salário automático" [(ngModel)]="draft.description" name="description" />
       </label>
     </div>
 
