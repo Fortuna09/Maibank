@@ -1,0 +1,9 @@
+{
+  "titulo": "Maibank - App de Finanças Pessoais",
+  "objetivo": "App full-stack (PWA) de finanças pessoais em que cada entrada é dividida automaticamente entre destinos — uso diário, reserva, planos — com controle de cartão e faturas parceladas, metas de economia, simulações de compra e lançamento de gastos por voz pela Siri no iPhone.",
+  "desafio": "Garantir isolamento total dos dados entre contas e uma autenticação segura (JWT em cookie httpOnly, confirmação de e-mail, invalidação de sessões por versão) rodando como função serverless, além de transformar frases faladas em lançamentos sem deixar o saldo negativo sob requisições simultâneas.",
+  "tecnologia": "Angular, TypeScript, Node.js, Express, PostgreSQL, PWA, Vercel, Neon",
+  "imagem": "/portfolio-preview.jpg",
+  "linkDemo": "https://maibank.vercel.app",
+  "tags": ["Angular", "TypeScript", "Node.js", "PostgreSQL", "Full-stack"]
+}
