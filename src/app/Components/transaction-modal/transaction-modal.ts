@@ -5,6 +5,7 @@ import { AmountModeSwitch } from '../amount-mode-switch/amount-mode-switch';
 import { Icon } from '../icon/icon';
 import { ToggleSwitch } from '../toggle-switch/toggle-switch';
 import { AllocationBucketId, AllocationMode, FinanceStoreService, TransactionType } from '../../Services/finance-store.service';
+import { apiErrorMessage } from '../../Services/auth.service';
 import { FeedbackService } from '../../Services/feedback.service';
 import { TransactionModalService } from '../../Services/transaction-modal.service';
 import { closingDateFor, dueDateFor, invoiceLabel, monthKey, parseLocalDate } from '../../Utils/credit.utils';
@@ -13,6 +14,8 @@ import { AmountMode, installmentFromTotal, todayLocalIso, totalFromInstallment }
 function today(): string {
   return todayLocalIso();
 }
+
+const brl = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
 
 @Component({
   selector: 'app-transaction-modal',
@@ -107,6 +110,45 @@ export class TransactionModal {
     this.formVersion.update((value) => value + 1);
   }
 
+  /**
+   * Saída de uma divisão: quanto ela tem agora e se dá para o gasto. O servidor também recusa
+   * saída sem saldo; aqui a pessoa vê antes de tentar.
+   */
+  balanceCheck(): { label: string; available: number; enough: boolean } | null {
+    if (this.type !== 'saida' || this.allocationMode !== 'especifico') {
+      return null;
+    }
+    const available = this.financeStore.bucketBalances()[this.selectedBucketId] ?? 0;
+    return {
+      label: this.financeStore.getBucketLabel(this.selectedBucketId),
+      available,
+      enough: this.total() <= available + 0.005,
+    };
+  }
+
+  /** Mensagem de saldo insuficiente (uma divisão ou distribuído entre todas), ou null. */
+  private insufficientBalance(): string | null {
+    if (this.type !== 'saida') {
+      return null;
+    }
+    const total = this.total();
+    const balances = this.financeStore.bucketBalances();
+
+    if (this.allocationMode === 'especifico') {
+      const check = this.balanceCheck();
+      return check && !check.enough ? `Saldo insuficiente: ${check.label} tem ${brl.format(check.available)}.` : null;
+    }
+
+    for (const bucket of this.financeStore.settings().buckets) {
+      const share = (total * bucket.percentage) / 100;
+      const available = balances[bucket.id] ?? 0;
+      if (share > available + 0.005) {
+        return `Saldo insuficiente: ${bucket.label} tem ${brl.format(available)} e a parte que sairia de lá é ${brl.format(share)}.`;
+      }
+    }
+    return null;
+  }
+
   /** Crédito e pagamento de fatura não se repetem. */
   canRepeat(): boolean {
     return this.type !== 'credito' && !this.paidInvoice;
@@ -172,6 +214,12 @@ export class TransactionModal {
       return;
     }
 
+    const insufficient = this.insufficientBalance();
+    if (insufficient) {
+      this.saveError.set(`${insufficient} Escolha outra divisão ou lance no crédito.`);
+      return;
+    }
+
     this.saving.set(true);
     this.saveError.set(null);
 
@@ -193,8 +241,8 @@ export class TransactionModal {
         { success: this.canRepeat() && this.recurring ? 'Lançamento recorrente criado' : this.successMessage }
       )
       .then(() => this.close())
-      .catch(() => {
-        this.saveError.set('Não foi possível salvar o lançamento. Verifique se o servidor está rodando e tente novamente.');
+      .catch((error) => {
+        this.saveError.set(apiErrorMessage(error, 'Não foi possível salvar o lançamento. Tente de novo.'));
       })
       .finally(() => this.saving.set(false));
   }

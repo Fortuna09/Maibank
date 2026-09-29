@@ -77,6 +77,14 @@
           </label>
         </div>
 
+        <p class="balance-line" *ngIf="balanceCheck() as check" [class.is-short]="!check.enough">
+          <app-icon [name]="check.enough ? 'wallet' : 'alert'" [size]="13" />
+          <span *ngIf="check.enough">{{ check.label }}: {{ check.available | currency: 'BRL' }} disponível</span>
+          <span *ngIf="!check.enough">
+            {{ check.label }} tem só {{ check.available | currency: 'BRL' }} — escolha outra divisão ou lance no crédito.
+          </span>
+        </p>
+
         <p class="hint" *ngIf="paidInvoice">
           <app-icon name="card" [size]="13" />
           Marca a fatura de <strong>{{ paidInvoice }}</strong> como paga.

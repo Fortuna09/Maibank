@@ -139,25 +139,34 @@ uma vez só; o administrador acompanha quem leu em "Enviadas".
 
 ## Gastos pela Siri (app Atalhos)
 
-Cada pessoa gera uma chave pessoal em **Configurações > Siri e atalhos** (tabela
+Cada pessoa gera uma chave pessoal em **Configurações > Siri no iPhone** (tabela
 `shortcut_keys`, migration 004 — só o hash é guardado; gerar outra derruba a anterior).
-O atalho "Mai" do iPhone dita a frase e chama:
+O atalho "Lançamento de gastos" pergunta "Qual foi o gasto?" e chama:
 
 ```
 POST /api/atalho/gasto
 Authorization: Bearer mb_…
-{ "texto": "2 reais de bala" }
-→ 201 { "ok": true, "mensagem": "Anotado: R$ 2,00 em Bala. Sobram … no Uso diário." }
+{ "texto": "Gastei seis reais e noventa e cinco centavos em bala" }
+→ 201 { "ok": true, "mensagem": "Anotado: R$ 6,95 em Bala. Sobram … no Uso diário." }
 ```
 
-Opcionalmente o atalho manda `valor` à parte (pergunta do tipo Número — a Siri arredonda
-centavos falados) e `texto` só com a descrição. O nome recomendado do atalho é "Anotar gasto"
-("Mai" a Siri confunde com "mãe").
+O jeito de falar ensinado na tela é "Gastei X **reais** e Y **centavos** em …": sem as
+palavras, a Siri junta os números. O endpoint também aceita `valor` à parte (pergunta do
+tipo Número) e `texto` só com a descrição. Não usar "Mai" como nome — a Siri entende "mãe".
 
 A frase é lida por `modules/shortcuts/expenseParser.js` (valor em número ou por extenso,
 "6 e 67" / "seis e sessenta e sete" = 6,67, descrição, categoria) e vira uma saída do Uso diário (ou da primeira divisão) com a data de
-hoje. Erros também vêm em `mensagem` (401 chave inválida, 400 sem valor), para a Siri falar.
+hoje. Erros também vêm em `mensagem` (401 chave inválida, 400 sem valor ou sem saldo), para a Siri falar.
 `POST /api/atalho/testar` (com login) mostra como uma frase seria lida, sem gravar.
+
+## Saldo não fica negativo
+
+Uma saída manual não pode deixar nenhuma divisão abaixo de zero: `TransactionsService.create`
+trava a linha do usuário (`SELECT … FOR UPDATE`, para dois gastos simultâneos não passarem
+juntos), soma o saldo de cada divisão afetada e recusa com 400 `INSUFFICIENT_BALANCE`.
+O modal mostra o saldo disponível e bloqueia antes de enviar; pela Siri a resposta termina
+em "Não anotei.". Entradas, crédito e as automações (salário, recorrentes) não passam por
+essa checagem.
 
 ## Desenvolvimento local
 

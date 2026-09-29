@@ -18,6 +18,21 @@ export interface Release {
  */
 export const CHANGELOG: Release[] = [
   {
+    version: '2.3.0',
+    date: '2026-09-28',
+    title: 'Saldo nunca fica negativo',
+    changes: [
+      {
+        kind: 'novo',
+        text: 'Um gasto não pode mais deixar uma divisão no negativo. Ao lançar uma saída, o app mostra quanto tem disponível e avisa antes se não der — aí é escolher outra divisão ou lançar no crédito. Pela Siri, ela avisa que o saldo não dá e não anota.',
+      },
+      {
+        kind: 'melhoria',
+        text: 'A tela da Siri virou "Siri no iPhone", mais simples: mostra uma conversa de exemplo, o jeito certo de falar ("Gastei seis reais e noventa e cinco centavos em bala") e o desenho do atalho igual ao app Atalhos.',
+      },
+    ],
+  },
+  {
     version: '2.2.3',
     date: '2026-09-28',
     title: 'Siri em duas perguntas',

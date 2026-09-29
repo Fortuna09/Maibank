@@ -75,11 +75,11 @@ export class ShortcutsService {
       expense = { amount: Math.round(amount * 100) / 100, description, category: inferCategory(description) };
     } else {
       if (!text) {
-        throw HttpError.badRequest('Não ouvi nada. Tente de novo dizendo o valor e com o quê.');
+        throw HttpError.badRequest('Não ouvi nada. Fale assim: gastei 6 reais e 95 centavos em bala.');
       }
       expense = parseExpense(text);
       if (!expense) {
-        throw HttpError.badRequest('Não entendi o valor. Diga, por exemplo: 6 vírgula 67 no mercado.');
+        throw HttpError.badRequest('Não entendi o valor. Fale assim: gastei 6 reais e 95 centavos em bala.');
       }
     }
 
@@ -90,15 +90,23 @@ export class ShortcutsService {
   async addExpense(userId, rawText, rawAmount = null) {
     const { amount, description, category, bucket } = await this.preview(userId, rawText, rawAmount);
 
-    await this.transactionsService.create(userId, {
-      description,
-      type: 'saida',
-      amount,
-      category,
-      date: todayIso(),
-      allocationMode: 'especifico',
-      allocations: [{ bucketId: bucket.id, amount: -amount }],
-    });
+    try {
+      await this.transactionsService.create(userId, {
+        description,
+        type: 'saida',
+        amount,
+        category,
+        date: todayIso(),
+        allocationMode: 'especifico',
+        allocations: [{ bucketId: bucket.id, amount: -amount }],
+      });
+    } catch (error) {
+      // Pela Siri a pessoa não vê a tela: deixa claro que nada foi lançado
+      if (error instanceof HttpError && error.code === 'INSUFFICIENT_BALANCE') {
+        throw HttpError.badRequest(`${error.message} Não anotei.`, error.code);
+      }
+      throw error;
+    }
 
     const balance = await this.repository.bucketBalance(userId, bucket.id);
     return {

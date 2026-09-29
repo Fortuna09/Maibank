@@ -206,3 +206,24 @@
     min-height: 46px;
   }
 }
+
+/* Saldo da divisão escolhida (saída): aviso antes de tentar salvar */
+.balance-line {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  margin: calc(-1 * var(--space-1)) 0 0;
+  color: var(--text-muted);
+  font-size: 0.76rem;
+  line-height: 1.45;
+}
+
+.balance-line app-icon {
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.balance-line.is-short {
+  color: var(--danger);
+  font-weight: 600;
+}

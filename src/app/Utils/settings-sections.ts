@@ -22,7 +22,7 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
   { path: 'salario', label: 'Salário', description: 'Valor e dia do salário automático', icon: 'arrow-in', group: 'dinheiro' },
   { path: 'credito', label: 'Crédito', description: 'Fechamento e vencimento da fatura', icon: 'card', group: 'dinheiro' },
   { path: 'assistente', label: 'Assistente', description: 'A Mai e a chave de IA', icon: 'mai', group: 'app' },
-  { path: 'siri', label: 'Siri e atalhos', description: 'Lançar gastos falando com a Siri', icon: 'mic', group: 'app' },
+  { path: 'siri', label: 'Siri no iPhone', description: 'Lance gastos só falando com a Siri', icon: 'mic', group: 'app' },
   { path: 'conta', label: 'Conta', description: 'Nome, e-mail e sair', icon: 'user', group: 'conta' },
   { path: 'ajuda', label: 'Ajuda', description: 'Tour guiado e perguntas frequentes', icon: 'help', group: 'conta' },
   { path: 'novidades', label: 'Novidades', description: 'O que mudou em cada versão', icon: 'bell', group: 'conta' },

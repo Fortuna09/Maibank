@@ -7,8 +7,8 @@ import { FeedbackService } from '../../../../Services/feedback.service';
 import { ShortcutExpensePreview, ShortcutKeyInfo, ShortcutLogEntry, SiriShortcutService } from '../../../../Services/siri-shortcut.service';
 
 /**
- * Siri e atalhos: a pessoa gera uma chave pessoal, monta o atalho "Mai" no app Atalhos do
- * iPhone e passa a lançar gastos falando, sem abrir o Maibank.
+ * Siri no iPhone: a pessoa gera uma chave pessoal, monta o atalho "Lançamento de gastos" no
+ * app Atalhos e passa a lançar gastos falando, sem abrir o Maibank.
  */
 @Component({
   selector: 'app-siri-page',
@@ -31,7 +31,7 @@ export class SiriPage implements OnInit {
   readonly history = signal<ShortcutLogEntry[] | null>(null);
   readonly loadingHistory = signal(false);
 
-  phrase = '6 e 67 de bala';
+  phrase = 'Gastei 6 reais e 95 centavos em bala';
   readonly testing = signal(false);
   readonly preview = signal<ShortcutExpensePreview | null>(null);
   readonly previewError = signal<string | null>(null);

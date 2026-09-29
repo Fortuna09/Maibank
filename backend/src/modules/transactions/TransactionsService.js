@@ -4,6 +4,8 @@ import { HttpError } from '../../http/HttpError.js';
 import { clampMonthDay, monthKeyOf } from '../../utils/monthDay.js';
 
 const TYPES = new Set(['entrada', 'saida', 'credito']);
+const brl = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
+const money = (value) => brl.format(value).replace(/\u00a0/g, ' ');
 const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 const INVOICE_PATTERN = /^\d{4}-\d{2}$/;
 
@@ -55,6 +57,10 @@ export class TransactionsService {
     };
 
     await withTransaction(async (client) => {
+      if (type === 'saida') {
+        await this.ensureBalance(client, userId, allocationList);
+      }
+
       if (recurringDay != null) {
         transaction.recurringId = await this.recurringRepository.insert(client, userId, {
           description: transaction.description,
@@ -75,6 +81,37 @@ export class TransactionsService {
     });
 
     return { id: transaction.id };
+  }
+
+  /**
+   * Saída não deixa divisão no negativo: o dinheiro que não está lá não pode sair de lá.
+   * (Salário e recorrentes automáticos não passam por aqui.)
+   */
+  async ensureBalance(client, userId, allocations) {
+    const spending = new Map();
+    for (const allocation of allocations) {
+      const amount = Number(allocation.amount);
+      if (amount < 0) {
+        const bucketId = String(allocation.bucketId);
+        spending.set(bucketId, (spending.get(bucketId) ?? 0) + amount);
+      }
+    }
+    if (!spending.size) {
+      return;
+    }
+
+    await this.repository.lockUser(client, userId);
+    const balances = await this.repository.bucketBalances(client, userId, [...spending.keys()]);
+    for (const [bucketId, delta] of spending) {
+      const bucket = balances.get(bucketId);
+      // Divisão que não existe: a chave estrangeira recusa logo em seguida
+      if (bucket && bucket.balance + delta < -0.005) {
+        throw HttpError.badRequest(
+          `Saldo insuficiente: ${bucket.label} tem ${money(bucket.balance)} e o gasto é de ${money(-delta)}.`,
+          'INSUFFICIENT_BALANCE'
+        );
+      }
+    }
   }
 
   async remove(userId, id) {

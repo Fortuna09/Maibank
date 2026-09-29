@@ -48,6 +48,24 @@ export class TransactionsRepository {
     }));
   }
 
+  /** Trava a conta até o fim da transação: dois gastos ao mesmo tempo não furam o saldo. */
+  async lockUser(client, userId) {
+    await client.query('SELECT id FROM users WHERE id = $1 FOR UPDATE', [userId]);
+  }
+
+  /** Nome e saldo atual (soma das alocações) de cada divisão pedida. */
+  async bucketBalances(client, userId, bucketIds) {
+    const { rows } = await client.query(
+      `SELECT b.id, b.label, COALESCE(SUM(a.amount), 0) AS balance
+         FROM allocation_buckets b
+         LEFT JOIN transaction_allocations a ON a.user_id = b.user_id AND a.bucket_id = b.id
+        WHERE b.user_id = $1 AND b.id = ANY($2::text[])
+        GROUP BY b.id, b.label`,
+      [userId, bucketIds]
+    );
+    return new Map(rows.map((row) => [row.id, { label: row.label, balance: Number(row.balance) }]));
+  }
+
   async insert(client, userId, transaction) {
     await client.query(
       `INSERT INTO transactions

@@ -3,6 +3,13 @@
   max-width: 680px;
 }
 
+.lead {
+  margin: 0 0 var(--space-4);
+  color: var(--text);
+  font-size: 0.95rem;
+  line-height: 1.55;
+}
+
 .intro {
   margin: 0 0 var(--space-3);
   color: var(--text-muted);
@@ -10,7 +17,8 @@
   line-height: 1.55;
 }
 
-.intro strong {
+.intro strong,
+.lead strong {
   color: var(--text);
   font-weight: 600;
 }
@@ -26,7 +34,89 @@ code {
   overflow-wrap: anywhere;
 }
 
-/* Chave recém-criada */
+/* ---------- Conversa de exemplo ---------- */
+
+.chat {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.bubble {
+  max-width: 82%;
+  margin: 0;
+  padding: 9px 13px;
+  border-radius: 16px;
+  font-size: 0.86rem;
+  line-height: 1.4;
+}
+
+.bubble.you {
+  justify-self: end;
+  border-bottom-right-radius: 4px;
+  background-image: var(--holo), var(--chrome);
+  color: var(--metal-ink);
+  box-shadow: inset 0 1px 0 var(--metal-light), 0 1px 3px var(--lift-shadow);
+}
+
+.bubble.siri {
+  justify-self: start;
+  border: 1px solid var(--border);
+  border-bottom-left-radius: 4px;
+  background: var(--bg-elevated);
+  color: var(--text);
+}
+
+/* ---------- Como falar ---------- */
+
+.script {
+  padding: var(--space-4);
+  border: 1px solid var(--border-strong);
+  border-left: 3px solid var(--metal-ink);
+  border-radius: var(--radius);
+  background: var(--metal-plate);
+  box-shadow: inset 0 1px 0 var(--metal-light);
+}
+
+.script-line {
+  margin: 0 0 var(--space-3);
+  color: var(--text);
+  font-size: 1.08rem;
+  line-height: 1.45;
+}
+
+.script-line strong {
+  font-weight: 800;
+}
+
+.script-rules {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.script-rules li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text);
+  font-size: 0.86rem;
+}
+
+.script-rules app-icon {
+  flex-shrink: 0;
+  color: var(--success);
+}
+
+.script-note {
+  margin: var(--space-3) 0 0;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+
+/* ---------- Chave ---------- */
 
 .new-key {
   display: grid;
@@ -85,54 +175,137 @@ code {
   font-size: 0.8rem;
 }
 
-/* Passo a passo */
+/* ---------- Desenho do atalho (como no app Atalhos) ---------- */
 
-.steps {
+.shortcut {
   display: grid;
-  gap: var(--space-3);
-  margin: 0;
-  padding-left: 1.3rem;
+  gap: 12px;
+  margin: 0 0 var(--space-4);
+  padding: 0;
+  list-style: none;
+}
+
+.action {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--bg-elevated);
+  box-shadow: 0 1px 3px var(--lift-shadow);
+}
+
+/* O fio que liga uma ação à próxima, como no Atalhos */
+.action:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: -13px;
+  width: 2px;
+  height: 12px;
+  background: var(--border-strong);
+}
+
+.action-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  border-radius: 7px;
+  color: #fff;
+}
+
+.action-icon.ask {
+  background: #32ade6;
+}
+
+.action-icon.url {
+  background: #34c759;
+}
+
+.action-icon.dict {
+  background: #ff9f0a;
+}
+
+.action-icon.speak {
+  background: #ff3b30;
+}
+
+.action-text {
+  flex: 1;
+  min-width: 0;
+  padding-top: 3px;
   color: var(--text);
-  font-size: 0.86rem;
-  line-height: 1.5;
+  font-size: 0.9rem;
+  font-weight: 600;
+  line-height: 1.7;
 }
 
-.steps li::marker {
-  color: var(--text-muted);
-  font-weight: 700;
+.token {
+  padding: 2px 7px;
+  border-radius: 7px;
+  background: rgba(10, 132, 255, 0.12);
+  color: #0a84ff;
+  font-weight: 600;
+  white-space: nowrap;
 }
 
-.fields {
-  display: grid;
-  grid-template-columns: 84px minmax(0, 1fr);
-  gap: 6px var(--space-3);
-  margin: var(--space-2) 0 0;
+.url-token {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.action-copy {
+  flex-shrink: 0;
+}
+
+/* O que fica dentro da ação do URL */
+
+.inside {
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.inside-title {
+  margin: 0 0 var(--space-2);
+  color: var(--text);
+  font-size: 0.84rem;
+  font-weight: 600;
+}
+
+.inside-table {
+  width: 100%;
+  border-collapse: collapse;
   font-size: 0.82rem;
 }
 
-.fields dt {
+.inside-table th,
+.inside-table td {
+  padding: 7px 0;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+  vertical-align: top;
+}
+
+.inside-table tr:last-child th,
+.inside-table tr:last-child td {
+  border-bottom: 0;
+}
+
+.inside-table th {
+  width: 92px;
+  padding-right: var(--space-3);
   color: var(--text-muted);
   font-weight: 600;
 }
 
-.fields dd {
-  margin: 0;
-  min-width: 0;
-}
-
-.fields small {
-  display: block;
-  margin-top: 2px;
-  color: var(--text-muted);
-  font-size: 0.74rem;
-}
-
-.step-note {
-  display: block;
-  margin-top: 3px;
-  color: var(--text-muted);
-  font-size: 0.76rem;
-  line-height: 1.45;
+.inside-table td {
+  color: var(--text);
 }
 
 .warning {
@@ -165,31 +338,12 @@ code {
 }
 
 .done app-icon {
+  flex-shrink: 0;
   margin-top: 2px;
   color: var(--user-tint);
 }
 
-.precise {
-  margin-top: var(--space-4);
-  border-top: 1px solid var(--border);
-}
-
-.precise summary {
-  padding: var(--space-3) 0;
-  color: var(--text);
-  font-size: 0.84rem;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.precise p {
-  margin: 0 0 var(--space-3);
-  color: var(--text-muted);
-  font-size: 0.82rem;
-  line-height: 1.5;
-}
-
-/* O que a Siri mandou */
+/* ---------- O que a Siri mandou ---------- */
 
 .heard-row .row-title {
   white-space: normal;
@@ -213,7 +367,7 @@ code {
   font-size: 0.72rem;
 }
 
-/* Teste */
+/* ---------- Teste ---------- */
 
 .test-row {
   display: flex;
@@ -235,16 +389,15 @@ code {
 }
 
 @media (max-width: 720px) {
-  .fields {
-    grid-template-columns: 1fr;
-    gap: 2px;
-  }
-
-  .fields dd {
-    margin-bottom: var(--space-2);
-  }
-
   .key-actions .btn {
     flex: 1;
+  }
+
+  .bubble {
+    max-width: 90%;
+  }
+
+  .inside-table th {
+    width: 78px;
   }
 }

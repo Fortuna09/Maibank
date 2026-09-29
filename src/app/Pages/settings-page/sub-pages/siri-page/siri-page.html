@@ -1,22 +1,43 @@
+<!-- Como funciona: uma conversa de exemplo vale mais que um parágrafo -->
+<section class="section">
+  <p class="lead">
+    Tem iPhone? Lance seus gastos só falando com a Siri — sem abrir o app. Por enquanto, vale para
+    <strong>gastos</strong> (saem do Uso diário).
+  </p>
+
+  <div class="chat" aria-label="Exemplo de conversa com a Siri">
+    <p class="bubble you">E aí Siri, <strong>Lançamento de gastos</strong></p>
+    <p class="bubble siri">Qual foi o gasto?</p>
+    <p class="bubble you">Gastei seis reais e noventa e cinco centavos com mercado</p>
+    <p class="bubble siri">Anotado: R$ 6,95 em mercado. Sobram R$ 2.408,70 no Uso diário.</p>
+  </div>
+</section>
+
+<!-- O jeito de falar é o que faz funcionar: fica em destaque -->
 <section class="section">
   <div class="section-head">
-    <h2>Lançar gasto pela Siri</h2>
-    <span class="tag">iPhone</span>
+    <h2>Como falar</h2>
   </div>
-  <p class="intro">
-    Diga <strong>“E aí Siri, Anotar gasto”</strong>. Ela pergunta <strong>quanto</strong> e depois <strong>com o quê</strong> —
-    o gasto entra na hora como saída do Uso diário, sem abrir o app, e ela responde quanto sobrou.
-  </p>
+
+  <div class="script">
+    <p class="script-line">“<strong>Gastei</strong> seis <strong>reais</strong> e noventa e cinco <strong>centavos</strong> em bala”</p>
+    <ul class="script-rules">
+      <li><app-icon name="check" [size]="14" /><span>Comece com <strong>“Gastei”</strong></span></li>
+      <li><app-icon name="check" [size]="14" /><span>Fale sempre <strong>“reais”</strong> e <strong>“centavos”</strong></span></li>
+      <li><app-icon name="check" [size]="14" /><span>Termine com <strong>em / no / com</strong> + o que foi</span></li>
+    </ul>
+    <p class="script-note">Sem “reais” e “centavos”, a Siri costuma juntar os números e o valor sai errado.</p>
+  </div>
 </section>
 
 <section class="section">
   <div class="section-head">
-    <h2>1. Sua chave</h2>
+    <h2>1. Gere sua chave</h2>
   </div>
 
   @if (newKey(); as key) {
     <div class="new-key">
-      <p class="new-key-label">Sua chave (copie agora — por segurança ela não aparece de novo):</p>
+      <p class="new-key-label">Sua chave — copie agora, ela não aparece de novo:</p>
       <div class="copy-row">
         <code>{{ key }}</code>
         <button type="button" class="btn small" (click)="copy(key, 'Chave')">
@@ -24,7 +45,7 @@
           <span>Copiar</span>
         </button>
       </div>
-      <p class="field-hint">Se perder, é só gerar outra aqui — a antiga para de funcionar na hora.</p>
+      <p class="field-hint">Perdeu? Gere outra aqui — a antiga para de funcionar na hora.</p>
     </div>
   }
 
@@ -33,9 +54,8 @@
       <div class="key-status">
         <span class="row-icon is-income"><app-icon name="check" [size]="15" /></span>
         <span class="row-body">
-          <span class="row-title">Atalho ativo · chave terminando em {{ info.hint }}</span>
+          <span class="row-title">Chave ativa, terminando em {{ info.hint }}</span>
           <small class="row-sub">
-            criada em {{ info.createdAt | date: "d 'de' MMM" }} ·
             {{ info.lastUsedAt ? 'último gasto pela Siri em ' + (info.lastUsedAt | date: "d 'de' MMM, HH:mm") : 'ainda não usada' }}
           </small>
         </span>
@@ -47,8 +67,8 @@
         </button>
         @if (confirmRevoke()) {
           <span class="confirm">
-            Desativar o atalho?
-            <button type="button" class="btn small danger" [disabled]="busy()" (click)="revoke()">Desativar</button>
+            Desativar?
+            <button type="button" class="btn small danger" [disabled]="busy()" (click)="revoke()">Sim</button>
             <button type="button" class="btn small ghost" (click)="confirmRevoke.set(false)">Não</button>
           </span>
         } @else {
@@ -56,7 +76,7 @@
         }
       </div>
     } @else {
-      <p class="intro">Você ainda não tem uma chave. Ela identifica você quando o atalho chama o Maibank.</p>
+      <p class="intro">A chave diz ao Maibank que o pedido é seu.</p>
       <button type="button" class="btn primary" [class.is-loading]="busy()" [disabled]="busy()" (click)="generate()">
         <app-icon name="mic" [size]="14" />
         <span>Gerar chave</span>
@@ -67,71 +87,72 @@
 
 <section class="section">
   <div class="section-head">
-    <h2>2. Monte o atalho no iPhone</h2>
+    <h2>2. Monte o atalho</h2>
   </div>
 
-  <ol class="steps">
-    <li>Abra o app <strong>Atalhos</strong> e toque em <strong>+</strong>.</li>
-    <li>
-      Toque no nome lá em cima e chame o atalho de <strong>Anotar gasto</strong> — é o que você vai falar para a Siri.
-      <small class="step-note">Evite nomes curtos que parecem outra palavra: “Mai”, por exemplo, a Siri entende como “mãe” e liga para ela.</small>
-    </li>
-    <li>
-      <strong>Pedir Entrada</strong>: tipo <strong>Número</strong>, pergunta <strong>“Quanto?”</strong>. Toque na setinha
-      <strong>›</strong> e ligue <strong>Permitir Decimais</strong>.
-      <small class="step-note">Como é um campo de número, a Siri não tem como perder a vírgula: fale “cinco vírgula oitenta”.</small>
-    </li>
-    <li><strong>Definir Variável</strong> com o nome <code>valor</code> (ela pega a resposta de cima sozinha).</li>
-    <li><strong>Pedir Entrada</strong>: tipo <strong>Texto</strong>, pergunta <strong>“Com o quê?”</strong>.</li>
-    <li><strong>Definir Variável</strong> com o nome <code>descricao</code>.</li>
-    <li>
-      <strong>Obter Conteúdo do URL</strong>, preenchido assim:
-      <dl class="fields">
-        <dt>URL</dt>
-        <dd class="copy-row">
-          <code>{{ endpoint }}</code>
-          <button type="button" class="btn small icon-btn" (click)="copy(endpoint, 'Endereço')" aria-label="Copiar endereço">
-            <app-icon name="copy" [size]="14" />
-          </button>
-        </dd>
-        <dt>Método</dt>
-        <dd><code>POST</code> (toque na setinha <strong>›</strong> para ver)</dd>
-        <dt>Cabeçalho</dt>
-        <dd>
-          <code>Authorization</code> com o valor <code>Bearer </code> + a sua chave
-          <small>(a palavra Bearer, um espaço e a chave, tudo junto)</small>
-        </dd>
-        <dt>Corpo</dt>
-        <dd>
-          <strong>JSON</strong> com dois campos: <code>valor</code> = variável <strong>valor</strong> e
-          <code>texto</code> = variável <strong>descricao</strong>
-          <small>(as duas precisam aparecer azuis; vermelho quer dizer variável quebrada)</small>
-        </dd>
-      </dl>
-      <p class="warning">
-        <app-icon name="alert" [size]="14" />
-        <span>
-          O Atalhos costuma colocar sozinho uma variável no lugar do URL. Se "Obter conteúdo de" não mostrar o endereço,
-          toque ali, apague e cole o endereço acima.
-        </span>
-      </p>
-    </li>
-    <li><strong>Obter Valor do Dicionário</strong> com a chave <code>mensagem</code>.</li>
-    <li><strong>Falar Texto</strong> com o <strong>Valor do Dicionário</strong>.</li>
-  </ol>
-  <p class="done">
-    <app-icon name="mic" [size]="14" />
-    Pronto: “E aí Siri, Anotar gasto” → “Quanto?” “cinco vírgula oitenta” → “Com o quê?” “bala” → “Anotado: R$ 5,80 em Bala…”.
-    Rode uma vez pelo ▶ do app Atalhos antes de testar com a Siri.
+  <p class="intro">
+    No app <strong>Atalhos</strong>, toque em <strong>+</strong> e dê o nome de <strong>Lançamento de gastos</strong>
+    (é o que você fala para a Siri — evite “Mai”, ela entende “mãe”). Depois adicione estas 4 ações, nesta ordem:
   </p>
 
-  <details class="precise">
-    <summary>Prefere falar tudo de uma vez?</summary>
-    <p>
-      Dá para usar uma pergunta só (“Qual foi o gasto?”, tipo Texto) e mandar no corpo apenas <code>texto</code>. É mais rápido,
-      mas a Siri às vezes arredonda os centavos. Se usar assim, fale “vírgula”: “cinco vírgula oitenta de bala”.
+  <!-- Desenho das ações como aparecem no app Atalhos -->
+  <ol class="shortcut" aria-label="As 4 ações do atalho">
+    <li class="action">
+      <span class="action-icon ask"><app-icon name="help" [size]="15" /></span>
+      <span class="action-text">
+        Pedir <span class="token">Texto</span> com <span class="token">Qual foi o gasto?</span>
+      </span>
+    </li>
+    <li class="action">
+      <span class="action-icon url"><app-icon name="arrow-in" [size]="15" /></span>
+      <span class="action-text">
+        Obter conteúdo de <span class="token url-token">{{ endpoint }}</span>
+      </span>
+      <button type="button" class="btn small icon-btn action-copy" (click)="copy(endpoint, 'Endereço')" aria-label="Copiar endereço">
+        <app-icon name="copy" [size]="14" />
+      </button>
+    </li>
+    <li class="action">
+      <span class="action-icon dict"><app-icon name="list" [size]="15" /></span>
+      <span class="action-text">
+        Obter <span class="token">Valor</span> para <span class="token">mensagem</span> em <span class="token">Conteúdos do URL</span>
+      </span>
+    </li>
+    <li class="action">
+      <span class="action-icon speak"><app-icon name="mic" [size]="15" /></span>
+      <span class="action-text">Falar <span class="token">Valor do Dicionário</span></span>
+    </li>
+  </ol>
+
+  <!-- O que fica escondido dentro da ação do URL -->
+  <div class="inside">
+    <p class="inside-title">Dentro de “Obter conteúdo” (toque na setinha ›):</p>
+    <table class="inside-table">
+      <tbody>
+        <tr>
+          <th>Método</th>
+          <td><code>POST</code></td>
+        </tr>
+        <tr>
+          <th>Cabeçalho</th>
+          <td><code>Authorization</code> = <code>Bearer </code>+ sua chave</td>
+        </tr>
+        <tr>
+          <th>Corpo</th>
+          <td><strong>JSON</strong>, campo <code>texto</code> = <strong>Entrada Fornecida</strong></td>
+        </tr>
+      </tbody>
+    </table>
+    <p class="warning">
+      <app-icon name="alert" [size]="14" />
+      <span>O Atalhos às vezes coloca sozinho “Entrada Fornecida” no lugar do endereço. Se acontecer, apague e cole o endereço de novo.</span>
     </p>
-  </details>
+  </div>
+
+  <p class="done">
+    <app-icon name="mic" [size]="14" />
+    Toque no ▶ do Atalhos para testar uma vez. Depois é só: “E aí Siri, Lançamento de gastos”.
+  </p>
 </section>
 
 <section class="section">
@@ -142,7 +163,7 @@
       Atualizar
     </button>
   </div>
-  <p class="intro">Os últimos pedidos, com a frase exatamente como a Siri escreveu. Se um valor sair errado, veja aqui se ela entendeu mal.</p>
+  <p class="intro">Seus últimos pedidos, com a frase como a Siri escreveu. Se um valor sair errado, confira aqui.</p>
 
   @if (history(); as entries) {
     @if (entries.length) {
@@ -172,10 +193,10 @@
   <div class="section-head">
     <h2>Testar uma frase</h2>
   </div>
-  <p class="intro">Veja como o Maibank entende o que você falaria. Aqui nada é lançado.</p>
+  <p class="intro">Digite o que você falaria e veja como o Maibank entende. Aqui nada é lançado.</p>
 
   <form class="test-row" (ngSubmit)="test()">
-    <input class="input" type="text" name="phrase" [(ngModel)]="phrase" placeholder="Ex.: 6 e 67 de bala" maxlength="300" />
+    <input class="input" type="text" name="phrase" [(ngModel)]="phrase" placeholder="Gastei 6 reais e 95 centavos em bala" maxlength="300" />
     <button type="submit" class="btn" [class.is-loading]="testing()" [disabled]="testing()"><span>Testar</span></button>
   </form>
 
