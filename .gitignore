@@ -47,3 +47,6 @@ backend/node_modules
 
 # Backups do banco (dados financeiros pessoais)
 infra/backups/
+
+# Configuração local de ferramentas
+.claude/
