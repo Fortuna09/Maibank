@@ -5,5 +5,12 @@
   "tecnologia": "Angular, TypeScript, Node.js, Express, PostgreSQL, PWA, Vercel, Neon",
   "imagem": "/portfolio-preview.jpg",
   "linkDemo": "https://maibank.vercel.app",
-  "tags": ["Angular", "TypeScript", "Node.js", "PostgreSQL", "Full-stack"]
+  "tags": ["Angular", "TypeScript", "Node.js", "PostgreSQL", "Full-stack"],
+  "destaque": true,
+  "pontosFortes": [
+    "Em produção e em uso de verdade: cada pessoa tem sua conta, com os dados isolados em toda consulta",
+    "Gastos lançados por voz pela Siri no iPhone, a partir de frases como \"gastei seis reais e noventa e cinco centavos em bala\"",
+    "Sessão em cookie httpOnly com confirmação de e-mail e opção de sair de todos os dispositivos",
+    "Saldo nunca fica negativo, nem com dois lançamentos chegando ao mesmo tempo"
+  ]
 }
